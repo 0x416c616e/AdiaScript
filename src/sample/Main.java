@@ -63,7 +63,7 @@ public class Main extends Application {
         Label repeatLabel = new Label("Number of times to repeat:");
         TextField numTimes = new TextField();
         numTimes.setText("1");
-        numTimes.setMaxWidth(30);
+        numTimes.setMaxWidth(40);
         //vbox is called mybox
         //need to add a status label that the multi button changes
         Label loadingLabel = new Label("OK");
@@ -134,7 +134,7 @@ public class Main extends Application {
         Label repeatLabel2 = new Label("Number of times to repeat:");
         TextField numTimes2 = new TextField();
         numTimes2.setText("1");
-        numTimes2.setMaxWidth(30);
+        numTimes2.setMaxWidth(40);
 
         Button button = new Button("Run2");
         button.setOnAction( e -> {
