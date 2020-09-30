@@ -147,7 +147,7 @@ public class Main extends Application {
                 scene.setCursor(Cursor.WAIT);
                 int timesToRepeat = Integer.parseInt(numTimes2.getText());
                 for (int i = 0; i < timesToRepeat; i++) {
-                    click(906, 539);
+                    click(901, 557);
                 }
 
             } catch (AWTException a) {
