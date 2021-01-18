@@ -56,36 +56,47 @@ public class Main extends Application {
         Button testButton = new Button("Get coords");
         Label coordsLabel = new Label("(x, y)");
         testButton.setOnAction( e-> {
-            coordsLabel.setText(MouseInfo.getPointerInfo().getLocation().toString());
+            //MouseInfo.getPointerInfo().getLocation().getX()
+            //coordsLabel.setText(MouseInfo.getPointerInfo().getLocation().toString());
+            coordsLabel.setText((int)MouseInfo.getPointerInfo().getLocation().getX() + ", " + (int)MouseInfo.getPointerInfo().getLocation().getY());
         });
-        Label warpTransform1Label = new Label("Macro 1:");
-        Button warpMutliButton = new Button("Run1");
+
+        TextArea textArea = new TextArea();
+
+        Label warpTransform1Label = new Label("Macro:");
+        Button WarpMultiButton = new Button("Run Macro");
         Label repeatLabel = new Label("Number of times to repeat:");
         TextField numTimes = new TextField();
         numTimes.setText("1");
-        numTimes.setMaxWidth(40);
+        numTimes.setMaxWidth(100);
         //vbox is called mybox
         //need to add a status label that the multi button changes
-        Label loadingLabel = new Label("OK");
+        Label loadingLabel = new Label("Status: OK");
+
+        MenuItem fileItem1 = new MenuItem("Open");
+        MenuItem fileItem2 = new MenuItem("Save");
+
+        Menu fileMenu = new Menu("File", null, fileItem1, fileItem2);
 
         MenuItem optionsItem1 = new MenuItem("Always on top");
         MenuItem optionsItem2 = new MenuItem("Reset");
         MenuItem optionsItem3 = new Menu("Quit");
+
         Menu optionsMenu = new Menu("Options", null, optionsItem1, optionsItem2, optionsItem3);
         MenuItem helpItem1 = new MenuItem("About");
         MenuItem helpItem2 = new Menu("Website");
         MenuItem helpItem3 = new Menu("Git repo");
         MenuItem helpItem4 = new Menu("How to extend");
         Menu helpMenu = new Menu("Help", null, helpItem1, helpItem2, helpItem3, helpItem4);
-        MenuBar menuBar = new MenuBar(optionsMenu, helpMenu);
-        Label info = new Label("To change the functionality of this program, change the lambda expressions for 'warpMutliButton' and 'button'");
+        MenuBar menuBar = new MenuBar(fileMenu, optionsMenu, helpMenu);
+        Label info = new Label("To change the functionality of this program, change the lambda expressions for 'WarpMultiButton' and 'button'");
         info.setWrapText(true);
         Label info2 = new Label("And use the 'get coords' button to get the current mouse x,y");
         info2.setWrapText(true);
 
 
         mybox.getChildren().addAll(menuBar, loadingLabel);
-        warpMutliButton.setOnAction( e -> {
+        WarpMultiButton.setOnAction( e -> {
             try {
                 Platform.runLater(new Runnable() {
                     @Override public void run() {
@@ -94,25 +105,34 @@ public class Main extends Application {
                 });
                 scene.setCursor(Cursor.WAIT);
                 int timesToRepeat = Integer.parseInt(numTimes.getText());
+
+
                 for (int i = 0; i < timesToRepeat; i++) {
-                    clickAndDrag(671, 330, 671, 770);
-                    clickAndDrag(841,765, 841, 324);
-                    clickAndDrag(1053,329, 1053, 750);
-                    clickAndDrag(1214,763, 1214, 334);
+                    //this is where the macro stuff happens
+                    click(1110, 345);
+                    //wait
+                    Thread.sleep(2000);
+
+
+
+
                 }
 
                 scene.setCursor(Cursor.DEFAULT);
             } catch (AWTException a) {
                 a.printStackTrace();
+            } catch (InterruptedException asdf) {
+                asdf.printStackTrace();
+                System.out.println("asdasdasd");
             }
             Platform.runLater(new Runnable() {
                 @Override public void run() {
-                    loadingLabel.setText("OK");
+                    loadingLabel.setText("Status: OK");
                 }
             });
         });
         Label divider2 = new Label("-----------------------------------------------------------");
-        mybox.getChildren().addAll(testButton, coordsLabel, divider2, warpTransform1Label, warpMutliButton);
+        mybox.getChildren().addAll(testButton, coordsLabel, divider2, warpTransform1Label, textArea, WarpMultiButton);
         mybox.getChildren().addAll(repeatLabel);
         //need to add numTimes, minusButton, and plusButton to an HBox
         HBox nestedBox = new HBox();
@@ -129,56 +149,9 @@ public class Main extends Application {
         nestedBox.getChildren().addAll(minusButton, numTimes, plusButton);
         mybox.getChildren().add(nestedBox);
         //clicking in center
-        Label divider = new Label("-----------------------------------------------------------");
-        Label warp2Label = new Label("Macro 2: ");
-        Label repeatLabel2 = new Label("Number of times to repeat:");
-        TextField numTimes2 = new TextField();
-        numTimes2.setText("1");
-        numTimes2.setMaxWidth(40);
-
-        Button button = new Button("Run2");
-        button.setOnAction( e -> {
-            try {
-                Platform.runLater(new Runnable() {
-                    @Override public void run() {
-                        loadingLabel.setText("LOADING!!!!!!!!!!!!!!!!!");
-                    }
-                });
-                scene.setCursor(Cursor.WAIT);
-                int timesToRepeat = Integer.parseInt(numTimes2.getText());
-                for (int i = 0; i < timesToRepeat; i++) {
-                    click(901, 557);
-                }
-
-            } catch (AWTException a) {
-                a.printStackTrace();
-            }
-            scene.setCursor(Cursor.DEFAULT);
-            Platform.runLater(new Runnable() {
-                @Override public void run() {
-                    loadingLabel.setText("OK");
-                }
-            });
-        });
-
-
-        mybox.getChildren().addAll(divider, warp2Label, button, repeatLabel2);
-        HBox h2 = new HBox();
-        Button minusButton2 = new Button("-");
-        Button plusButton2 = new Button("+");
-        minusButton2.setOnAction( e -> {
-            int newValue = Integer.parseInt(numTimes2.getText()) - 1;
-            numTimes2.setText(Integer.toString(newValue));
-        });
-        plusButton2.setOnAction( e -> {
-            int newValue = Integer.parseInt(numTimes2.getText()) + 1;
-            numTimes2.setText(Integer.toString(newValue));
-        });
-        h2.getChildren().addAll(minusButton2, numTimes2, plusButton2);
-        mybox.getChildren().add(h2);
         primaryStage.setScene(scene);
         primaryStage.setAlwaysOnTop(true);
-        primaryStage.setResizable(false);
+        //primaryStage.setResizable(false);
         primaryStage.getIcons().add(new Image("file:icon.png"));
         mybox.requestFocus();
         scene.getStylesheets().add("css/style.css");
