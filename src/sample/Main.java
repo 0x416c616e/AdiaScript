@@ -70,71 +70,18 @@ public class Main extends Application {
                     try {Thread.sleep(duration);} catch (InterruptedException ex) { ex.printStackTrace();}
                     //all these "else if" things do is break the duration into 1 second chunks, and then checks
                     //every single second to see if it should quit the thread due to the user wanting to halt the program
-                } else if (duration <= 10000) {
-                    //longer duration
-                    final int smallerDuration = duration / 10;
-                    for (int i = 0; i < duration; i += smallerDuration) {
-                        if (scriptHalter.isUserWantsToHaltScript()) {
-                            Thread.currentThread().interrupt();
-                            return;
-                        }
-                        try {Thread.sleep(smallerDuration);} catch (InterruptedException ex) { ex.printStackTrace();}
-                    }
-                } else if (duration <= 100000) {
-                    final int smallerDuration = duration / 100;
-                    for (int i = 0; i < duration; i += smallerDuration) {
-                        if (scriptHalter.isUserWantsToHaltScript()) {
-                            Thread.currentThread().interrupt();
-                            return;
-                        }
-                        try {Thread.sleep(smallerDuration);} catch (InterruptedException ex) { ex.printStackTrace();}
-                    }
-                } else if (duration <= 1000000) {
-                    final int smallerDuration = duration / 1000;
-                    for (int i = 0; i < duration; i += smallerDuration) {
-                        if (scriptHalter.isUserWantsToHaltScript()) {
-                            Thread.currentThread().interrupt();
-                            return;
-                        }
-                        try {Thread.sleep(smallerDuration);} catch (InterruptedException ex) { ex.printStackTrace();}
-                    }
-                } else if (duration <= 10000000) {
-                    final int smallerDuration = duration / 10000;
-                    for (int i = 0; i < duration; i += smallerDuration) {
-                        if (scriptHalter.isUserWantsToHaltScript()) {
-                            Thread.currentThread().interrupt();
-                            return;
-                        }
-                        try {Thread.sleep(smallerDuration);} catch (InterruptedException ex) { ex.printStackTrace();}
-                    }
-                } else if (duration <= 100000000) {
-                    final int smallerDuration = duration / 100000;
-                    for (int i = 0; i < duration; i += smallerDuration) {
-                        if (scriptHalter.isUserWantsToHaltScript()) {
-                            Thread.currentThread().interrupt();
-                            return;
-                        }
-                        try {Thread.sleep(smallerDuration);} catch (InterruptedException ex) { ex.printStackTrace();}
-                    }
-                } else if (duration <= 1000000000) {
-                    final int smallerDuration = duration / 1000000;
-                    for (int i = 0; i < duration; i += smallerDuration) {
-                        if (scriptHalter.isUserWantsToHaltScript()) {
-                            Thread.currentThread().interrupt();
-                            return;
-                        }
-                        try {Thread.sleep(smallerDuration);} catch (InterruptedException ex) { ex.printStackTrace();}
-                    }
                 } else {
-                    //probably should have just done this earlier but oh well
-                    //I don't feel like refactoring
-                    for (int i = 0; i < duration; i += 1000) {
-                        if (scriptHalter.isUserWantsToHaltScript()) {
-                            Thread.currentThread().interrupt();
-                            return;
+
+                    for (int i = 0; i < offsetMultiplier; i++) {
+                        for (int j = 0; j < totalLoopTime; j += 1000) {
+                            if (scriptHalter.isUserWantsToHaltScript()) {
+                                Thread.currentThread().interrupt();
+                                return;
+                            }
+                            try {Thread.sleep(1000);} catch (InterruptedException ex) { ex.printStackTrace();}
                         }
-                        try {Thread.sleep(1000);} catch (InterruptedException ex) { ex.printStackTrace();}
                     }
+
                 }
                 if (scriptHalter.isUserWantsToHaltScript()) {
                     System.out.println("user wants to halt the script");
@@ -638,7 +585,7 @@ public class Main extends Application {
                                                 x = Integer.parseInt(scriptLine[1]);
                                                 y = Integer.parseInt(scriptLine[2]);
                                                 waitDuration = Integer.parseInt(scriptLine[3]);
-                                                scheduleEvent(x, y, waitDuration, bot, scriptHalter, "click", i, 82); //i is the loop #
+                                                scheduleEvent(x, y, waitDuration, bot, scriptHalter, "click", i, 820); //i is the loop #
                                             } catch (NumberFormatException numException) {
                                                 loadingLabel.setText("Macro error on line " + lineNumber + ": scheduleclick args must be ints");
                                                 scriptingError = true;
@@ -887,8 +834,8 @@ public class Main extends Application {
             scriptHalter.setUserWantsToHaltScript(false);
         });
         BorderPane bottomBorderPane = new BorderPane();
-        //bottomBorderPane.setLeft(haltScriptButton);
-        bottomBorderPane.setCenter(resetHaltScriptButton);
+        bottomBorderPane.setLeft(haltScriptButton);
+        //bottomBorderPane.setCenter(resetHaltScriptButton);
 
         Button haltInfoButton = new Button("Important info about halting");
 
