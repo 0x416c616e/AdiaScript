@@ -47,26 +47,132 @@ public class Main extends Application {
         bot.mouseMove(x, y);
     }
 
-    public static void scheduleClick(int x, int y, int duration, Robot bot, ScriptHalter scriptHalter) throws AWTException {
+    public static void scheduleEvent(int x, int y, int duration, Robot bot, ScriptHalter scriptHalter, String eventType, int offsetMultiplier, int totalLoopTime) throws AWTException {
+
         new Thread(()->{ //use another thread so long process does not block gui
             //update gui using fx thread
-            try {Thread.sleep(duration);} catch (InterruptedException ex) { ex.printStackTrace();}
             if (scriptHalter.isUserWantsToHaltScript()) {
-                System.out.println("user wants to halt the script");
+                System.out.println("thread is returning");
+                Thread.currentThread().interrupt();
+                return; //ends the thread
+                //this needs to be checked before and after the wait duration
+
             } else {
-                System.out.println("user wants to continue the script");
-                Platform.runLater(() -> {
-                    try {
-                        click(x, y, bot);
-                    } catch (AWTException e) {
-                        e.printStackTrace();
+                //I know this is bad but oh well lol
+                //at least it works (for smaller durations, at least)
+                if (duration <= 1000) {
+                    System.out.println("not a very long duration so it doesn't really matter");
+                    for (int i = 0; i < offsetMultiplier; i++) {
+                        for (int j = 0; j < totalLoopTime; j += 1000) {
+                            try {Thread.sleep(1000);} catch (InterruptedException ex) { ex.printStackTrace();}
+                        }
                     }
-                });
+                    try {Thread.sleep(duration);} catch (InterruptedException ex) { ex.printStackTrace();}
+                    //all these "else if" things do is break the duration into 1 second chunks, and then checks
+                    //every single second to see if it should quit the thread due to the user wanting to halt the program
+                } else if (duration <= 10000) {
+                    //longer duration
+                    final int smallerDuration = duration / 10;
+                    for (int i = 0; i < duration; i += smallerDuration) {
+                        if (scriptHalter.isUserWantsToHaltScript()) {
+                            Thread.currentThread().interrupt();
+                            return;
+                        }
+                        try {Thread.sleep(smallerDuration);} catch (InterruptedException ex) { ex.printStackTrace();}
+                    }
+                } else if (duration <= 100000) {
+                    final int smallerDuration = duration / 100;
+                    for (int i = 0; i < duration; i += smallerDuration) {
+                        if (scriptHalter.isUserWantsToHaltScript()) {
+                            Thread.currentThread().interrupt();
+                            return;
+                        }
+                        try {Thread.sleep(smallerDuration);} catch (InterruptedException ex) { ex.printStackTrace();}
+                    }
+                } else if (duration <= 1000000) {
+                    final int smallerDuration = duration / 1000;
+                    for (int i = 0; i < duration; i += smallerDuration) {
+                        if (scriptHalter.isUserWantsToHaltScript()) {
+                            Thread.currentThread().interrupt();
+                            return;
+                        }
+                        try {Thread.sleep(smallerDuration);} catch (InterruptedException ex) { ex.printStackTrace();}
+                    }
+                } else if (duration <= 10000000) {
+                    final int smallerDuration = duration / 10000;
+                    for (int i = 0; i < duration; i += smallerDuration) {
+                        if (scriptHalter.isUserWantsToHaltScript()) {
+                            Thread.currentThread().interrupt();
+                            return;
+                        }
+                        try {Thread.sleep(smallerDuration);} catch (InterruptedException ex) { ex.printStackTrace();}
+                    }
+                } else if (duration <= 100000000) {
+                    final int smallerDuration = duration / 100000;
+                    for (int i = 0; i < duration; i += smallerDuration) {
+                        if (scriptHalter.isUserWantsToHaltScript()) {
+                            Thread.currentThread().interrupt();
+                            return;
+                        }
+                        try {Thread.sleep(smallerDuration);} catch (InterruptedException ex) { ex.printStackTrace();}
+                    }
+                } else if (duration <= 1000000000) {
+                    final int smallerDuration = duration / 1000000;
+                    for (int i = 0; i < duration; i += smallerDuration) {
+                        if (scriptHalter.isUserWantsToHaltScript()) {
+                            Thread.currentThread().interrupt();
+                            return;
+                        }
+                        try {Thread.sleep(smallerDuration);} catch (InterruptedException ex) { ex.printStackTrace();}
+                    }
+                } else {
+                    //probably should have just done this earlier but oh well
+                    //I don't feel like refactoring
+                    for (int i = 0; i < duration; i += 1000) {
+                        if (scriptHalter.isUserWantsToHaltScript()) {
+                            Thread.currentThread().interrupt();
+                            return;
+                        }
+                        try {Thread.sleep(1000);} catch (InterruptedException ex) { ex.printStackTrace();}
+                    }
+                }
+                if (scriptHalter.isUserWantsToHaltScript()) {
+                    System.out.println("user wants to halt the script");
+                    Thread.currentThread().interrupt();
+                    return; //end the thread
+
+                } else {
+                    System.out.println("user wants to continue the script");
+                    Platform.runLater(() -> {
+                        try {
+                            switch (eventType) {
+                                case "click":
+                                    click(x, y, bot);
+                                    break;
+                                case "move":
+                                    move(x, y, bot);
+                                //not fully implemented
+                                //to-do
+                                default:
+                                    System.out.println("error with eventType in scheduleEvent");
+                                    break;
+                            }
+
+                        } catch (AWTException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
             }
 
 
         }).start();
-        
+
+    }
+
+    public void scheduleMultiple (int x, int y, int duration, Robot bot, ScriptHalter scriptHalter) throws AWTException {
+        //if there's more than one schedule event, use this instead of scheduleclick
+        //
     }
 
     public static void clickAndDrag(int x_start, int y_start, int x_end, int y_end, Robot bot) throws AWTException {
@@ -85,7 +191,7 @@ public class Main extends Application {
         primaryStage.setTitle("AutoInput");
         primaryStage.setWidth(360);
         primaryStage.setMinWidth(360);
-        primaryStage.setHeight(360);
+        primaryStage.setHeight(400);
         primaryStage.setMinHeight(360);
         BorderPane mainPane = new BorderPane();
         VBox topMostContainerVBox = new VBox();
@@ -481,8 +587,8 @@ public class Main extends Application {
                         for (int j = 0; j < numberOfLines; j++) {
                             //if there is an error or the user presses the button to halt the script, then stop the script
                             if (scriptingError || scriptHalter.isUserWantsToHaltScript()) {
-                                System.out.println("script halted");
-                                scriptHalter.setUserWantsToHaltScript(false);
+                                System.out.println("script has been halted");
+                                //scriptHalter.setUserWantsToHaltScript(false);
                                 break;
                             }
                             String scriptLine[] = lines[j].split(" ");
@@ -532,7 +638,7 @@ public class Main extends Application {
                                                 x = Integer.parseInt(scriptLine[1]);
                                                 y = Integer.parseInt(scriptLine[2]);
                                                 waitDuration = Integer.parseInt(scriptLine[3]);
-                                                scheduleClick(x, y, waitDuration, bot, scriptHalter);
+                                                scheduleEvent(x, y, waitDuration, bot, scriptHalter, "click", i, 82); //i is the loop #
                                             } catch (NumberFormatException numException) {
                                                 loadingLabel.setText("Macro error on line " + lineNumber + ": scheduleclick args must be ints");
                                                 scriptingError = true;
@@ -756,11 +862,66 @@ public class Main extends Application {
         VBox bottomBox = new VBox();
 
         //closeToEndScriptLabel.setMinHeight(30);
+
+
         Button haltScriptButton = new Button("Halt script");
         haltScriptButton.setOnAction(e -> {
             scriptHalter.setUserWantsToHaltScript(true);
+            try {
+                Thread.sleep(1200);
+            } catch (InterruptedException interruptedExcept) {
+                interruptedExcept.printStackTrace();
+            }
+
+            scriptHalter.setUserWantsToHaltScript(false);
         });
-        bottomBox.getChildren().addAll(loadingLabel, haltScriptButton);
+
+        Button resetHaltScriptButton = new Button("Reset halt");
+        resetHaltScriptButton.setOnAction(e -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException interruptedExcept) {
+                interruptedExcept.printStackTrace();
+            }
+
+            scriptHalter.setUserWantsToHaltScript(false);
+        });
+        BorderPane bottomBorderPane = new BorderPane();
+        //bottomBorderPane.setLeft(haltScriptButton);
+        bottomBorderPane.setCenter(resetHaltScriptButton);
+
+        Button haltInfoButton = new Button("Important info about halting");
+
+
+        Alert haltAlert = new Alert(Alert.AlertType.WARNING);
+        haltAlert.setTitle("Halting");
+        haltAlert.setHeaderText("Important info about halting/resetting");
+        haltAlert.setContentText("If you use 'schedule' commands, such as scheduleclick, and your script takes 30 seconds to run, " +
+                "with commands happening at different times, and you halt the program 10 seconds into the script, " +
+                "then you will either need to wait 20 seconds before hitting 'reset halt' or just restart the program. " +
+                "This is due to the technical limitations of this program. It's not ideal. " +
+                "If you hit 'halt' then you will also not be able to run a script again until you hit 'reset halt'." +
+                " But with schedule commands, it can cause problems if you 'reset halt' too early.");
+
+
+        haltInfoButton.setOnAction(e -> {
+            primaryStage.setAlwaysOnTop(false);
+            Optional<ButtonType> haltAlertResult = haltAlert.showAndWait();
+            if (haltAlertResult.isEmpty()) {
+                //do nothing
+                //without this part, it would throw an exception
+                primaryStage.setAlwaysOnTop(true);
+            } else if (haltAlertResult.get() == ButtonType.OK) {
+                //once the alert is closed, set the primaryStage (main program window) to be always on top again
+                primaryStage.setAlwaysOnTop(true);
+            } else if (haltAlertResult.get() == ButtonType.CLOSE) {
+                primaryStage.setAlwaysOnTop(true);
+            }
+        });
+
+        Label blankLabelSpacer1 = new Label(" ");
+        Label blankLabelSpacer2 = new Label(" ");
+        bottomBox.getChildren().addAll(loadingLabel, bottomBorderPane, blankLabelSpacer1, blankLabelSpacer2);
         mainPane.setBottom(bottomBox);
         //mybox.getChildren().addAll(nestedBox);
         //clicking in center
