@@ -60,18 +60,34 @@ public class Main extends Application {
             } else {
 
                 for (int i = 0; i < offsetMultiplier; i++) {
-                    for (int j = 0; j < totalLoopTime; j += 1000) {
-                        try {Thread.sleep(1000);} catch (InterruptedException ex) { ex.printStackTrace();}
+                    for (int j = 0; j < totalLoopTime; j += 100) {
+                        try {Thread.sleep(100);} catch (InterruptedException ex) { ex.printStackTrace();}
+                        if (scriptHalter.isUserWantsToHaltScript()) {
+                            System.out.println("thread is returning!!!!!!!!!!!!!!!!");
+                            Thread.currentThread().interrupt();
+                            return; //ends the thread
+                            //this needs to be checked before and after the wait duration
+
+                        }
                     }
                 }
-                try {Thread.sleep(duration);} catch (InterruptedException ex) { ex.printStackTrace();}
+                for (int i = 0; i < duration; i += 100) {
+                    try {Thread.sleep(100);} catch (InterruptedException ex) { ex.printStackTrace();}
+                    if (scriptHalter.isUserWantsToHaltScript()) {
+                        System.out.println("user wants to halt the script");
+                        Thread.currentThread().interrupt();
+                        return; //end the thread
+
+                    }
+                }
+
                 if (scriptHalter.isUserWantsToHaltScript()) {
-                    //System.out.println("user wants to halt the script");
+                    System.out.println("user wants to halt the script");
                     Thread.currentThread().interrupt();
                     return; //end the thread
 
                 } else {
-                    //System.out.println("user wants to continue the script");
+                    System.out.println("user wants to continue the script");
                     Platform.runLater(() -> {
                         try {
                             switch (eventType) {
@@ -739,6 +755,7 @@ public class Main extends Application {
         });
         BorderPane bottomBorderPane = new BorderPane();
         //bottomBorderPane.setLeft(haltScriptButton);
+
         //bottomBorderPane.setCenter(resetHaltScriptButton);
 
         Button haltInfoButton = new Button("Important info about halting");
