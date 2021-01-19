@@ -110,8 +110,14 @@ public class Main extends Application {
             //otherwise an alert would be behind it
             primaryStage.setAlwaysOnTop(false);
             Optional<ButtonType> aboutAlertResult = aboutAlert.showAndWait();
-            if(aboutAlertResult.get() == ButtonType.OK) {
+            if (aboutAlertResult.isEmpty()) {
+                //do nothing
+                //without this part, it would throw an exception
+                primaryStage.setAlwaysOnTop(true);
+            } else if (aboutAlertResult.get() == ButtonType.OK) {
                 //once the alert is closed, set the primaryStage (main program window) to be always on top again
+                primaryStage.setAlwaysOnTop(true);
+            } else if (aboutAlertResult.get() == ButtonType.CLOSE) {
                 primaryStage.setAlwaysOnTop(true);
             }
         });
@@ -119,23 +125,41 @@ public class Main extends Application {
         MenuItem helpItem2 = new Menu("Website");
         Alert websiteAlert = new Alert(Alert.AlertType.CONFIRMATION);
         websiteAlert.setTitle("Website");
-        websiteAlert.setHeaderText("would you like to open the developer's website (saintlouissoftware.com) in a browser?");
+        websiteAlert.setHeaderText("Would you like to open the developer's website (saintlouissoftware.com) in a browser?");
 
         helpItem2.setOnAction(e -> {
             primaryStage.setAlwaysOnTop(false);
             Optional<ButtonType> websiteAlertResult = websiteAlert.showAndWait();
             if (websiteAlertResult.get() == ButtonType.OK) {
-                System.out.println("You want to open the website in a browser");
+                //System.out.println("You want to open the website in a browser");
                 getHostServices().showDocument("https://saintlouissoftware.com/");
                 primaryStage.setAlwaysOnTop(true);
             } else if (websiteAlertResult.get() == ButtonType.CANCEL || websiteAlertResult.get() == ButtonType.CLOSE) {
-                System.out.println("You do not want to open the website.");
+                //System.out.println("You do not want to open the website.");
                 primaryStage.setAlwaysOnTop(true);
             }
         });
 
         MenuItem helpItem3 = new Menu("Git repo");
         Menu helpMenu = new Menu("Help", null, helpItem1, helpItem2, helpItem3);
+
+        Alert gitRepoAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        gitRepoAlert.setTitle("Git Repo");
+        gitRepoAlert.setHeaderText("Would you like to open the project's GitHub page in a browser?");
+
+        helpItem3.setOnAction(e -> {
+            primaryStage.setAlwaysOnTop(false);
+            Optional<ButtonType> gitRepoAlertResult = gitRepoAlert.showAndWait();
+            if (gitRepoAlertResult.get() == ButtonType.OK) {
+                //System.out.println("You want to open the git repo page in a browser");
+                getHostServices().showDocument("https://github.com/0x416c616e/AutoInput");
+                primaryStage.setAlwaysOnTop(true);
+            } else if (gitRepoAlertResult.get() == ButtonType.CANCEL || gitRepoAlertResult.get() == ButtonType.CLOSE) {
+                //System.out.println("You do not want to open the git repo page in a browser.");
+                primaryStage.setAlwaysOnTop(true);
+            }
+        });
+
         MenuBar menuBar = new MenuBar(fileMenu, optionsMenu, helpMenu);
         Label info = new Label("To change the functionality of this program, change the lambda expressions for 'runMacroButton' and 'button'");
         info.setWrapText(true);
@@ -161,7 +185,7 @@ public class Main extends Application {
 
                 for (int i = 0; i < timesToRepeat; i++) {
                     //this is where the macro stuff happens
-                    System.out.println("Number of lines in the text area: " + String.valueOf(textArea.getText().split("\n").length));
+                    //System.out.println("Number of lines in the text area: " + String.valueOf(textArea.getText().split("\n").length));
 
                     int numberOfLines = textArea.getText().split("\n").length;
                     String lines[] = textArea.getText().split("\n");
@@ -313,14 +337,15 @@ public class Main extends Application {
                         loadingLabel.setText("Script check: OK");
                         //to-do: implement actually parsing script and then running the commands, such as click, rightClick, etc.
                         //!!!!!!!!!!!!!!!!!!!!!!WGERE I LEFT OFF!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        click(1110, 345);
+                        rightClick(1110, 345);
+                        //wait
+                        Thread.sleep(1000);
                     }
 
 
 
-                    click(1110, 345);
-                    rightClick(1110, 345);
-                    //wait
-                    Thread.sleep(1000);
+
 
                 }
 
@@ -357,10 +382,6 @@ public class Main extends Application {
             int newValue = Integer.parseInt(numTimes.getText()) + 1;
             numTimes.setText(Integer.toString(newValue));
         });
-        //need to add runMacroButton, repeatLabel, minusButton, numTimes, plusButton to an HBox
-
-        //and put the vbox in said hbox
-        //aaaaaaaaaaaaaaaaaaaaaaaa
         BorderPane nestedBorderPane = new BorderPane();
         nestedBorderPane.setLeft(mybox);
         topMostContainerVBox.getChildren().add(nestedBorderPane);
