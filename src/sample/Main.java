@@ -92,21 +92,45 @@ public class Main extends Application {
         //need to add a status label that the multi button changes
         Label loadingLabel = new Label("Status: OK");
 
-        MenuItem fileItem1 = new MenuItem("Open");
-        MenuItem fileItem2 = new MenuItem("Save as");
-        MenuItem fileItem3 = new MenuItem("Quit");
+        MenuItem fileItem1 = new MenuItem("Open (not done)");
+        MenuItem fileItem2 = new MenuItem("Save as (not done)");
+        MenuItem fileItem3 = new MenuItem("Quit (not done)");
 
         Menu fileMenu = new Menu("File", null, fileItem1, fileItem2, fileItem3);
 
-        MenuItem optionsItem1 = new MenuItem("Enable always on top");
+        MenuItem optionsItem1 = new MenuItem("Enable always on top (not done)");
         MenuItem optionsItem3 = new MenuItem("Enable dark mode");
         MenuItem optionsItem4 = new MenuItem("Disable dark mode");
-        MenuItem optionsItem5 = new MenuItem("Disable always on top");
+        MenuItem optionsItem5 = new MenuItem("Disable always on top (not done)");
+        MenuItem optionsItem6 = new MenuItem("Enable word wrap");
+        MenuItem optionsItem7 = new MenuItem("Disable word wrap");
+
+        optionsItem6.setOnAction(e -> {
+            textArea.setWrapText(true);
+        });
+
+        optionsItem7.setOnAction(e -> {
+            textArea.setWrapText(false);
+        });
 
 
+        //text.setWrapText(true)
 
-        Menu optionsMenu = new Menu("Options", null, optionsItem1, optionsItem5, optionsItem3, optionsItem4);
-        MenuItem helpItem1 = new MenuItem("About");
+        MenuItem editItem[] = new MenuItem[7];
+        editItem[0] = new MenuItem("Clear text (not done)");
+        editItem[1] = new MenuItem("Copy (not done)");
+        editItem[2] = new Menu("Cut (not done)");
+        editItem[3] = new MenuItem("Paste (not done)");
+        editItem[4] = new MenuItem("Delete (not done)");
+        editItem[5] = new MenuItem("Select all (not done)");
+        editItem[6] = new MenuItem("Select none (not done)");
+
+
+        Menu editMenu = new Menu("Edit", null, editItem[0], editItem[1], editItem[2], editItem[3], editItem[4], editItem[5], editItem[6]);
+
+
+        Menu optionsMenu = new Menu("Options", null, optionsItem1, optionsItem5, optionsItem3, optionsItem4, optionsItem6, optionsItem7);
+        MenuItem aboutItem1 = new MenuItem("About");
         Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
         aboutAlert.setTitle("About");
         aboutAlert.setHeaderText("About AutoInput");
@@ -114,7 +138,7 @@ public class Main extends Application {
                 " in order to automate repetitive tasks that require using a GUI rather than something command line-based that can be automated with a shell script.");
 
 
-        helpItem1.setOnAction(e -> {
+        aboutItem1.setOnAction(e -> {
             //primaryStage is temporarily set to not be always on top
             //otherwise an alert would be behind it
             primaryStage.setAlwaysOnTop(false);
@@ -131,12 +155,12 @@ public class Main extends Application {
             }
         });
 
-        MenuItem helpItem2 = new Menu("Website");
+        MenuItem aboutItem2 = new Menu("Website");
         Alert websiteAlert = new Alert(Alert.AlertType.CONFIRMATION);
         websiteAlert.setTitle("Website");
         websiteAlert.setHeaderText("Would you like to open the developer's website (saintlouissoftware.com) in a browser?");
 
-        helpItem2.setOnAction(e -> {
+        aboutItem2.setOnAction(e -> {
             primaryStage.setAlwaysOnTop(false);
             Optional<ButtonType> websiteAlertResult = websiteAlert.showAndWait();
             if (websiteAlertResult.get() == ButtonType.OK) {
@@ -149,14 +173,14 @@ public class Main extends Application {
             }
         });
 
-        MenuItem helpItem3 = new Menu("Git repo");
-        Menu helpMenu = new Menu("Help", null, helpItem1, helpItem2, helpItem3);
+        MenuItem aboutItem3 = new Menu("Git repo");
+        Menu aboutMenu = new Menu("About", null, aboutItem1, aboutItem2, aboutItem3);
 
         Alert gitRepoAlert = new Alert(Alert.AlertType.CONFIRMATION);
         gitRepoAlert.setTitle("Git Repo");
         gitRepoAlert.setHeaderText("Would you like to open the project's GitHub page in a browser?");
 
-        helpItem3.setOnAction(e -> {
+        aboutItem3.setOnAction(e -> {
             primaryStage.setAlwaysOnTop(false);
             Optional<ButtonType> gitRepoAlertResult = gitRepoAlert.showAndWait();
             if (gitRepoAlertResult.get() == ButtonType.OK) {
@@ -169,7 +193,13 @@ public class Main extends Application {
             }
         });
 
-        MenuBar menuBar = new MenuBar(fileMenu, optionsMenu, helpMenu);
+        MenuItem helpItem[] = new MenuItem[1]; //might add more options to it later
+        helpItem[0] = new MenuItem("Basic usage (not done)");
+        Menu helpMenu = new Menu("Help", null, helpItem[0]);
+
+
+
+        MenuBar menuBar = new MenuBar(fileMenu, editMenu, optionsMenu, aboutMenu, helpMenu);
         Label info = new Label("To change the functionality of this program, change the lambda expressions for 'runMacroButton' and 'button'");
         info.setWrapText(true);
         Label info2 = new Label("And use the 'get coords' button to get the current mouse x,y");
@@ -345,11 +375,145 @@ public class Main extends Application {
                     if (!scriptingError && !scriptIsEmpty) {
                         loadingLabel.setText("Script check: OK");
                         //to-do: implement actually parsing script and then running the commands, such as click, rightClick, etc.
-                        //!!!!!!!!!!!!!!!!!!!!!!WGERE I LEFT OFF!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        click(1110, 345);
-                        rightClick(1110, 345);
-                        //wait
-                        Thread.sleep(1000);
+                        //!!!!!!!!!!!!!!!!!!!!!!WHERE I LEFT OFF!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+                        //-------------------------------------------------------------------------------------------------
+                        //the following loop actually runs the script
+                        //the above stuff just checks it for errors
+                        //that way, it will only run the script in its entirety when there are no errors
+                        //it will not run a partially-working script
+                        for (int j = 0; j < numberOfLines; j++) {
+                            if (scriptingError) {
+                                break;
+                            }
+                            String scriptLine[] = lines[j].split(" ");
+
+
+                            int lineNumber = j + 1;
+                            if (scriptLine.length != 0) {
+
+                                switch (scriptLine[0]) {
+
+                                    case "click":
+                                        scriptIsEmpty = false;
+                                        System.out.println("you want to click on line " + j);
+                                        //now need to check if it has proper int args i.e. click 400 500
+                                        if (scriptLine.length != 3) {
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for click");
+                                            scriptingError = true;
+                                            break;
+                                        } else {
+                                            try {
+                                                int x;
+                                                int y;
+                                                x = Integer.parseInt(scriptLine[1]);
+                                                y = Integer.parseInt(scriptLine[2]);
+                                                click(x, y);
+                                            } catch (NumberFormatException numException) {
+                                                loadingLabel.setText("Macro error on line " + lineNumber + ": click args must be ints");
+                                                scriptingError = true;
+                                                break;
+                                            }
+
+                                        }
+                                        break;
+                                    case "wait":
+                                        scriptIsEmpty = false;
+                                        System.out.println("you want to wait on line " + j);
+                                        //now need to check if it has a proper int arg i.e. wait 500
+                                        if (scriptLine.length != 2) {
+
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for wait");
+                                            scriptingError = true;
+                                            break;
+                                        } else {
+                                            try {
+                                                int duration = Integer.parseInt(scriptLine[1]);
+                                                Thread.sleep(duration);
+                                            } catch (NumberFormatException numException) {
+                                                loadingLabel.setText("Macro error on line " + lineNumber + ": wait arg must be int");
+                                                scriptingError = true;
+                                                break;
+                                            }
+                                        }
+                                        break;
+                                    case "rightclick":
+                                        scriptIsEmpty = false;
+                                        System.out.println("you want to rightclick on line " + j);
+                                        //now need to check if it has proper int args i.e. rightclick 400 500
+                                        if (scriptLine.length != 3) {
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for rightclick");
+                                            scriptingError = true;
+                                            break;
+                                        } else {
+                                            try {
+                                                int x;
+                                                int y;
+                                                x = Integer.parseInt(scriptLine[1]);
+                                                y = Integer.parseInt(scriptLine[2]);
+                                                rightClick(x, y);
+                                            } catch (NumberFormatException numException) {
+                                                loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints");
+                                                scriptingError = true;
+                                                break;
+                                            }
+
+                                        }
+                                        break;
+                                    //press a key, i.e. press a
+                                    case "press":
+                                        scriptIsEmpty = false;
+                                        System.out.println("you want to press on line " + j);
+                                        //now need to check if it has a proper string arg i.e. press a
+                                        if (scriptLine.length != 2) {
+
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for press");
+                                            scriptingError = true;
+                                            break;
+                                        } else {
+                                            String allKeys = "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,";
+                                            allKeys += allKeys.toUpperCase();
+                                            allKeys += "0,1,2,3,4,5,6,7,8,9,";
+                                            //for now, I'm not adding all keys, just basic ones
+                                            allKeys += "enter,space,backspace,up,down,left,right,escape";
+                                            String keysArray[] = allKeys.split(",");
+
+                                            Set<String> keySet = Set.of(keysArray);
+
+                                            if (keySet.contains(scriptLine[1])) {
+                                                System.out.println("this is a valid key");
+                                                System.out.println("press feature is not yet implemented! implement it here!!!!!");
+                                            } else {
+
+                                                System.out.print("invalid key for press command. arg: " + scriptLine[1]);
+                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid press arg");
+                                                scriptingError = true;
+                                                break;
+                                            }
+
+                                        }
+                                        break;
+                                    //case " ":
+                                    case "":
+                                        //blank lines are ok, just ignore them
+                                        break;
+                                    case "#":
+                                        //comments are ok, just don't do anything with the subsequent words in the line
+                                        //comments in AutoInputScript must be like this:
+                                        //# comment
+                                        //hash sign followed by a space and then the comment
+                                        break;
+                                    default:
+                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid syntax");
+                                        scriptingError = true;
+                                        break;
+                                }
+                            }
+
+
+                        }
+
                     }
 
 
