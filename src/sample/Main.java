@@ -103,21 +103,7 @@ public class Main extends Application {
         MenuItem optionsItem4 = new MenuItem("Disable dark mode");
         MenuItem optionsItem5 = new MenuItem("Disable always on top");
 
-        //enable dark mode
-        optionsItem3.setOnAction(e -> {
-            textArea.lookup(".content").setStyle("-fx-background-color: #595959;");
-            textArea.setStyle("-fx-text-fill: white;");
-            mainPane.setStyle("-fx-background-color: gray;");
-            numTimes.setStyle("-fx-background-color: darkgray;");
-        });
 
-        //disable dark mode
-        optionsItem4.setOnAction(e -> {
-            textArea.lookup(".content").setStyle(null);
-            textArea.setStyle(null);
-            mainPane.setStyle(null);
-            numTimes.setStyle(null);
-        });
 
         Menu optionsMenu = new Menu("Options", null, optionsItem1, optionsItem5, optionsItem3, optionsItem4);
         MenuItem helpItem1 = new MenuItem("About");
@@ -415,7 +401,42 @@ public class Main extends Application {
         nestedBorderPane.setCenter(rightTopVBox);
         Insets nestedBorderInsets = new Insets(0, 0, 0, 50);
         nestedBorderPane.setMargin(rightTopVBox, nestedBorderInsets);
+        Label closeToEndScriptLabel = new Label("To halt a running script, close the AutoInput window.");
 
+        //enable dark mode
+        optionsItem3.setOnAction(e -> {
+            textArea.lookup(".content").setStyle("-fx-background-color: #2a2a2e;");
+            textArea.setStyle("-fx-text-fill: #d2d2d2;");
+            mainPane.setStyle("-fx-background-color: #474749;");
+            numTimes.setStyle("-fx-background-color: #2a2a2e; -fx-text-fill: #d2d2d2;");
+            loadingLabel.setStyle("-fx-text-fill: #d2d2d2;");
+            closeToEndScriptLabel.setStyle("-fx-text-fill: #d2d2d2;");
+            coordsLabel.setStyle("-fx-text-fill: #d2d2d2;");
+            repeatLabel.setStyle("-fx-text-fill: #d2d2d2;");
+            testButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
+            runMacroButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
+            plusButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
+            minusButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
+            menuBar.setStyle("-fx-background-color: darkgray; -fx-text-fill: #d2d2d2;");
+
+        });
+
+        //disable dark mode
+        optionsItem4.setOnAction(e -> {
+            textArea.lookup(".content").setStyle(null);
+            textArea.setStyle(null);
+            mainPane.setStyle(null);
+            numTimes.setStyle(null);
+            loadingLabel.setStyle(null);
+            closeToEndScriptLabel.setStyle(null);
+            coordsLabel.setStyle(null);
+            repeatLabel.setStyle(null);
+            testButton.setStyle(null);
+            runMacroButton.setStyle(null);
+            plusButton.setStyle(null);
+            minusButton.setStyle(null);
+            menuBar.setStyle(null);
+        });
 
 
         mainPane.setCenter(textArea);
@@ -423,7 +444,7 @@ public class Main extends Application {
         Pane bottomPane = new Pane();
         loadingLabel.setMinHeight(30);
         VBox bottomBox = new VBox();
-        Label closeToEndScriptLabel = new Label("To halt a running script, close the AutoInput window.");
+
         closeToEndScriptLabel.setMinHeight(30);
         bottomBox.getChildren().addAll(loadingLabel, closeToEndScriptLabel);
         mainPane.setBottom(bottomBox);
