@@ -47,6 +47,28 @@ public class Main extends Application {
         bot.mouseMove(x, y);
     }
 
+    public static void scheduleClick(int x, int y, int duration, Robot bot, ScriptHalter scriptHalter) throws AWTException {
+        new Thread(()->{ //use another thread so long process does not block gui
+            //update gui using fx thread
+            try {Thread.sleep(duration);} catch (InterruptedException ex) { ex.printStackTrace();}
+            if (scriptHalter.isUserWantsToHaltScript()) {
+                System.out.println("user wants to halt the script");
+            } else {
+                System.out.println("user wants to continue the script");
+                Platform.runLater(() -> {
+                    try {
+                        click(x, y, bot);
+                    } catch (AWTException e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+
+
+        }).start();
+        
+    }
+
     public static void clickAndDrag(int x_start, int y_start, int x_end, int y_end, Robot bot) throws AWTException {
         bot.mouseMove(x_start, y_start);
         bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
@@ -57,6 +79,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        ScriptHalter scriptHalter = new ScriptHalter();
         Robot bot = new Robot();
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         primaryStage.setTitle("AutoInput");
@@ -202,12 +225,14 @@ public class Main extends Application {
         Alert commonIssuesAlert = new Alert(Alert.AlertType.INFORMATION);
         commonIssuesAlert.setTitle("Common Issues");
         commonIssuesAlert.setHeaderText("Common issues when using AutoInput");
-        commonIssuesAlert.setContentText("If the program stops responding or crashes, try increasing the wait time between clicks or moves. \n" +
-                "Here is an example of a good macro (for stability):\n" +
+        commonIssuesAlert.setContentText("If the program crashes or stops before the macro is finished, try increasing the wait time between clicks or moves. \n\n" +
+                "Here is an example of a good macro (for stability):\n\n" +
                 "click 500 500\n" +
                 "wait 4000\n" +
                 "click 400 400\n" +
-                "wait 6000");
+                "wait 6000\n\n" +
+                "That being said, it's normal for the program to say 'not responding' due to how the wait command is coded. It's not perfect, but it works. " +
+                "If AutoInput says 'not responding' but it doesn't crash, it's fine. But if it crashes, then you need to increase the duration of the wait commands.");
 
         helpItem[1].setOnAction(e -> {
             primaryStage.setAlwaysOnTop(false);
@@ -292,6 +317,30 @@ public class Main extends Application {
                                             y = Integer.parseInt(scriptLine[2]);
                                         } catch (NumberFormatException numException) {
                                             loadingLabel.setText("Macro error on line " + lineNumber + ": click args must be ints");
+                                            scriptingError = true;
+                                            break;
+                                        }
+
+                                    }
+                                    break;
+                                case "scheduleclick":
+                                    scriptIsEmpty = false;
+                                    //System.out.println("you want to scheduleclick on line " + j);
+                                    //now need to check if it has proper int args i.e. scheduleclick 400 500 1000
+                                    if (scriptLine.length != 4) {
+                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for scheduleclick");
+                                        scriptingError = true;
+                                        break;
+                                    } else {
+                                        try {
+                                            int x;
+                                            int y;
+                                            int waitDuration;
+                                            x = Integer.parseInt(scriptLine[1]);
+                                            y = Integer.parseInt(scriptLine[2]);
+                                            waitDuration = Integer.parseInt(scriptLine[3]);
+                                        } catch (NumberFormatException numException) {
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": scheduleclick args must be ints");
                                             scriptingError = true;
                                             break;
                                         }
@@ -425,12 +474,15 @@ public class Main extends Application {
 
 
                         //-------------------------------------------------------------------------------------------------
-                        //the following loop actually runs the script
+                        //the following loop actually runs the script!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                         //the above stuff just checks it for errors
                         //that way, it will only run the script in its entirety when there are no errors
                         //it will not run a partially-working script
                         for (int j = 0; j < numberOfLines; j++) {
-                            if (scriptingError) {
+                            //if there is an error or the user presses the button to halt the script, then stop the script
+                            if (scriptingError || scriptHalter.isUserWantsToHaltScript()) {
+                                System.out.println("script halted");
+                                scriptHalter.setUserWantsToHaltScript(false);
                                 break;
                             }
                             String scriptLine[] = lines[j].split(" ");
@@ -458,6 +510,31 @@ public class Main extends Application {
                                                 click(x, y, bot);
                                             } catch (NumberFormatException numException) {
                                                 loadingLabel.setText("Macro error on line " + lineNumber + ": click args must be ints");
+                                                scriptingError = true;
+                                                break;
+                                            }
+
+                                        }
+                                        break;
+                                    case "scheduleclick":
+                                        scriptIsEmpty = false;
+                                        //System.out.println("you want to scheduleclick on line " + j);
+                                        //now need to check if it has proper int args i.e. scheduleclick 400 500 1000
+                                        if (scriptLine.length != 4) {
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for scheduleclick");
+                                            scriptingError = true;
+                                            break;
+                                        } else {
+                                            try {
+                                                int x;
+                                                int y;
+                                                int waitDuration;
+                                                x = Integer.parseInt(scriptLine[1]);
+                                                y = Integer.parseInt(scriptLine[2]);
+                                                waitDuration = Integer.parseInt(scriptLine[3]);
+                                                scheduleClick(x, y, waitDuration, bot, scriptHalter);
+                                            } catch (NumberFormatException numException) {
+                                                loadingLabel.setText("Macro error on line " + lineNumber + ": scheduleclick args must be ints");
                                                 scriptingError = true;
                                                 break;
                                             }
@@ -634,7 +711,7 @@ public class Main extends Application {
         nestedBorderPane.setCenter(rightTopVBox);
         Insets nestedBorderInsets = new Insets(0, 0, 0, 50);
         nestedBorderPane.setMargin(rightTopVBox, nestedBorderInsets);
-        Label closeToEndScriptLabel = new Label("To halt a running script, close the AutoInput window.");
+        //Label closeToEndScriptLabel = new Label("To halt a running script, close the AutoInput window.");
 
         //enable dark mode
         optionsItem3.setOnAction(e -> {
@@ -643,7 +720,7 @@ public class Main extends Application {
             mainPane.setStyle("-fx-background-color: #474749;");
             numTimes.setStyle("-fx-background-color: #2a2a2e; -fx-text-fill: #d2d2d2;");
             loadingLabel.setStyle("-fx-text-fill: #d2d2d2;");
-            closeToEndScriptLabel.setStyle("-fx-text-fill: #d2d2d2;");
+            //closeToEndScriptLabel.setStyle("-fx-text-fill: #d2d2d2;");
             coordsLabel.setStyle("-fx-text-fill: #d2d2d2;");
             repeatLabel.setStyle("-fx-text-fill: #d2d2d2;");
             testButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
@@ -661,7 +738,7 @@ public class Main extends Application {
             mainPane.setStyle(null);
             numTimes.setStyle(null);
             loadingLabel.setStyle(null);
-            closeToEndScriptLabel.setStyle(null);
+            //closeToEndScriptLabel.setStyle(null);
             coordsLabel.setStyle(null);
             repeatLabel.setStyle(null);
             testButton.setStyle(null);
@@ -678,8 +755,12 @@ public class Main extends Application {
         loadingLabel.setMinHeight(30);
         VBox bottomBox = new VBox();
 
-        closeToEndScriptLabel.setMinHeight(30);
-        bottomBox.getChildren().addAll(loadingLabel, closeToEndScriptLabel);
+        //closeToEndScriptLabel.setMinHeight(30);
+        Button haltScriptButton = new Button("Halt script");
+        haltScriptButton.setOnAction(e -> {
+            scriptHalter.setUserWantsToHaltScript(true);
+        });
+        bottomBox.getChildren().addAll(loadingLabel, haltScriptButton);
         mainPane.setBottom(bottomBox);
         //mybox.getChildren().addAll(nestedBox);
         //clicking in center
