@@ -30,24 +30,24 @@ import java.util.Set;
 
 public class Main extends Application {
 
-    public static void click(int x, int y) throws AWTException{
-        Robot bot = new Robot();
+    public static void click(int x, int y, Robot bot) throws AWTException{
         bot.mouseMove(x, y);
         bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
         bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
     }
 
-    public static void rightClick(int x, int y) throws AWTException {
-        Robot bot = new Robot();
+    public static void rightClick(int x, int y, Robot bot) throws AWTException {
         bot.mouseMove(x, y);
         bot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
         bot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
     }
 
 
+    public static void move(int x, int y, Robot bot) throws AWTException {
+        bot.mouseMove(x, y);
+    }
 
-    public static void clickAndDrag(int x_start, int y_start, int x_end, int y_end) throws AWTException {
-        Robot bot = new Robot();
+    public static void clickAndDrag(int x_start, int y_start, int x_end, int y_end, Robot bot) throws AWTException {
         bot.mouseMove(x_start, y_start);
         bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
         bot.mouseMove(x_end, y_end);
@@ -57,6 +57,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        Robot bot = new Robot();
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         primaryStage.setTitle("AutoInput");
         primaryStage.setWidth(360);
@@ -193,9 +194,32 @@ public class Main extends Application {
             }
         });
 
-        MenuItem helpItem[] = new MenuItem[1]; //might add more options to it later
+        MenuItem helpItem[] = new MenuItem[2];
         helpItem[0] = new MenuItem("Basic usage (not done)");
-        Menu helpMenu = new Menu("Help", null, helpItem[0]);
+
+
+        helpItem[1] = new MenuItem("Common issues");
+        Alert commonIssuesAlert = new Alert(Alert.AlertType.INFORMATION);
+        commonIssuesAlert.setTitle("Common Issues");
+        commonIssuesAlert.setHeaderText("Common issues when using AutoInput");
+        commonIssuesAlert.setContentText("If the program stops responding or crashes, try increasing the wait time between clicks or moves. \n" +
+                "Here is an example of a good macro (for stability):\n" +
+                "click 500 500\n" +
+                "wait 4000\n" +
+                "click 400 400\n" +
+                "wait 6000");
+
+        helpItem[1].setOnAction(e -> {
+            primaryStage.setAlwaysOnTop(false);
+            Optional<ButtonType> commonIssuesAlertResult = commonIssuesAlert.showAndWait();
+            if (commonIssuesAlertResult.isEmpty()) {
+                //nothing
+                primaryStage.setAlwaysOnTop(true);
+            } else if (commonIssuesAlertResult.get() == ButtonType.OK || commonIssuesAlertResult.get() == ButtonType.CLOSE) {
+                primaryStage.setAlwaysOnTop(true);
+            }
+        });
+        Menu helpMenu = new Menu("Help", null, helpItem[0], helpItem[1]);
 
 
 
@@ -254,7 +278,7 @@ public class Main extends Application {
 
                                 case "click":
                                     scriptIsEmpty = false;
-                                    System.out.println("you want to click on line " + j);
+                                    //System.out.println("you want to click on line " + j);
                                     //now need to check if it has proper int args i.e. click 400 500
                                     if (scriptLine.length != 3) {
                                         loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for click");
@@ -274,9 +298,31 @@ public class Main extends Application {
 
                                     }
                                     break;
+                                case "move":
+                                    scriptIsEmpty = false;
+                                    //System.out.println("you want to move on line " + j);
+                                    //now need to check if it has proper int args i.e. move 400 500
+                                    if (scriptLine.length != 3) {
+                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for move");
+                                        scriptingError = true;
+                                        break;
+                                    } else {
+                                        try {
+                                            int x;
+                                            int y;
+                                            x = Integer.parseInt(scriptLine[1]);
+                                            y = Integer.parseInt(scriptLine[2]);
+                                        } catch (NumberFormatException numException) {
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": move args must be ints");
+                                            scriptingError = true;
+                                            break;
+                                        }
+
+                                    }
+                                    break;
                                 case "wait":
                                     scriptIsEmpty = false;
-                                    System.out.println("you want to wait on line " + j);
+                                    //System.out.println("you want to wait on line " + j);
                                     //now need to check if it has a proper int arg i.e. wait 500
                                     if (scriptLine.length != 2) {
 
@@ -295,7 +341,7 @@ public class Main extends Application {
                                     break;
                                 case "rightclick":
                                     scriptIsEmpty = false;
-                                    System.out.println("you want to rightclick on line " + j);
+                                    //System.out.println("you want to rightclick on line " + j);
                                     //now need to check if it has proper int args i.e. rightclick 400 500
                                     if (scriptLine.length != 3) {
                                         loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for rightclick");
@@ -409,7 +455,7 @@ public class Main extends Application {
                                                 int y;
                                                 x = Integer.parseInt(scriptLine[1]);
                                                 y = Integer.parseInt(scriptLine[2]);
-                                                click(x, y);
+                                                click(x, y, bot);
                                             } catch (NumberFormatException numException) {
                                                 loadingLabel.setText("Macro error on line " + lineNumber + ": click args must be ints");
                                                 scriptingError = true;
@@ -418,9 +464,32 @@ public class Main extends Application {
 
                                         }
                                         break;
+                                    case "move":
+                                        scriptIsEmpty = false;
+                                        //System.out.println("you want to move on line " + j);
+                                        //now need to check if it has proper int args i.e. move 400 500
+                                        if (scriptLine.length != 3) {
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for move");
+                                            scriptingError = true;
+                                            break;
+                                        } else {
+                                            try {
+                                                int x;
+                                                int y;
+                                                x = Integer.parseInt(scriptLine[1]);
+                                                y = Integer.parseInt(scriptLine[2]);
+                                                move(x, y, bot);
+                                            } catch (NumberFormatException numException) {
+                                                loadingLabel.setText("Macro error on line " + lineNumber + ": move args must be ints");
+                                                scriptingError = true;
+                                                break;
+                                            }
+
+                                        }
+                                        break;
                                     case "wait":
                                         scriptIsEmpty = false;
-                                        System.out.println("you want to wait on line " + j);
+                                        //System.out.println("you want to wait on line " + j);
                                         //now need to check if it has a proper int arg i.e. wait 500
                                         if (scriptLine.length != 2) {
 
@@ -452,7 +521,7 @@ public class Main extends Application {
                                                 int y;
                                                 x = Integer.parseInt(scriptLine[1]);
                                                 y = Integer.parseInt(scriptLine[2]);
-                                                rightClick(x, y);
+                                                rightClick(x, y, bot);
                                             } catch (NumberFormatException numException) {
                                                 loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints");
                                                 scriptingError = true;
