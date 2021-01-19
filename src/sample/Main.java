@@ -96,6 +96,9 @@ public class Main extends Application {
                                 case "click":
                                     click(x, y, bot);
                                     break;
+                                case "rightclick":
+                                    rightClick(x, y, bot);
+                                    break;
                                 case "move":
                                     move(x, y, bot);
                                 //not fully implemented
@@ -132,6 +135,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        TotalLoopTime totalLoopTime = new TotalLoopTime();
         ScriptHalter scriptHalter = new ScriptHalter();
         Robot bot = new Robot();
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
@@ -148,7 +152,7 @@ public class Main extends Application {
         topMostContainerVBox.getChildren().add(topButtonsHBox);
         mainPane.setTop(topMostContainerVBox);
         Scene scene = new Scene(mainPane);
-        Button testButton = new Button("Get coords");
+        Button testButton = new Button("Get Coords");
         Label coordsLabel = new Label("(x, y)");
         testButton.setOnAction( e-> {
             //MouseInfo.getPointerInfo().getLocation().getX()
@@ -297,7 +301,7 @@ public class Main extends Application {
                 primaryStage.setAlwaysOnTop(true);
             }
         });
-        Menu helpMenu = new Menu("Help", null, helpItem[0], helpItem[1]);
+        Menu helpMenu = new Menu("Help", null, helpItem[0]);
 
 
 
@@ -351,7 +355,32 @@ public class Main extends Application {
 
                         int lineNumber = j + 1;
                         if (scriptLine.length != 0) {
+                            if (lineNumber == 1) {
+                                //first line must be totallooptime
+                                switch (scriptLine[0]) {
+                                    case "totallooptime":
+                                        scriptIsEmpty = false;
+                                        if (scriptLine.length != 2) {
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for totallooptime");
+                                            scriptingError = true;
+                                            break;
+                                        } else {
+                                            //where I left off
+                                            try {
+                                                totalLoopTime.setTotalLoopTime(Integer.parseInt(scriptLine[1]));
+                                                System.out.println("successfully updated totallooptime");
+                                            } catch (NumberFormatException nfe) {
+                                                nfe.printStackTrace();
+                                            }
 
+                                        }
+                                        break;
+                                    default:
+                                        loadingLabel.setText("Macro error on line " + lineNumber + ": 1st line must declare totallooptime");
+                                        scriptingError = true;
+                                        break;
+                                }
+                            }
                             switch (scriptLine[0]) {
 
                                 case "click":
@@ -505,6 +534,14 @@ public class Main extends Application {
                                     //# comment
                                     //hash sign followed by a space and then the comment
                                     break;
+                                case "totallooptime":
+                                    //it was already handled earlier in the code
+                                    if (lineNumber != 1) {
+                                        loadingLabel.setText("Macro error on " + lineNumber + ": invalid use of totallooptime");
+                                        scriptingError = true;
+                                        break;
+                                    }
+                                    break;
                                 default:
                                     loadingLabel.setText("Macro error on line " + lineNumber + ": invalid syntax");
                                     scriptingError = true;
@@ -585,7 +622,7 @@ public class Main extends Application {
                                                 x = Integer.parseInt(scriptLine[1]);
                                                 y = Integer.parseInt(scriptLine[2]);
                                                 waitDuration = Integer.parseInt(scriptLine[3]);
-                                                scheduleEvent(x, y, waitDuration, bot, scriptHalter, "click", i, 820); //i is the loop #
+                                                scheduleEvent(x, y, waitDuration, bot, scriptHalter, "click", i, totalLoopTime.getTotalLoopTime()); //i is the loop #
                                             } catch (NumberFormatException numException) {
                                                 loadingLabel.setText("Macro error on line " + lineNumber + ": scheduleclick args must be ints");
                                                 scriptingError = true;
@@ -703,6 +740,10 @@ public class Main extends Application {
                                         //# comment
                                         //hash sign followed by a space and then the comment
                                         break;
+                                    case "totallooptime":
+                                        //totallooptime is used for the initial parsing, and for setting the totalLoopTime's int property
+                                        //which is used for the arg that goes to scheduleEvent()
+                                        break;
                                     default:
                                         loadingLabel.setText("Macro error on line " + lineNumber + ": invalid syntax");
                                         scriptingError = true;
@@ -762,11 +803,15 @@ public class Main extends Application {
         nestedBox.getChildren().addAll(minusButton, numTimes, plusButton);
         rightTopVBox.getChildren().addAll(nestedBox);
         nestedBorderPane.setCenter(rightTopVBox);
+
         Insets nestedBorderInsets = new Insets(0, 0, 0, 50);
         nestedBorderPane.setMargin(rightTopVBox, nestedBorderInsets);
         //Label closeToEndScriptLabel = new Label("To halt a running script, close the AutoInput window.");
 
         //enable dark mode
+        Button haltScriptButton = new Button("Halt Macro");
+        nestedBorderPane.setRight(haltScriptButton);
+
         optionsItem3.setOnAction(e -> {
             textArea.lookup(".content").setStyle("-fx-background-color: #2a2a2e;");
             textArea.setStyle("-fx-text-fill: #d2d2d2;");
@@ -781,6 +826,7 @@ public class Main extends Application {
             plusButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
             minusButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
             menuBar.setStyle("-fx-background-color: darkgray; -fx-text-fill: #d2d2d2;");
+            haltScriptButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
 
         });
 
@@ -799,6 +845,7 @@ public class Main extends Application {
             plusButton.setStyle(null);
             minusButton.setStyle(null);
             menuBar.setStyle(null);
+            haltScriptButton.setStyle(null);
         });
 
 
@@ -811,7 +858,7 @@ public class Main extends Application {
         //closeToEndScriptLabel.setMinHeight(30);
 
 
-        Button haltScriptButton = new Button("Halt script");
+
         haltScriptButton.setOnAction(e -> {
             scriptHalter.setUserWantsToHaltScript(true);
             try {
@@ -834,7 +881,7 @@ public class Main extends Application {
             scriptHalter.setUserWantsToHaltScript(false);
         });
         BorderPane bottomBorderPane = new BorderPane();
-        bottomBorderPane.setLeft(haltScriptButton);
+        //bottomBorderPane.setLeft(haltScriptButton);
         //bottomBorderPane.setCenter(resetHaltScriptButton);
 
         Button haltInfoButton = new Button("Important info about halting");
@@ -868,7 +915,7 @@ public class Main extends Application {
 
         Label blankLabelSpacer1 = new Label(" ");
         Label blankLabelSpacer2 = new Label(" ");
-        bottomBox.getChildren().addAll(loadingLabel, bottomBorderPane, blankLabelSpacer1, blankLabelSpacer2);
+        bottomBox.getChildren().addAll(loadingLabel, bottomBorderPane);
         mainPane.setBottom(bottomBox);
         //mybox.getChildren().addAll(nestedBox);
         //clicking in center
