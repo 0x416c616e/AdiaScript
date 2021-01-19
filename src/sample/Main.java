@@ -58,38 +58,20 @@ public class Main extends Application {
                 //this needs to be checked before and after the wait duration
 
             } else {
-                //I know this is bad but oh well lol
-                //at least it works (for smaller durations, at least)
-                if (duration <= 1000) {
-                    System.out.println("not a very long duration so it doesn't really matter");
-                    for (int i = 0; i < offsetMultiplier; i++) {
-                        for (int j = 0; j < totalLoopTime; j += 1000) {
-                            try {Thread.sleep(1000);} catch (InterruptedException ex) { ex.printStackTrace();}
-                        }
-                    }
-                    try {Thread.sleep(duration);} catch (InterruptedException ex) { ex.printStackTrace();}
-                    //all these "else if" things do is break the duration into 1 second chunks, and then checks
-                    //every single second to see if it should quit the thread due to the user wanting to halt the program
-                } else {
 
-                    for (int i = 0; i < offsetMultiplier; i++) {
-                        for (int j = 0; j < totalLoopTime; j += 1000) {
-                            if (scriptHalter.isUserWantsToHaltScript()) {
-                                Thread.currentThread().interrupt();
-                                return;
-                            }
-                            try {Thread.sleep(1000);} catch (InterruptedException ex) { ex.printStackTrace();}
-                        }
+                for (int i = 0; i < offsetMultiplier; i++) {
+                    for (int j = 0; j < totalLoopTime; j += 1000) {
+                        try {Thread.sleep(1000);} catch (InterruptedException ex) { ex.printStackTrace();}
                     }
-
                 }
+                try {Thread.sleep(duration);} catch (InterruptedException ex) { ex.printStackTrace();}
                 if (scriptHalter.isUserWantsToHaltScript()) {
-                    System.out.println("user wants to halt the script");
+                    //System.out.println("user wants to halt the script");
                     Thread.currentThread().interrupt();
                     return; //end the thread
 
                 } else {
-                    System.out.println("user wants to continue the script");
+                    //System.out.println("user wants to continue the script");
                     Platform.runLater(() -> {
                         try {
                             switch (eventType) {
@@ -368,7 +350,7 @@ public class Main extends Application {
                                             //where I left off
                                             try {
                                                 totalLoopTime.setTotalLoopTime(Integer.parseInt(scriptLine[1]));
-                                                System.out.println("successfully updated totallooptime");
+                                                //System.out.println("successfully updated totallooptime");
                                             } catch (NumberFormatException nfe) {
                                                 nfe.printStackTrace();
                                             }
@@ -383,34 +365,13 @@ public class Main extends Application {
                             }
                             switch (scriptLine[0]) {
 
+
                                 case "click":
                                     scriptIsEmpty = false;
                                     //System.out.println("you want to click on line " + j);
-                                    //now need to check if it has proper int args i.e. click 400 500
-                                    if (scriptLine.length != 3) {
-                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for click");
-                                        scriptingError = true;
-                                        break;
-                                    } else {
-                                        try {
-                                            int x;
-                                            int y;
-                                            x = Integer.parseInt(scriptLine[1]);
-                                            y = Integer.parseInt(scriptLine[2]);
-                                        } catch (NumberFormatException numException) {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": click args must be ints");
-                                            scriptingError = true;
-                                            break;
-                                        }
-
-                                    }
-                                    break;
-                                case "scheduleclick":
-                                    scriptIsEmpty = false;
-                                    //System.out.println("you want to scheduleclick on line " + j);
-                                    //now need to check if it has proper int args i.e. scheduleclick 400 500 1000
+                                    //now need to check if it has proper int args i.e. click 400 500 1000
                                     if (scriptLine.length != 4) {
-                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for scheduleclick");
+                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for click");
                                         scriptingError = true;
                                         break;
                                     } else {
@@ -422,59 +383,18 @@ public class Main extends Application {
                                             y = Integer.parseInt(scriptLine[2]);
                                             waitDuration = Integer.parseInt(scriptLine[3]);
                                         } catch (NumberFormatException numException) {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": scheduleclick args must be ints");
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": click args must be ints");
                                             scriptingError = true;
                                             break;
                                         }
 
-                                    }
-                                    break;
-                                case "move":
-                                    scriptIsEmpty = false;
-                                    //System.out.println("you want to move on line " + j);
-                                    //now need to check if it has proper int args i.e. move 400 500
-                                    if (scriptLine.length != 3) {
-                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for move");
-                                        scriptingError = true;
-                                        break;
-                                    } else {
-                                        try {
-                                            int x;
-                                            int y;
-                                            x = Integer.parseInt(scriptLine[1]);
-                                            y = Integer.parseInt(scriptLine[2]);
-                                        } catch (NumberFormatException numException) {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": move args must be ints");
-                                            scriptingError = true;
-                                            break;
-                                        }
-
-                                    }
-                                    break;
-                                case "wait":
-                                    scriptIsEmpty = false;
-                                    //System.out.println("you want to wait on line " + j);
-                                    //now need to check if it has a proper int arg i.e. wait 500
-                                    if (scriptLine.length != 2) {
-
-                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for wait");
-                                        scriptingError = true;
-                                        break;
-                                    } else {
-                                        try {
-                                            int duration = Integer.parseInt(scriptLine[1]);
-                                        } catch (NumberFormatException numException) {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": wait arg must be int");
-                                            scriptingError = true;
-                                            break;
-                                        }
                                     }
                                     break;
                                 case "rightclick":
                                     scriptIsEmpty = false;
                                     //System.out.println("you want to rightclick on line " + j);
-                                    //now need to check if it has proper int args i.e. rightclick 400 500
-                                    if (scriptLine.length != 3) {
+                                    //now need to check if it has proper int args i.e. rightclick 400 500 1000
+                                    if (scriptLine.length != 4) {
                                         loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for rightclick");
                                         scriptingError = true;
                                         break;
@@ -482,8 +402,10 @@ public class Main extends Application {
                                         try {
                                             int x;
                                             int y;
+                                            int waitDuration;
                                             x = Integer.parseInt(scriptLine[1]);
                                             y = Integer.parseInt(scriptLine[2]);
+                                            waitDuration = Integer.parseInt(scriptLine[3]);
                                         } catch (NumberFormatException numException) {
                                             loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints");
                                             scriptingError = true;
@@ -583,35 +505,13 @@ public class Main extends Application {
 
                                 switch (scriptLine[0]) {
 
+
                                     case "click":
                                         scriptIsEmpty = false;
-                                        System.out.println("you want to click on line " + j);
-                                        //now need to check if it has proper int args i.e. click 400 500
-                                        if (scriptLine.length != 3) {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for click");
-                                            scriptingError = true;
-                                            break;
-                                        } else {
-                                            try {
-                                                int x;
-                                                int y;
-                                                x = Integer.parseInt(scriptLine[1]);
-                                                y = Integer.parseInt(scriptLine[2]);
-                                                click(x, y, bot);
-                                            } catch (NumberFormatException numException) {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": click args must be ints");
-                                                scriptingError = true;
-                                                break;
-                                            }
-
-                                        }
-                                        break;
-                                    case "scheduleclick":
-                                        scriptIsEmpty = false;
-                                        //System.out.println("you want to scheduleclick on line " + j);
-                                        //now need to check if it has proper int args i.e. scheduleclick 400 500 1000
+                                        //System.out.println("you want to click on line " + j);
+                                        //now need to check if it has proper int args i.e. click 400 500 1000
                                         if (scriptLine.length != 4) {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for scheduleclick");
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for click");
                                             scriptingError = true;
                                             break;
                                         } else {
@@ -624,61 +524,18 @@ public class Main extends Application {
                                                 waitDuration = Integer.parseInt(scriptLine[3]);
                                                 scheduleEvent(x, y, waitDuration, bot, scriptHalter, "click", i, totalLoopTime.getTotalLoopTime()); //i is the loop #
                                             } catch (NumberFormatException numException) {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": scheduleclick args must be ints");
+                                                loadingLabel.setText("Macro error on line " + lineNumber + ": click args must be ints");
                                                 scriptingError = true;
                                                 break;
                                             }
 
-                                        }
-                                        break;
-                                    case "move":
-                                        scriptIsEmpty = false;
-                                        //System.out.println("you want to move on line " + j);
-                                        //now need to check if it has proper int args i.e. move 400 500
-                                        if (scriptLine.length != 3) {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for move");
-                                            scriptingError = true;
-                                            break;
-                                        } else {
-                                            try {
-                                                int x;
-                                                int y;
-                                                x = Integer.parseInt(scriptLine[1]);
-                                                y = Integer.parseInt(scriptLine[2]);
-                                                move(x, y, bot);
-                                            } catch (NumberFormatException numException) {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": move args must be ints");
-                                                scriptingError = true;
-                                                break;
-                                            }
-
-                                        }
-                                        break;
-                                    case "wait":
-                                        scriptIsEmpty = false;
-                                        //System.out.println("you want to wait on line " + j);
-                                        //now need to check if it has a proper int arg i.e. wait 500
-                                        if (scriptLine.length != 2) {
-
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for wait");
-                                            scriptingError = true;
-                                            break;
-                                        } else {
-                                            try {
-                                                int duration = Integer.parseInt(scriptLine[1]);
-                                                Thread.sleep(duration);
-                                            } catch (NumberFormatException numException) {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": wait arg must be int");
-                                                scriptingError = true;
-                                                break;
-                                            }
                                         }
                                         break;
                                     case "rightclick":
                                         scriptIsEmpty = false;
-                                        System.out.println("you want to rightclick on line " + j);
-                                        //now need to check if it has proper int args i.e. rightclick 400 500
-                                        if (scriptLine.length != 3) {
+                                        //System.out.println("you want to rightclick on line " + j);
+                                        //now need to check if it has proper int args i.e. rightclick 400 500 1000
+                                        if (scriptLine.length != 4) {
                                             loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for rightclick");
                                             scriptingError = true;
                                             break;
@@ -686,9 +543,11 @@ public class Main extends Application {
                                             try {
                                                 int x;
                                                 int y;
+                                                int waitDuration;
                                                 x = Integer.parseInt(scriptLine[1]);
                                                 y = Integer.parseInt(scriptLine[2]);
-                                                rightClick(x, y, bot);
+                                                waitDuration = Integer.parseInt(scriptLine[3]);
+                                                scheduleEvent(x, y, waitDuration, bot, scriptHalter, "rightclick", i, totalLoopTime.getTotalLoopTime()); //i is the loop #
                                             } catch (NumberFormatException numException) {
                                                 loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints");
                                                 scriptingError = true;
@@ -697,6 +556,7 @@ public class Main extends Application {
 
                                         }
                                         break;
+
                                     //press a key, i.e. press a
                                     case "press":
                                         scriptIsEmpty = false;
@@ -765,9 +625,6 @@ public class Main extends Application {
                 scene.setCursor(Cursor.DEFAULT);
             } catch (AWTException a) {
                 a.printStackTrace();
-            } catch (InterruptedException asdf) {
-                asdf.printStackTrace();
-                System.out.println("asdasdasd");
             }
             /*
             Platform.runLater(new Runnable() {
