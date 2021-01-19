@@ -19,6 +19,7 @@ import java.awt.AWTException;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.awt.MouseInfo;
+import java.util.Optional;
 import java.util.Set;
 
 
@@ -53,20 +54,18 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         primaryStage.setTitle("AutoInput");
-        primaryStage.setWidth(300);
+        primaryStage.setWidth(360);
+        primaryStage.setMinWidth(360);
         primaryStage.setHeight(360);
+        primaryStage.setMinHeight(360);
         BorderPane mainPane = new BorderPane();
+        VBox topMostContainerVBox = new VBox();
+        HBox topButtonsHBox = new HBox();
         VBox mybox = new VBox();
-        mainPane.setTop(mybox);
+
+        topMostContainerVBox.getChildren().add(topButtonsHBox);
+        mainPane.setTop(topMostContainerVBox);
         Scene scene = new Scene(mainPane);
-        Button button2 = new Button("Warp2");
-        button2.setOnAction( e -> {
-            try {
-                clickAndDrag(400,400,500,500);
-            } catch (AWTException a) {
-                a.printStackTrace();
-            }
-        });
         Button testButton = new Button("Get coords");
         Label coordsLabel = new Label("(x, y)");
         testButton.setOnAction( e-> {
@@ -79,9 +78,8 @@ public class Main extends Application {
         textArea.setStyle(("height: 100%; -fx-focus-color: transparent;"));
 
 
-        Label warpTransform1Label = new Label("Macro:");
         Button runMacroButton = new Button("Run Macro");
-        Label repeatLabel = new Label("Number of times to repeat:");
+        Label repeatLabel = new Label("Times to repeat:");
         TextField numTimes = new TextField();
         numTimes.setText("1");
         numTimes.setMaxWidth(100);
@@ -90,20 +88,54 @@ public class Main extends Application {
         Label loadingLabel = new Label("Status: OK");
 
         MenuItem fileItem1 = new MenuItem("Open");
-        MenuItem fileItem2 = new MenuItem("Save");
+        MenuItem fileItem2 = new MenuItem("Save as");
+        MenuItem fileItem3 = new MenuItem("Quit");
 
-        Menu fileMenu = new Menu("File", null, fileItem1, fileItem2);
+        Menu fileMenu = new Menu("File", null, fileItem1, fileItem2, fileItem3);
 
         MenuItem optionsItem1 = new MenuItem("Always on top");
         MenuItem optionsItem2 = new MenuItem("Reset");
-        MenuItem optionsItem3 = new Menu("Quit");
 
-        Menu optionsMenu = new Menu("Options", null, optionsItem1, optionsItem2, optionsItem3);
+        Menu optionsMenu = new Menu("Options", null, optionsItem1, optionsItem2);
         MenuItem helpItem1 = new MenuItem("About");
+        Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
+        aboutAlert.setTitle("About");
+        aboutAlert.setHeaderText("About AutoInput");
+        aboutAlert.setContentText("This is an input automation scripting language and editor made by 0x416c616e. You can use it to write keyboard/mouse macros" +
+                " in order to automate repetitive tasks that require using a GUI rather than something command line-based that can be automated with a shell script.");
+
+
+        helpItem1.setOnAction(e -> {
+            //primaryStage is temporarily set to not be always on top
+            //otherwise an alert would be behind it
+            primaryStage.setAlwaysOnTop(false);
+            Optional<ButtonType> aboutAlertResult = aboutAlert.showAndWait();
+            if(aboutAlertResult.get() == ButtonType.OK) {
+                //once the alert is closed, set the primaryStage (main program window) to be always on top again
+                primaryStage.setAlwaysOnTop(true);
+            }
+        });
+
         MenuItem helpItem2 = new Menu("Website");
+        Alert websiteAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        websiteAlert.setTitle("Website");
+        websiteAlert.setHeaderText("would you like to open the developer's website (saintlouissoftware.com) in a browser?");
+
+        helpItem2.setOnAction(e -> {
+            primaryStage.setAlwaysOnTop(false);
+            Optional<ButtonType> websiteAlertResult = websiteAlert.showAndWait();
+            if (websiteAlertResult.get() == ButtonType.OK) {
+                System.out.println("You want to open the website in a browser");
+                getHostServices().showDocument("https://saintlouissoftware.com/");
+                primaryStage.setAlwaysOnTop(true);
+            } else if (websiteAlertResult.get() == ButtonType.CANCEL || websiteAlertResult.get() == ButtonType.CLOSE) {
+                System.out.println("You do not want to open the website.");
+                primaryStage.setAlwaysOnTop(true);
+            }
+        });
+
         MenuItem helpItem3 = new Menu("Git repo");
-        MenuItem helpItem4 = new Menu("How to extend");
-        Menu helpMenu = new Menu("Help", null, helpItem1, helpItem2, helpItem3, helpItem4);
+        Menu helpMenu = new Menu("Help", null, helpItem1, helpItem2, helpItem3);
         MenuBar menuBar = new MenuBar(fileMenu, optionsMenu, helpMenu);
         Label info = new Label("To change the functionality of this program, change the lambda expressions for 'runMacroButton' and 'button'");
         info.setWrapText(true);
@@ -111,7 +143,11 @@ public class Main extends Application {
         info2.setWrapText(true);
 
 
-        mybox.getChildren().addAll(menuBar);
+        topMostContainerVBox.getChildren().addAll(menuBar);
+        //topMostContainerVBox.getChildren().add(mybox);
+        //topMostContainerVBox.getChildren().add(topButtonsHBox);
+
+        mybox.getChildren().addAll(testButton, coordsLabel);
         runMacroButton.setOnAction( e -> {
 
 
@@ -231,7 +267,7 @@ public class Main extends Application {
                                         allKeys += allKeys.toUpperCase();
                                         allKeys += "0,1,2,3,4,5,6,7,8,9,";
                                         //for now, I'm not adding all keys, just basic ones
-                                        allKeys += "enter,space,backspace,up,down,left,right";
+                                        allKeys += "enter,space,backspace,up,down,left,right,escape";
                                         String keysArray[] = allKeys.split(",");
 
                                         Set<String> keySet = Set.of(keysArray);
@@ -252,6 +288,12 @@ public class Main extends Application {
                                 case "":
                                     //blank lines are ok, just ignore them
                                     break;
+                                case "#":
+                                    //comments are ok, just don't do anything with the subsequent words in the line
+                                    //comments in AutoInputScript must be like this:
+                                    //# comment
+                                    //hash sign followed by a space and then the comment
+                                    break;
                                 default:
                                     loadingLabel.setText("Macro error on line " + lineNumber + ": invalid syntax");
                                     scriptingError = true;
@@ -268,9 +310,9 @@ public class Main extends Application {
 
                     //if no errors are found with the error checking, time to actually run the script
                     if (!scriptingError && !scriptIsEmpty) {
-                        loadingLabel.setText("Script contains no errors!");
+                        loadingLabel.setText("Script check: OK");
                         //to-do: implement actually parsing script and then running the commands, such as click, rightClick, etc.
-                        
+                        //!!!!!!!!!!!!!!!!!!!!!!WGERE I LEFT OFF!!!!!!!!!!!!!!!!!!!!!!!!!!
                     }
 
 
@@ -301,9 +343,8 @@ public class Main extends Application {
 
 
         });
-        Label divider2 = new Label("-----------------------------------------------------------");
-        mybox.getChildren().addAll(testButton, coordsLabel, divider2, warpTransform1Label, runMacroButton);
-        mybox.getChildren().addAll(repeatLabel);
+
+        //mybox.getChildren().addAll(runMacroButton, repeatLabel);
         //need to add numTimes, minusButton, and plusButton to an HBox
         HBox nestedBox = new HBox();
         Button minusButton = new Button("-");
@@ -316,13 +357,33 @@ public class Main extends Application {
             int newValue = Integer.parseInt(numTimes.getText()) + 1;
             numTimes.setText(Integer.toString(newValue));
         });
+        //need to add runMacroButton, repeatLabel, minusButton, numTimes, plusButton to an HBox
+
+        //and put the vbox in said hbox
+        //aaaaaaaaaaaaaaaaaaaaaaaa
+        BorderPane nestedBorderPane = new BorderPane();
+        nestedBorderPane.setLeft(mybox);
+        topMostContainerVBox.getChildren().add(nestedBorderPane);
+        VBox rightTopVBox = new VBox();
+        rightTopVBox.getChildren().addAll(runMacroButton, repeatLabel);
         nestedBox.getChildren().addAll(minusButton, numTimes, plusButton);
+        rightTopVBox.getChildren().addAll(nestedBox);
+        nestedBorderPane.setCenter(rightTopVBox);
+        Insets nestedBorderInsets = new Insets(0, 0, 0, 50);
+        nestedBorderPane.setMargin(rightTopVBox, nestedBorderInsets);
+
+
+
         mainPane.setCenter(textArea);
         mainPane.setStyle(("-fx-focus-color: transparent!important;"));
         Pane bottomPane = new Pane();
         loadingLabel.setMinHeight(30);
-        mainPane.setBottom(loadingLabel);
-        mybox.getChildren().addAll(nestedBox);
+        VBox bottomBox = new VBox();
+        Label closeToEndScriptLabel = new Label("To halt a running script, close the AutoInput window.");
+        closeToEndScriptLabel.setMinHeight(30);
+        bottomBox.getChildren().addAll(loadingLabel, closeToEndScriptLabel);
+        mainPane.setBottom(bottomBox);
+        //mybox.getChildren().addAll(nestedBox);
         //clicking in center
         primaryStage.setScene(scene);
         primaryStage.setAlwaysOnTop(true);
