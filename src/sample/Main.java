@@ -10,15 +10,20 @@ import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.awt.AWTException;
-import java.awt.Robot;
+import java.awt.*;
 import java.awt.event.InputEvent;
-import java.awt.MouseInfo;
 import java.util.Optional;
 import java.util.Set;
 
@@ -93,10 +98,28 @@ public class Main extends Application {
 
         Menu fileMenu = new Menu("File", null, fileItem1, fileItem2, fileItem3);
 
-        MenuItem optionsItem1 = new MenuItem("Always on top");
-        MenuItem optionsItem2 = new MenuItem("Reset");
+        MenuItem optionsItem1 = new MenuItem("Enable always on top");
+        MenuItem optionsItem3 = new MenuItem("Enable dark mode");
+        MenuItem optionsItem4 = new MenuItem("Disable dark mode");
+        MenuItem optionsItem5 = new MenuItem("Disable always on top");
 
-        Menu optionsMenu = new Menu("Options", null, optionsItem1, optionsItem2);
+        //enable dark mode
+        optionsItem3.setOnAction(e -> {
+            textArea.lookup(".content").setStyle("-fx-background-color: #595959;");
+            textArea.setStyle("-fx-text-fill: white;");
+            mainPane.setStyle("-fx-background-color: gray;");
+            numTimes.setStyle("-fx-background-color: darkgray;");
+        });
+
+        //disable dark mode
+        optionsItem4.setOnAction(e -> {
+            textArea.lookup(".content").setStyle(null);
+            textArea.setStyle(null);
+            mainPane.setStyle(null);
+            numTimes.setStyle(null);
+        });
+
+        Menu optionsMenu = new Menu("Options", null, optionsItem1, optionsItem5, optionsItem3, optionsItem4);
         MenuItem helpItem1 = new MenuItem("About");
         Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
         aboutAlert.setTitle("About");
