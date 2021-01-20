@@ -155,7 +155,7 @@ public class Main extends Application {
         textArea.setStyle(("height: 100%; -fx-focus-color: transparent;"));
 
 
-        Button runMacroButton = new Button("Run Macro!");
+        Button runMacroButton = new Button("Run Macro");
         Label repeatLabel = new Label("Times to repeat:");
         TextField numTimes = new TextField();
         numTimes.setText("1");
