@@ -789,9 +789,9 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.setAlwaysOnTop(true);
         //primaryStage.setResizable(false);
-        primaryStage.getIcons().add(new Image("file:icon.png"));
+        primaryStage.getIcons().add(new Image("file:assets/icon.png"));
         mybox.requestFocus();
-        scene.getStylesheets().add("css/style.css");
+        scene.getStylesheets().add("file:css/style.css");
         primaryStage.show();
     }
 
