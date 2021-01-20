@@ -20,17 +20,19 @@ You must have Java 15 installed in order to run the program.
 
 Here's an example of how to write AutoInputScript:
 
-totallooptime 3000
-# this is a comment
-click 400 500 0
-click 600 300 1000
-click 100 700 2000
-rightclick 300 400 3000
+    totallooptime 3000
+    # this is a comment
+    click 400 500 0
+    click 600 300 1000
+    click 100 700 2000
+    rightclick 300 400 3000
 
 The first line of any AutoInputScript must be totallooptime. It specifies the time in milliseconds that it takes to run the entire script. Basically, just set it to the highest delay of any command in the script.
 
 In the following example:
-click 400 500 0
+
+    click 400 500 0
+
 It means to do a left mouse click at the x, y location (400, 500) 0 milliseconds after the script has started.
 
 click 600 300 1000 means click at (600, 300) 1000 milliseconds after the script has started.
