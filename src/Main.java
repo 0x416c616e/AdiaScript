@@ -693,7 +693,7 @@ public class Main extends Application {
         MenuItem aboutItem1 = new MenuItem("About");
         Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
         aboutAlert.setTitle("About");
-        aboutAlert.setHeaderText("About AutoInput");
+        aboutAlert.setHeaderText("About AutoInput v0.0029");
         aboutAlert.setContentText("This is an input automation scripting language and editor made by 0x416c616e. You can use it to write keyboard/mouse macros" +
                 " in order to automate repetitive tasks that require using a GUI rather than something command line-based that can be automated with a shell script.");
 
@@ -754,32 +754,45 @@ public class Main extends Application {
         });
 
         MenuItem helpItem[] = new MenuItem[2];
-        helpItem[0] = new MenuItem("Basic usage (not done)");
+        helpItem[0] = new MenuItem("Basic usage");
 
+        Alert basicUsageAlert = new Alert(Alert.AlertType.INFORMATION);
+        basicUsageAlert.setTitle("Basic Usage");
+        basicUsageAlert.setHeaderText("How to use AutoInput");
+        basicUsageAlert.setContentText("Type your commands in the editor, then hit run.\n" +
+                "Here are some commands you can use:\n" +
+                "move 300 700\n" +
+                "click 400 500\n" +
+                "rightclick 300 400\n" +
+                "wait 1000\n" +
+                "# this is a comment\n" +
+                "press x\n" +
+                "\n" +
+                "It's recommended that you use a wait command between other commands.\n" +
+                "wait 1000 means wait for 1,000 milliseconds, or one second.\n" +
+                "\nIn order to prevent getting into a situation where a script is running but you can't get out of it due to " +
+                "the mouse moving due to lots of loops of move commands, it's recommended that you put at least one long wait " +
+                "in the script to give you enough time to be able to move the mouse to hit the halt button.");
 
-        helpItem[1] = new MenuItem("Common issues");
-        Alert commonIssuesAlert = new Alert(Alert.AlertType.INFORMATION);
-        commonIssuesAlert.setTitle("Common Issues");
-        commonIssuesAlert.setHeaderText("Common issues when using AutoInput");
-        commonIssuesAlert.setContentText("If the program crashes or stops before the macro is finished, try increasing the wait time between clicks or moves. \n\n" +
-                "Here is an example of a good macro (for stability):\n\n" +
-                "click 500 500\n" +
-                "wait 4000\n" +
-                "click 400 400\n" +
-                "wait 6000\n\n" +
-                "That being said, it's normal for the program to say 'not responding' due to how the wait command is coded. It's not perfect, but it works. " +
-                "If AutoInput says 'not responding' but it doesn't crash, it's fine. But if it crashes, then you need to increase the duration of the wait commands.");
-
-        helpItem[1].setOnAction(e -> {
+        helpItem[0].setOnAction(e -> {
+            //primaryStage is temporarily set to not be always on top
+            //otherwise an alert would be behind it
             primaryStage.setAlwaysOnTop(false);
-            Optional<ButtonType> commonIssuesAlertResult = commonIssuesAlert.showAndWait();
-            if (commonIssuesAlertResult.isEmpty()) {
-                //nothing
+            Optional<ButtonType> basicUsageAlertResult = basicUsageAlert.showAndWait();
+            if (basicUsageAlertResult.isEmpty()) {
+                //do nothing
+                //without this part, it would throw an exception
                 primaryStage.setAlwaysOnTop(true);
-            } else if (commonIssuesAlertResult.get() == ButtonType.OK || commonIssuesAlertResult.get() == ButtonType.CLOSE) {
+            } else if (basicUsageAlertResult.get() == ButtonType.OK) {
+                //once the alert is closed, set the primaryStage (main program window) to be always on top again
+                primaryStage.setAlwaysOnTop(true);
+            } else if (basicUsageAlertResult.get() == ButtonType.CLOSE) {
                 primaryStage.setAlwaysOnTop(true);
             }
         });
+
+
+
         Menu helpMenu = new Menu("Help", null, helpItem[0]);
 
 
