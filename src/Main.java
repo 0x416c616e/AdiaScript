@@ -40,34 +40,22 @@ public class Main extends Application {
         bot.mouseMove(x, y);
     }
 
-    public static void scheduleEvent(int x, int y, int duration, Robot bot, ScriptHalter scriptHalter, String eventType, int offsetMultiplier, int totalLoopTime) throws AWTException {
+    public static void scheduleEvent(int x, int y, int duration, Robot bot, ScriptHalter scriptHalter, String eventType) throws AWTException {
 
         new Thread(()->{ //use another thread so long process does not block gui
             //update gui using fx thread
             if (scriptHalter.isUserWantsToHaltScript()) {
-                System.out.println("thread is returning");
+                //System.out.println("thread is returning");
                 Thread.currentThread().interrupt();
                 return; //ends the thread
                 //this needs to be checked before and after the wait duration
 
             } else {
 
-                for (int i = 0; i < offsetMultiplier; i++) {
-                    for (int j = 0; j < totalLoopTime; j += 100) {
-                        try {Thread.sleep(100);} catch (InterruptedException ex) { ex.printStackTrace();}
-                        if (scriptHalter.isUserWantsToHaltScript()) {
-                            System.out.println("thread is returning!!!!!!!!!!!!!!!!");
-                            Thread.currentThread().interrupt();
-                            return; //ends the thread
-                            //this needs to be checked before and after the wait duration
-
-                        }
-                    }
-                }
                 for (int i = 0; i < duration; i += 100) {
                     try {Thread.sleep(100);} catch (InterruptedException ex) { ex.printStackTrace();}
                     if (scriptHalter.isUserWantsToHaltScript()) {
-                        System.out.println("user wants to halt the script");
+                        //System.out.println("user wants to halt the script");
                         Thread.currentThread().interrupt();
                         return; //end the thread
 
@@ -75,12 +63,12 @@ public class Main extends Application {
                 }
 
                 if (scriptHalter.isUserWantsToHaltScript()) {
-                    System.out.println("user wants to halt the script");
+                    //System.out.println("user wants to halt the script");
                     Thread.currentThread().interrupt();
                     return; //end the thread
 
                 } else {
-                    System.out.println("user wants to continue the script");
+                    //System.out.println("user wants to continue the script");
                     Platform.runLater(() -> {
                         try {
                             switch (eventType) {
@@ -111,10 +99,7 @@ public class Main extends Application {
 
     }
 
-    public void scheduleMultiple (int x, int y, int duration, Robot bot, ScriptHalter scriptHalter) throws AWTException {
-        //if there's more than one schedule event, use this instead of scheduleclick
-        //
-    }
+
 
     public static void clickAndDrag(int x_start, int y_start, int x_end, int y_end, Robot bot) throws AWTException {
         bot.mouseMove(x_start, y_start);
@@ -122,6 +107,436 @@ public class Main extends Application {
         bot.mouseMove(x_end, y_end);
         bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 
+    }
+
+    //parses the script, runs the script if there were no errors detected during parsing, and creates threads for each click/rightclick/etc command
+    public static void parseAndRunScript(int timesToRepeat, TextArea textArea, Label loadingLabel, TotalLoopTime totalLoopTime, ScriptHalter scriptHalter, Robot bot) throws AWTException {
+        new Thread(()->{ //use another thread so long process does not block gui
+                //update gui using fx thread
+                //Platform.runLater(() -> label.setText(text));
+            for (int i = 0; i < timesToRepeat; i++) {
+                //this is where the macro stuff happens
+                //System.out.println("Number of lines in the text area: " + String.valueOf(textArea.getText().split("\n").length));
+
+                int numberOfLines = textArea.getText().split("\n").length;
+                String lines[] = textArea.getText().split("\n");
+
+
+                //commands in AutoInputScript:
+                //for now, just click and wait
+                //example code:
+                //click 300 400
+                //wait 500
+
+                //parse the textArea just to see if there are any problems
+                //this parsing does NOT run the script, it just checks it for errors
+                boolean scriptingError = false; //set to true if issue with parsing script
+                boolean scriptIsEmpty = true;
+                for (int j = 0; j < numberOfLines; j++) {
+                    if (scriptingError) {
+                        break;
+                    }
+                    String scriptLine[] = lines[j].split(" ");
+
+
+                    int lineNumber = j + 1;
+                    //this next if/switch part is only for totallooptime
+
+                    if (scriptLine.length != 0) {
+                        if (scriptHalter.isUserWantsToHaltScript()) {
+                            break;
+                        }
+                        /*
+                        if (lineNumber == 1) {
+                            //first line must be totallooptime
+                            switch (scriptLine[0]) {
+
+                                case "totallooptime":
+                                    scriptIsEmpty = false;
+                                    if (scriptLine.length != 2) {
+                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for totallooptime");
+                                        scriptingError = true;
+                                        break;
+                                    } else {
+                                        try {
+                                            totalLoopTime.setTotalLoopTime(Integer.parseInt(scriptLine[1]));
+                                        } catch (NumberFormatException nfe) {
+                                            nfe.printStackTrace();
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": totallooptime arg must be int");
+                                            scriptingError = true;
+                                            break;
+                                        }
+
+                                    }
+                                    break;
+                                default:
+                                    Platform.runLater(new Runnable(){
+                                        @Override public void run() {
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": 1st line must declare totallooptime");
+                                        }
+                                    });
+                                    scriptingError = true;
+                                    break;
+                            }
+                        }*/
+                        switch (scriptLine[0]) {
+
+                            case "wait":
+                                if (scriptHalter.isUserWantsToHaltScript()) {
+                                    break;
+                                }
+                                scriptIsEmpty = false;
+                                //check if it has an int arg
+                                if (scriptLine.length != 2) {
+                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for wait");
+                                    scriptingError = true;
+                                    break;
+                                } else {
+                                    try {
+                                        Integer.parseInt(scriptLine[1]);
+                                        //parse number after wait, i.e. wait 5000
+                                    } catch (NumberFormatException nfe) {
+                                        nfe.printStackTrace();
+                                        loadingLabel.setText("Macro error on line " + lineNumber + ": wait arg must be int");
+                                        scriptingError = true;
+                                        break;
+                                    }
+
+                                }
+                                break;
+                            case "click":
+                                if (scriptHalter.isUserWantsToHaltScript()) {
+                                    break;
+                                }
+                                scriptIsEmpty = false;
+                                //System.out.println("you want to click on line " + j);
+                                //now need to check if it has proper int args i.e. click 400 500
+                                if (scriptLine.length != 3) {
+                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for click");
+                                    scriptingError = true;
+                                    break;
+                                } else {
+                                    try {
+                                        int x;
+                                        int y;
+                                        x = Integer.parseInt(scriptLine[1]);
+                                        y = Integer.parseInt(scriptLine[2]);
+                                    } catch (NumberFormatException numException) {
+                                        loadingLabel.setText("Macro error on line " + lineNumber + ": click args must be ints");
+                                        scriptingError = true;
+                                        break;
+                                    }
+
+                                }
+                                break;
+                            case "rightclick":
+                                if (scriptHalter.isUserWantsToHaltScript()) {
+                                    break;
+                                }
+                                scriptIsEmpty = false;
+                                //System.out.println("you want to rightclick on line " + j);
+                                //now need to check if it has proper int args i.e. rightclick 400 500
+                                if (scriptLine.length != 3) {
+                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for rightclick");
+                                    scriptingError = true;
+                                    break;
+                                } else {
+                                    try {
+                                        int x;
+                                        int y;
+                                        x = Integer.parseInt(scriptLine[1]);
+                                        y = Integer.parseInt(scriptLine[2]);
+                                    } catch (NumberFormatException numException) {
+                                        loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints");
+                                        scriptingError = true;
+                                        break;
+                                    }
+
+                                }
+                                break;
+                            //press a key, i.e. press a
+                            case "press":
+                                if (scriptHalter.isUserWantsToHaltScript()) {
+                                    break;
+                                }
+                                scriptIsEmpty = false;
+                                System.out.println("you want to press on line " + j);
+                                //now need to check if it has a proper string arg i.e. press a
+                                if (scriptLine.length != 2) {
+
+                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for press");
+                                    scriptingError = true;
+                                    break;
+                                } else {
+                                    String allKeys = "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,";
+                                    allKeys += allKeys.toUpperCase();
+                                    allKeys += "0,1,2,3,4,5,6,7,8,9,";
+                                    //for now, I'm not adding all keys, just basic ones
+                                    allKeys += "enter,space,backspace,up,down,left,right,escape";
+                                    String keysArray[] = allKeys.split(",");
+
+                                    Set<String> keySet = Set.of(keysArray);
+
+                                    if (keySet.contains(scriptLine[1])) {
+                                        System.out.println("this is a valid key");
+                                    } else {
+
+                                        System.out.print("invalid key for press command. arg: " + scriptLine[1]);
+                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid press arg");
+                                        scriptingError = true;
+                                        break;
+                                    }
+
+                                }
+                                break;
+                            //case " ":
+                            case "":
+                                //blank lines are ok, just ignore them
+                            case "#":
+                                if (scriptHalter.isUserWantsToHaltScript()) {
+                                    break;
+                                }
+                                //comments are ok, just don't do anything with the subsequent words in the line
+                                //comments in AutoInputScript must be like this:
+                                //# comment
+                                //hash sign followed by a space and then the comment
+                                break;
+                            /*case "totallooptime":
+                                //it was already handled earlier in the code
+                                if (lineNumber != 1) {
+                                    loadingLabel.setText("Macro error on " + lineNumber + ": invalid use of totallooptime");
+                                    scriptingError = true;
+                                    break;
+                                }
+                                break;*/
+                            default:
+                                if (scriptHalter.isUserWantsToHaltScript()) {
+                                    break;
+                                }
+                                Platform.runLater(new Runnable(){
+                                    @Override public void run() {
+                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid syntax");
+                                    }
+                                });
+                                scriptingError = true;
+                                break;
+                        }
+                    }
+
+
+                }
+
+                if (!scriptingError && scriptIsEmpty) {
+                    loadingLabel.setText("Macro error: cannot run blank script");
+                }
+
+                //if no errors are found with the error checking, time to actually run the script
+                if (!scriptingError && !scriptIsEmpty) {
+                    Platform.runLater(new Runnable(){
+                        @Override public void run() {
+                            loadingLabel.setText("Running script");
+                        }
+                    });
+                    //to-do: implement actually parsing script and then running the commands, such as click, rightClick, etc.
+                    //!!!!!!!!!!!!!!!!!!!!!!WHERE I LEFT OFF!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+                    //-------------------------------------------------------------------------------------------------
+                    //the following loop actually runs the script!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    //the above stuff just checks it for errors
+                    //that way, it will only run the script in its entirety when there are no errors
+                    //it will not run a partially-working script
+                    for (int j = 0; j < numberOfLines; j++) {
+
+                        //if there is an error or the user presses the button to halt the script, then stop the script
+                        if (scriptingError || scriptHalter.isUserWantsToHaltScript()) {
+                            //System.out.println("script has been halted");
+                            //scriptHalter.setUserWantsToHaltScript(false);
+                            break;
+                        }
+                        String scriptLine[] = lines[j].split(" ");
+
+
+                        int lineNumber = j + 1;
+                        if (scriptLine.length != 0) {
+
+                            switch (scriptLine[0]) {
+
+                                case "wait":
+                                    if (scriptHalter.isUserWantsToHaltScript()) {
+                                        break;
+                                    }
+                                    scriptIsEmpty = false;
+                                    //check if it has an int arg
+                                    if (scriptLine.length != 2) {
+                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for wait");
+                                        scriptingError = true;
+                                        break;
+                                    } else {
+                                        try {
+                                            int waitDuration = Integer.parseInt(scriptLine[1]);
+                                            for (int x = 0; x < waitDuration; x += 100) {
+                                                try {Thread.sleep(100);} catch (InterruptedException ex) { ex.printStackTrace();}
+                                                if (scriptHalter.isUserWantsToHaltScript()) {
+                                                    //System.out.println("user wants to halt the script");
+                                                    Thread.currentThread().interrupt();
+                                                    return; //end the thread
+
+                                                }
+                                            }
+                                            //Thread.sleep(Integer.parseInt(scriptLine[1]));
+                                        } catch (NumberFormatException nfe) {
+                                            nfe.printStackTrace();
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": wait arg must be int");
+                                            scriptingError = true;
+                                            break;
+                                        }
+
+                                    }
+                                    break;
+                                case "click":
+                                    if (scriptHalter.isUserWantsToHaltScript()) {
+                                        break;
+                                    }
+                                    scriptIsEmpty = false;
+                                    //System.out.println("you want to click on line " + j);
+                                    //now need to check if it has proper int args i.e. click 400 500
+                                    if (scriptLine.length != 3) {
+                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for click");
+                                        scriptingError = true;
+                                        break;
+                                    } else {
+                                        try {
+                                            int x;
+                                            int y;
+                                            x = Integer.parseInt(scriptLine[1]);
+                                            y = Integer.parseInt(scriptLine[2]);
+                                            //scheduleEvent(x, y, waitDuration, bot, scriptHalter, "click"); //i is the loop #
+                                            click(x, y, bot);
+                                        } catch (NumberFormatException numException) {
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": click args must be ints");
+                                            scriptingError = true;
+                                            break;
+                                        } catch (AWTException awtE) {
+                                            awtE.printStackTrace();
+                                        }
+
+                                    }
+                                    break;
+                                case "rightclick":
+                                    if (scriptHalter.isUserWantsToHaltScript()) {
+                                        break;
+                                    }
+                                    scriptIsEmpty = false;
+                                    //System.out.println("you want to rightclick on line " + j);
+                                    //now need to check if it has proper int args i.e. rightclick 400 500
+                                    if (scriptLine.length != 3) {
+                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for rightclick");
+                                        scriptingError = true;
+                                        break;
+                                    } else {
+                                        try {
+                                            int x;
+                                            int y;
+                                            x = Integer.parseInt(scriptLine[1]);
+                                            y = Integer.parseInt(scriptLine[2]);
+                                            //scheduleEvent(x, y, waitDuration, bot, scriptHalter, "rightclick"); //i is the loop #
+                                            rightClick(x, y, bot);
+                                        } catch (NumberFormatException numException) {
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints");
+                                            scriptingError = true;
+                                            break;
+                                        } catch (AWTException awtE) {
+                                            awtE.printStackTrace();
+                                        }
+
+                                    }
+                                    break;
+
+                                //press a key, i.e. press a
+                                case "press":
+                                    if (scriptHalter.isUserWantsToHaltScript()) {
+                                        break;
+                                    }
+                                    scriptIsEmpty = false;
+                                    System.out.println("you want to press on line " + j);
+                                    //now need to check if it has a proper string arg i.e. press a
+                                    if (scriptLine.length != 2) {
+
+                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for press");
+                                        scriptingError = true;
+                                        break;
+                                    } else {
+                                        String allKeys = "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,";
+                                        allKeys += allKeys.toUpperCase();
+                                        allKeys += "0,1,2,3,4,5,6,7,8,9,";
+                                        //for now, I'm not adding all keys, just basic ones
+                                        allKeys += "enter,space,backspace,up,down,left,right,escape";
+                                        String keysArray[] = allKeys.split(",");
+
+                                        Set<String> keySet = Set.of(keysArray);
+
+                                        if (keySet.contains(scriptLine[1])) {
+                                            System.out.println("this is a valid key");
+                                            System.out.println("press feature is not yet implemented! implement it here!!!!!");
+                                        } else {
+
+                                            System.out.print("invalid key for press command. arg: " + scriptLine[1]);
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid press arg");
+                                            scriptingError = true;
+                                            break;
+                                        }
+
+                                    }
+                                    break;
+                                //case " ":
+                                case "":
+                                    //blank lines are ok, just ignore them
+                                case "#":
+                                    //comments are ok, just don't do anything with the subsequent words in the line
+                                    //comments in AutoInputScript must be like this:
+                                    //# comment
+                                    //hash sign followed by a space and then the comment
+                                    if (scriptHalter.isUserWantsToHaltScript()) {
+                                        break;
+                                    }
+                                    break;
+                                /*case "totallooptime":
+                                    //totallooptime is used for the initial parsing, and for setting the totalLoopTime's int property
+                                    //which is used for the arg that goes to scheduleEvent()
+                                    break;*/
+                                default:
+                                    if (scriptHalter.isUserWantsToHaltScript()) {
+                                        break;
+                                    }
+                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid syntax");
+                                    scriptingError = true;
+                                    break;
+                            }
+                        }
+
+                        //try {Thread.sleep(totalLoopTime.getTotalLoopTime());} catch (InterruptedException ex) { ex.printStackTrace();}
+                    }
+
+                    Platform.runLater(new Runnable(){
+                        @Override public void run() {
+                            loadingLabel.setText("Finished running script");
+                        }
+                    });
+
+                }
+
+
+
+
+
+            }
+
+
+
+
+
+        }).start();
     }
 
     @Override
@@ -318,318 +733,8 @@ public class Main extends Application {
                 //scene.setCursor(Cursor.WAIT);
                 int timesToRepeat = Integer.parseInt(numTimes.getText());
 
+                parseAndRunScript(timesToRepeat, textArea, loadingLabel, totalLoopTime, scriptHalter, bot);
 
-                for (int i = 0; i < timesToRepeat; i++) {
-                    //this is where the macro stuff happens
-                    //System.out.println("Number of lines in the text area: " + String.valueOf(textArea.getText().split("\n").length));
-
-                    int numberOfLines = textArea.getText().split("\n").length;
-                    String lines[] = textArea.getText().split("\n");
-
-
-                    //commands in AutoInputScript:
-                    //for now, just click and wait
-                    //example code:
-                    //click 300 400
-                    //wait 500
-
-                    //parse the textArea just to see if there are any problems
-                    //this parsing does NOT run the script, it just checks it for errors
-                    boolean scriptingError = false; //set to true if issue with parsing script
-                    boolean scriptIsEmpty = true;
-                    for (int j = 0; j < numberOfLines; j++) {
-                        if (scriptingError) {
-                            break;
-                        }
-                        String scriptLine[] = lines[j].split(" ");
-
-
-                        int lineNumber = j + 1;
-                        if (scriptLine.length != 0) {
-                            if (lineNumber == 1) {
-                                //first line must be totallooptime
-                                switch (scriptLine[0]) {
-                                    case "totallooptime":
-                                        scriptIsEmpty = false;
-                                        if (scriptLine.length != 2) {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for totallooptime");
-                                            scriptingError = true;
-                                            break;
-                                        } else {
-                                            //where I left off
-                                            try {
-                                                totalLoopTime.setTotalLoopTime(Integer.parseInt(scriptLine[1]));
-                                                //System.out.println("successfully updated totallooptime");
-                                            } catch (NumberFormatException nfe) {
-                                                nfe.printStackTrace();
-                                            }
-
-                                        }
-                                        break;
-                                    default:
-                                        loadingLabel.setText("Macro error on line " + lineNumber + ": 1st line must declare totallooptime");
-                                        scriptingError = true;
-                                        break;
-                                }
-                            }
-                            switch (scriptLine[0]) {
-
-
-                                case "click":
-                                    scriptIsEmpty = false;
-                                    //System.out.println("you want to click on line " + j);
-                                    //now need to check if it has proper int args i.e. click 400 500 1000
-                                    if (scriptLine.length != 4) {
-                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for click");
-                                        scriptingError = true;
-                                        break;
-                                    } else {
-                                        try {
-                                            int x;
-                                            int y;
-                                            int waitDuration;
-                                            x = Integer.parseInt(scriptLine[1]);
-                                            y = Integer.parseInt(scriptLine[2]);
-                                            waitDuration = Integer.parseInt(scriptLine[3]);
-                                        } catch (NumberFormatException numException) {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": click args must be ints");
-                                            scriptingError = true;
-                                            break;
-                                        }
-
-                                    }
-                                    break;
-                                case "rightclick":
-                                    scriptIsEmpty = false;
-                                    //System.out.println("you want to rightclick on line " + j);
-                                    //now need to check if it has proper int args i.e. rightclick 400 500 1000
-                                    if (scriptLine.length != 4) {
-                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for rightclick");
-                                        scriptingError = true;
-                                        break;
-                                    } else {
-                                        try {
-                                            int x;
-                                            int y;
-                                            int waitDuration;
-                                            x = Integer.parseInt(scriptLine[1]);
-                                            y = Integer.parseInt(scriptLine[2]);
-                                            waitDuration = Integer.parseInt(scriptLine[3]);
-                                        } catch (NumberFormatException numException) {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints");
-                                            scriptingError = true;
-                                            break;
-                                        }
-
-                                    }
-                                    break;
-                                //press a key, i.e. press a
-                                case "press":
-                                    scriptIsEmpty = false;
-                                    System.out.println("you want to press on line " + j);
-                                    //now need to check if it has a proper string arg i.e. press a
-                                    if (scriptLine.length != 2) {
-
-                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for press");
-                                        scriptingError = true;
-                                        break;
-                                    } else {
-                                        String allKeys = "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,";
-                                        allKeys += allKeys.toUpperCase();
-                                        allKeys += "0,1,2,3,4,5,6,7,8,9,";
-                                        //for now, I'm not adding all keys, just basic ones
-                                        allKeys += "enter,space,backspace,up,down,left,right,escape";
-                                        String keysArray[] = allKeys.split(",");
-
-                                        Set<String> keySet = Set.of(keysArray);
-
-                                        if (keySet.contains(scriptLine[1])) {
-                                            System.out.println("this is a valid key");
-                                        } else {
-
-                                            System.out.print("invalid key for press command. arg: " + scriptLine[1]);
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid press arg");
-                                            scriptingError = true;
-                                            break;
-                                        }
-
-                                    }
-                                    break;
-                                //case " ":
-                                case "":
-                                    //blank lines are ok, just ignore them
-                                    break;
-                                case "#":
-                                    //comments are ok, just don't do anything with the subsequent words in the line
-                                    //comments in AutoInputScript must be like this:
-                                    //# comment
-                                    //hash sign followed by a space and then the comment
-                                    break;
-                                case "totallooptime":
-                                    //it was already handled earlier in the code
-                                    if (lineNumber != 1) {
-                                        loadingLabel.setText("Macro error on " + lineNumber + ": invalid use of totallooptime");
-                                        scriptingError = true;
-                                        break;
-                                    }
-                                    break;
-                                default:
-                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid syntax");
-                                    scriptingError = true;
-                                    break;
-                            }
-                        }
-
-
-                    }
-
-                    if (!scriptingError && scriptIsEmpty) {
-                        loadingLabel.setText("Macro error: cannot run blank script");
-                    }
-
-                    //if no errors are found with the error checking, time to actually run the script
-                    if (!scriptingError && !scriptIsEmpty) {
-                        loadingLabel.setText("Script check: OK");
-                        //to-do: implement actually parsing script and then running the commands, such as click, rightClick, etc.
-                        //!!!!!!!!!!!!!!!!!!!!!!WHERE I LEFT OFF!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-                        //-------------------------------------------------------------------------------------------------
-                        //the following loop actually runs the script!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        //the above stuff just checks it for errors
-                        //that way, it will only run the script in its entirety when there are no errors
-                        //it will not run a partially-working script
-                        for (int j = 0; j < numberOfLines; j++) {
-                            //if there is an error or the user presses the button to halt the script, then stop the script
-                            if (scriptingError || scriptHalter.isUserWantsToHaltScript()) {
-                                System.out.println("script has been halted");
-                                //scriptHalter.setUserWantsToHaltScript(false);
-                                break;
-                            }
-                            String scriptLine[] = lines[j].split(" ");
-
-
-                            int lineNumber = j + 1;
-                            if (scriptLine.length != 0) {
-
-                                switch (scriptLine[0]) {
-
-
-                                    case "click":
-                                        scriptIsEmpty = false;
-                                        //System.out.println("you want to click on line " + j);
-                                        //now need to check if it has proper int args i.e. click 400 500 1000
-                                        if (scriptLine.length != 4) {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for click");
-                                            scriptingError = true;
-                                            break;
-                                        } else {
-                                            try {
-                                                int x;
-                                                int y;
-                                                int waitDuration;
-                                                x = Integer.parseInt(scriptLine[1]);
-                                                y = Integer.parseInt(scriptLine[2]);
-                                                waitDuration = Integer.parseInt(scriptLine[3]);
-                                                scheduleEvent(x, y, waitDuration, bot, scriptHalter, "click", i, totalLoopTime.getTotalLoopTime()); //i is the loop #
-                                            } catch (NumberFormatException numException) {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": click args must be ints");
-                                                scriptingError = true;
-                                                break;
-                                            }
-
-                                        }
-                                        break;
-                                    case "rightclick":
-                                        scriptIsEmpty = false;
-                                        //System.out.println("you want to rightclick on line " + j);
-                                        //now need to check if it has proper int args i.e. rightclick 400 500 1000
-                                        if (scriptLine.length != 4) {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for rightclick");
-                                            scriptingError = true;
-                                            break;
-                                        } else {
-                                            try {
-                                                int x;
-                                                int y;
-                                                int waitDuration;
-                                                x = Integer.parseInt(scriptLine[1]);
-                                                y = Integer.parseInt(scriptLine[2]);
-                                                waitDuration = Integer.parseInt(scriptLine[3]);
-                                                scheduleEvent(x, y, waitDuration, bot, scriptHalter, "rightclick", i, totalLoopTime.getTotalLoopTime()); //i is the loop #
-                                            } catch (NumberFormatException numException) {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints");
-                                                scriptingError = true;
-                                                break;
-                                            }
-
-                                        }
-                                        break;
-
-                                    //press a key, i.e. press a
-                                    case "press":
-                                        scriptIsEmpty = false;
-                                        System.out.println("you want to press on line " + j);
-                                        //now need to check if it has a proper string arg i.e. press a
-                                        if (scriptLine.length != 2) {
-
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for press");
-                                            scriptingError = true;
-                                            break;
-                                        } else {
-                                            String allKeys = "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,";
-                                            allKeys += allKeys.toUpperCase();
-                                            allKeys += "0,1,2,3,4,5,6,7,8,9,";
-                                            //for now, I'm not adding all keys, just basic ones
-                                            allKeys += "enter,space,backspace,up,down,left,right,escape";
-                                            String keysArray[] = allKeys.split(",");
-
-                                            Set<String> keySet = Set.of(keysArray);
-
-                                            if (keySet.contains(scriptLine[1])) {
-                                                System.out.println("this is a valid key");
-                                                System.out.println("press feature is not yet implemented! implement it here!!!!!");
-                                            } else {
-
-                                                System.out.print("invalid key for press command. arg: " + scriptLine[1]);
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid press arg");
-                                                scriptingError = true;
-                                                break;
-                                            }
-
-                                        }
-                                        break;
-                                    //case " ":
-                                    case "":
-                                        //blank lines are ok, just ignore them
-                                        break;
-                                    case "#":
-                                        //comments are ok, just don't do anything with the subsequent words in the line
-                                        //comments in AutoInputScript must be like this:
-                                        //# comment
-                                        //hash sign followed by a space and then the comment
-                                        break;
-                                    case "totallooptime":
-                                        //totallooptime is used for the initial parsing, and for setting the totalLoopTime's int property
-                                        //which is used for the arg that goes to scheduleEvent()
-                                        break;
-                                    default:
-                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid syntax");
-                                        scriptingError = true;
-                                        break;
-                                }
-                            }
-
-
-                        }
-
-                    }
-
-
-
-
-
-                }
 
                 scene.setCursor(Cursor.DEFAULT);
             } catch (AWTException a) {
