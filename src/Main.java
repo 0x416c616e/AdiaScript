@@ -690,7 +690,7 @@ public class Main extends Application {
                                     loadingLabel.setText("Finished running script");
                                 }
                             });
-                            runMacroButton.setDisable(false);
+
 
                         }
                     });
@@ -703,7 +703,7 @@ public class Main extends Application {
 
             }
 
-
+            runMacroButton.setDisable(false);
 
 
 
@@ -854,7 +854,7 @@ public class Main extends Application {
         editItem[3] = new MenuItem("Paste");
         //editItem[4] = new MenuItem("Delete (not done)");
         editItem[5] = new MenuItem("Select all");
-        editItem[6] = new MenuItem("Select");
+        editItem[6] = new MenuItem("Select none");
         editItem[7] = new MenuItem("Delete selected text");
 
         //delete selected
@@ -919,7 +919,7 @@ public class Main extends Application {
         MenuItem aboutItem1 = new MenuItem("About");
         Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
         aboutAlert.setTitle("About");
-        aboutAlert.setHeaderText("About AutoInput v0.0033");
+        aboutAlert.setHeaderText("About AutoInput v0.0034");
         aboutAlert.setContentText("This is an input automation scripting language and editor made by 0x416c616e. You can use it to write keyboard/mouse macros" +
                 " in order to automate repetitive tasks that require using a GUI rather than something command line-based that can be automated with a shell script.");
 
