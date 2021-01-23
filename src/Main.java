@@ -83,9 +83,16 @@ public class Main extends Application {
                     });
 
 
+
+
                     if (scriptingError) {
                         break;
                     }
+                    Platform.runLater(new Runnable(){
+                        @Override public void run() {
+                            loadingLabel.setText("Script halted");
+                        }
+                    });
                     String scriptLine[] = lines[j].split(" ");
 
 
@@ -93,6 +100,11 @@ public class Main extends Application {
 
                     if (scriptLine.length != 0) {
                         if (scriptHalter.isUserWantsToHaltScript()) {
+                            Platform.runLater(new Runnable(){
+                                @Override public void run() {
+                                    loadingLabel.setText("Script halted");
+                                }
+                            });
                             break;
                         }
 
@@ -100,6 +112,11 @@ public class Main extends Application {
                             case "move":
                                 //move 500 500
                                 if (scriptHalter.isUserWantsToHaltScript()) {
+                                    Platform.runLater(new Runnable(){
+                                        @Override public void run() {
+                                            loadingLabel.setText("Script halted");
+                                        }
+                                    });
                                     break;
                                 }
                                 scriptIsEmpty = false;
@@ -131,6 +148,11 @@ public class Main extends Application {
                                 break;
                             case "wait":
                                 if (scriptHalter.isUserWantsToHaltScript()) {
+                                    Platform.runLater(new Runnable(){
+                                        @Override public void run() {
+                                            loadingLabel.setText("Script halted");
+                                        }
+                                    });
                                     break;
                                 }
                                 scriptIsEmpty = false;
@@ -164,6 +186,11 @@ public class Main extends Application {
                                 break;
                             case "click":
                                 if (scriptHalter.isUserWantsToHaltScript()) {
+                                    Platform.runLater(new Runnable(){
+                                        @Override public void run() {
+                                            loadingLabel.setText("Script halted");
+                                        }
+                                    });
                                     break;
                                 }
                                 scriptIsEmpty = false;
@@ -199,6 +226,11 @@ public class Main extends Application {
                                 break;
                             case "rightclick":
                                 if (scriptHalter.isUserWantsToHaltScript()) {
+                                    Platform.runLater(new Runnable(){
+                                        @Override public void run() {
+                                            loadingLabel.setText("Script halted");
+                                        }
+                                    });
                                     break;
                                 }
                                 scriptIsEmpty = false;
@@ -235,6 +267,11 @@ public class Main extends Application {
                             //press a key, i.e. press a
                             case "press":
                                 if (scriptHalter.isUserWantsToHaltScript()) {
+                                    Platform.runLater(new Runnable(){
+                                        @Override public void run() {
+                                            loadingLabel.setText("Script halted");
+                                        }
+                                    });
                                     break;
                                 }
                                 scriptIsEmpty = false;
@@ -281,6 +318,11 @@ public class Main extends Application {
                                 //blank lines are ok, just ignore them
                             case "#":
                                 if (scriptHalter.isUserWantsToHaltScript()) {
+                                    Platform.runLater(new Runnable(){
+                                        @Override public void run() {
+                                            loadingLabel.setText("Script halted");
+                                        }
+                                    });
                                     break;
                                 }
                                 //comments are ok, just don't do anything with the subsequent words in the line
@@ -298,6 +340,11 @@ public class Main extends Application {
                                 break;*/
                             default:
                                 if (scriptHalter.isUserWantsToHaltScript()) {
+                                    Platform.runLater(new Runnable(){
+                                        @Override public void run() {
+                                            loadingLabel.setText("Script halted");
+                                        }
+                                    });
                                     break;
                                 }
                                 Platform.runLater(new Runnable(){
@@ -693,7 +740,7 @@ public class Main extends Application {
         MenuItem aboutItem1 = new MenuItem("About");
         Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
         aboutAlert.setTitle("About");
-        aboutAlert.setHeaderText("About AutoInput v0.0029");
+        aboutAlert.setHeaderText("About AutoInput v0.0030");
         aboutAlert.setContentText("This is an input automation scripting language and editor made by 0x416c616e. You can use it to write keyboard/mouse macros" +
                 " in order to automate repetitive tasks that require using a GUI rather than something command line-based that can be automated with a shell script.");
 
@@ -920,6 +967,11 @@ public class Main extends Application {
             scriptHalter.setUserWantsToHaltScript(true);
             try {
                 Thread.sleep(1200);
+                Platform.runLater(new Runnable(){
+                    @Override public void run() {
+                        loadingLabel.setText("Script halted");
+                    }
+                });
             } catch (InterruptedException interruptedExcept) {
                 interruptedExcept.printStackTrace();
             }
