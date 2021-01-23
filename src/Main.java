@@ -710,12 +710,27 @@ public class Main extends Application {
 
         Menu fileMenu = new Menu("File", null, fileItem1, fileItem2, fileItem3);
 
-        MenuItem optionsItem1 = new MenuItem("Enable always on top (not done)");
+        MenuItem optionsItem1 = new MenuItem("Enable always on top");
         MenuItem optionsItem3 = new MenuItem("Enable dark mode");
         MenuItem optionsItem4 = new MenuItem("Disable dark mode");
-        MenuItem optionsItem5 = new MenuItem("Disable always on top (not done)");
+        MenuItem optionsItem5 = new MenuItem("Disable always on top");
         MenuItem optionsItem6 = new MenuItem("Enable word wrap");
         MenuItem optionsItem7 = new MenuItem("Disable word wrap");
+
+        AlwaysOnTopStatus alwaysOnTopStatus = new AlwaysOnTopStatus();
+
+        //enable always on top
+        optionsItem1.setOnAction(e -> {
+            primaryStage.setAlwaysOnTop(true);
+            alwaysOnTopStatus.setAlwaysOnTop(true);
+
+        });
+
+        //disable always on top
+        optionsItem5.setOnAction(e -> {
+            primaryStage.setAlwaysOnTop(false);
+            alwaysOnTopStatus.setAlwaysOnTop(false);
+        });
 
         optionsItem6.setOnAction(e -> {
             textArea.setWrapText(true);
@@ -800,7 +815,7 @@ public class Main extends Application {
         MenuItem aboutItem1 = new MenuItem("About");
         Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
         aboutAlert.setTitle("About");
-        aboutAlert.setHeaderText("About AutoInput v0.0031");
+        aboutAlert.setHeaderText("About AutoInput v0.0032");
         aboutAlert.setContentText("This is an input automation scripting language and editor made by 0x416c616e. You can use it to write keyboard/mouse macros" +
                 " in order to automate repetitive tasks that require using a GUI rather than something command line-based that can be automated with a shell script.");
 
@@ -808,17 +823,28 @@ public class Main extends Application {
         aboutItem1.setOnAction(e -> {
             //primaryStage is temporarily set to not be always on top
             //otherwise an alert would be behind it
-            primaryStage.setAlwaysOnTop(false);
+            if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                primaryStage.setAlwaysOnTop(false);
+            }
             Optional<ButtonType> aboutAlertResult = aboutAlert.showAndWait();
             if (aboutAlertResult.isEmpty()) {
                 //do nothing
                 //without this part, it would throw an exception
-                primaryStage.setAlwaysOnTop(true);
+                if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                    primaryStage.setAlwaysOnTop(true);
+                }
+
             } else if (aboutAlertResult.get() == ButtonType.OK) {
                 //once the alert is closed, set the primaryStage (main program window) to be always on top again
-                primaryStage.setAlwaysOnTop(true);
+                if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                    primaryStage.setAlwaysOnTop(true);
+                }
+
             } else if (aboutAlertResult.get() == ButtonType.CLOSE) {
-                primaryStage.setAlwaysOnTop(true);
+                if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                    primaryStage.setAlwaysOnTop(true);
+                }
+
             }
         });
 
@@ -828,15 +854,24 @@ public class Main extends Application {
         websiteAlert.setHeaderText("Would you like to open the developer's website (saintlouissoftware.com) in a browser?");
 
         aboutItem2.setOnAction(e -> {
-            primaryStage.setAlwaysOnTop(false);
+            if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                primaryStage.setAlwaysOnTop(false);
+            }
+
             Optional<ButtonType> websiteAlertResult = websiteAlert.showAndWait();
             if (websiteAlertResult.get() == ButtonType.OK) {
                 //System.out.println("You want to open the website in a browser");
                 getHostServices().showDocument("https://saintlouissoftware.com/");
-                primaryStage.setAlwaysOnTop(true);
+                if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                    primaryStage.setAlwaysOnTop(true);
+                }
+
             } else if (websiteAlertResult.get() == ButtonType.CANCEL || websiteAlertResult.get() == ButtonType.CLOSE) {
                 //System.out.println("You do not want to open the website.");
-                primaryStage.setAlwaysOnTop(true);
+                if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                    primaryStage.setAlwaysOnTop(true);
+                }
+
             }
         });
 
@@ -848,15 +883,24 @@ public class Main extends Application {
         gitRepoAlert.setHeaderText("Would you like to open the project's GitHub page in a browser?");
 
         aboutItem3.setOnAction(e -> {
-            primaryStage.setAlwaysOnTop(false);
+            if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                primaryStage.setAlwaysOnTop(false);
+            }
+
             Optional<ButtonType> gitRepoAlertResult = gitRepoAlert.showAndWait();
             if (gitRepoAlertResult.get() == ButtonType.OK) {
                 //System.out.println("You want to open the git repo page in a browser");
                 getHostServices().showDocument("https://github.com/0x416c616e/AutoInput");
-                primaryStage.setAlwaysOnTop(true);
+                if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                    primaryStage.setAlwaysOnTop(true);
+                }
+
             } else if (gitRepoAlertResult.get() == ButtonType.CANCEL || gitRepoAlertResult.get() == ButtonType.CLOSE) {
                 //System.out.println("You do not want to open the git repo page in a browser.");
-                primaryStage.setAlwaysOnTop(true);
+                if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                    primaryStage.setAlwaysOnTop(true);
+                }
+
             }
         });
 
@@ -884,17 +928,29 @@ public class Main extends Application {
         helpItem[0].setOnAction(e -> {
             //primaryStage is temporarily set to not be always on top
             //otherwise an alert would be behind it
-            primaryStage.setAlwaysOnTop(false);
+            if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                primaryStage.setAlwaysOnTop(false);
+            }
+
             Optional<ButtonType> basicUsageAlertResult = basicUsageAlert.showAndWait();
             if (basicUsageAlertResult.isEmpty()) {
                 //do nothing
                 //without this part, it would throw an exception
-                primaryStage.setAlwaysOnTop(true);
+                if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                    primaryStage.setAlwaysOnTop(true);
+                }
+
             } else if (basicUsageAlertResult.get() == ButtonType.OK) {
                 //once the alert is closed, set the primaryStage (main program window) to be always on top again
-                primaryStage.setAlwaysOnTop(true);
+
+                if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                    primaryStage.setAlwaysOnTop(true);
+                }
             } else if (basicUsageAlertResult.get() == ButtonType.CLOSE) {
-                primaryStage.setAlwaysOnTop(true);
+                if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                    primaryStage.setAlwaysOnTop(true);
+                }
+
             }
         });
 
