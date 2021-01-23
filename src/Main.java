@@ -16,7 +16,12 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.InputEvent;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 
@@ -723,24 +728,79 @@ public class Main extends Application {
 
         //text.setWrapText(true)
 
-        MenuItem editItem[] = new MenuItem[7];
-        editItem[0] = new MenuItem("Clear text (not done)");
-        editItem[1] = new MenuItem("Copy (not done)");
-        editItem[2] = new Menu("Cut (not done)");
-        editItem[3] = new MenuItem("Paste (not done)");
-        editItem[4] = new MenuItem("Delete (not done)");
-        editItem[5] = new MenuItem("Select all (not done)");
-        editItem[6] = new MenuItem("Select none (not done)");
+        MenuItem editItem[] = new MenuItem[8];
+        editItem[0] = new MenuItem("Delete all text");
+        editItem[1] = new MenuItem("Copy");
+        editItem[2] = new MenuItem("Cut");
+        editItem[3] = new MenuItem("Paste");
+        //editItem[4] = new MenuItem("Delete (not done)");
+        editItem[5] = new MenuItem("Select all");
+        editItem[6] = new MenuItem("Select");
+        editItem[7] = new MenuItem("Delete selected text");
+
+        //delete selected
+        editItem[0].setOnAction(e -> {
+            textArea.setText("");
+        });
 
 
-        Menu editMenu = new Menu("Edit", null, editItem[0], editItem[1], editItem[2], editItem[3], editItem[4], editItem[5], editItem[6]);
+        //copy
+        editItem[1].setOnAction(e -> {
+            //System.out.println("textArea selected: " + textArea.getSelectedText());
+            final StringSelection stringSelection = new StringSelection(textArea.getSelectedText());
+            final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(stringSelection, null);
+        });
+
+        //cut
+        editItem[2].setOnAction(e -> {
+            final StringSelection stringSelection = new StringSelection(textArea.getSelectedText());
+            final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(stringSelection, null);
+            textArea.replaceSelection("");
+        });
+
+        //delete selected
+        editItem[7].setOnAction(e -> {
+            textArea.replaceSelection("");
+        });
+
+        Menu editMenu = new Menu("Edit", null, editItem[0], editItem[7], editItem[1], editItem[2], editItem[3], editItem[5], editItem[6]);
+
+        //paste
+        editItem[3].setOnAction(e-> {
+            int textPosition = textArea.getCaretPosition();
+            final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            try {
+                textArea.insertText(textPosition, Toolkit.getDefaultToolkit()
+                        .getSystemClipboard().getData(DataFlavor.stringFlavor).toString());
+            } catch (UnsupportedFlavorException ex) {
+                //ex.printStackTrace();
+                loadingLabel.setText("Error: only text can be pasted");
+            } catch (IOException ioe) {
+                //ioe.printStackTrace();
+                loadingLabel.setText("Error: only text can be pasted");
+            }
+
+        });
+
+        //select all
+        editItem[5].setOnAction(e -> {
+            textArea.selectAll();
+        });
+
+        //select none
+        editItem[6].setOnAction(e -> {
+            int textPosition = textArea.getCaretPosition();
+            textArea.selectRange(textPosition,textPosition);
+        });
 
 
         Menu optionsMenu = new Menu("Options", null, optionsItem1, optionsItem5, optionsItem3, optionsItem4, optionsItem6, optionsItem7);
         MenuItem aboutItem1 = new MenuItem("About");
         Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
         aboutAlert.setTitle("About");
-        aboutAlert.setHeaderText("About AutoInput v0.0030");
+        aboutAlert.setHeaderText("About AutoInput v0.0031");
         aboutAlert.setContentText("This is an input automation scripting language and editor made by 0x416c616e. You can use it to write keyboard/mouse macros" +
                 " in order to automate repetitive tasks that require using a GUI rather than something command line-based that can be automated with a shell script.");
 
@@ -762,7 +822,7 @@ public class Main extends Application {
             }
         });
 
-        MenuItem aboutItem2 = new Menu("Website");
+        MenuItem aboutItem2 = new MenuItem("Website");
         Alert websiteAlert = new Alert(Alert.AlertType.CONFIRMATION);
         websiteAlert.setTitle("Website");
         websiteAlert.setHeaderText("Would you like to open the developer's website (saintlouissoftware.com) in a browser?");
@@ -780,7 +840,7 @@ public class Main extends Application {
             }
         });
 
-        MenuItem aboutItem3 = new Menu("Git repo");
+        MenuItem aboutItem3 = new MenuItem("Git repo");
         Menu aboutMenu = new Menu("About", null, aboutItem1, aboutItem2, aboutItem3);
 
         Alert gitRepoAlert = new Alert(Alert.AlertType.CONFIRMATION);
