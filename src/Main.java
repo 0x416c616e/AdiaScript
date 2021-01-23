@@ -1,5 +1,6 @@
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -14,6 +15,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -58,7 +60,7 @@ public class Main extends Application {
     }
 
     //parses the script, runs the script if there were no errors detected during parsing, and creates threads for each click/rightclick/etc command
-    public static void parseAndRunScript(int timesToRepeat, TextArea textArea, Label loadingLabel, TotalLoopTime totalLoopTime, ScriptHalter scriptHalter, Robot bot) throws AWTException {
+    public static void parseAndRunScript(int timesToRepeat, TextArea textArea, Label loadingLabel, TotalLoopTime totalLoopTime, ScriptHalter scriptHalter, Robot bot, Button runMacroButton) throws AWTException {
         new Thread(()->{ //use another thread so long process does not block gui
                 //update gui using fx thread
                 //Platform.runLater(() -> label.setText(text));
@@ -81,16 +83,17 @@ public class Main extends Application {
                 boolean scriptingError = false; //set to true if issue with parsing script
                 boolean scriptIsEmpty = true;
                 for (int j = 0; j < numberOfLines; j++) {
-                    Platform.runLater(new Runnable(){
+                    /*Platform.runLater(new Runnable(){
                         @Override public void run() {
                             loadingLabel.setText("Parsing script");
                         }
-                    });
+                    });*/
 
 
 
 
                     if (scriptingError) {
+                        runMacroButton.setDisable(false);
                         break;
                     }
                     Platform.runLater(new Runnable(){
@@ -110,6 +113,7 @@ public class Main extends Application {
                                     loadingLabel.setText("Script halted");
                                 }
                             });
+                            runMacroButton.setDisable(false);
                             break;
                         }
 
@@ -122,6 +126,7 @@ public class Main extends Application {
                                             loadingLabel.setText("Script halted");
                                         }
                                     });
+                                    runMacroButton.setDisable(false);
                                     break;
                                 }
                                 scriptIsEmpty = false;
@@ -132,6 +137,7 @@ public class Main extends Application {
                                         }
                                     });
                                     scriptingError = true;
+                                    runMacroButton.setDisable(false);
                                     break;
                                 } else {
                                     try {
@@ -147,6 +153,7 @@ public class Main extends Application {
                                         });
 
                                         scriptingError = true;
+                                        runMacroButton.setDisable(false);
                                         break;
                                     }
                                 }
@@ -158,6 +165,7 @@ public class Main extends Application {
                                             loadingLabel.setText("Script halted");
                                         }
                                     });
+                                    runMacroButton.setDisable(false);
                                     break;
                                 }
                                 scriptIsEmpty = false;
@@ -170,6 +178,7 @@ public class Main extends Application {
                                     });
 
                                     scriptingError = true;
+                                    runMacroButton.setDisable(false);
                                     break;
                                 } else {
                                     try {
@@ -184,6 +193,7 @@ public class Main extends Application {
                                         });
 
                                         scriptingError = true;
+                                        runMacroButton.setDisable(false);
                                         break;
                                     }
 
@@ -196,6 +206,7 @@ public class Main extends Application {
                                             loadingLabel.setText("Script halted");
                                         }
                                     });
+                                    runMacroButton.setDisable(false);
                                     break;
                                 }
                                 scriptIsEmpty = false;
@@ -209,6 +220,7 @@ public class Main extends Application {
                                     });
 
                                     scriptingError = true;
+                                    runMacroButton.setDisable(false);
                                     break;
                                 } else {
                                     try {
@@ -224,6 +236,7 @@ public class Main extends Application {
                                         });
 
                                         scriptingError = true;
+                                        runMacroButton.setDisable(false);
                                         break;
                                     }
 
@@ -236,6 +249,7 @@ public class Main extends Application {
                                             loadingLabel.setText("Script halted");
                                         }
                                     });
+                                    runMacroButton.setDisable(false);
                                     break;
                                 }
                                 scriptIsEmpty = false;
@@ -249,6 +263,7 @@ public class Main extends Application {
                                     });
 
                                     scriptingError = true;
+                                    runMacroButton.setDisable(false);
                                     break;
                                 } else {
                                     try {
@@ -264,6 +279,7 @@ public class Main extends Application {
                                         });
 
                                         scriptingError = true;
+                                        runMacroButton.setDisable(false);
                                         break;
                                     }
 
@@ -277,6 +293,7 @@ public class Main extends Application {
                                             loadingLabel.setText("Script halted");
                                         }
                                     });
+                                    runMacroButton.setDisable(false);
                                     break;
                                 }
                                 scriptIsEmpty = false;
@@ -290,6 +307,7 @@ public class Main extends Application {
                                     });
 
                                     scriptingError = true;
+                                    runMacroButton.setDisable(false);
                                     break;
                                 } else {
                                     String allKeys = "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,";
@@ -313,6 +331,7 @@ public class Main extends Application {
                                         });
 
                                         scriptingError = true;
+                                        runMacroButton.setDisable(false);
                                         break;
                                     }
 
@@ -328,6 +347,7 @@ public class Main extends Application {
                                             loadingLabel.setText("Script halted");
                                         }
                                     });
+                                    runMacroButton.setDisable(false);
                                     break;
                                 }
                                 //comments are ok, just don't do anything with the subsequent words in the line
@@ -350,6 +370,7 @@ public class Main extends Application {
                                             loadingLabel.setText("Script halted");
                                         }
                                     });
+                                    runMacroButton.setDisable(false);
                                     break;
                                 }
                                 Platform.runLater(new Runnable(){
@@ -358,6 +379,7 @@ public class Main extends Application {
                                     }
                                 });
                                 scriptingError = true;
+                                runMacroButton.setDisable(false);
                                 break;
                         }
                     }
@@ -370,7 +392,9 @@ public class Main extends Application {
                         @Override public void run() {
                             loadingLabel.setText("Macro error: cannot run blank script");
                         }
+
                     });
+                    runMacroButton.setDisable(false);
 
                 }
 
@@ -393,6 +417,7 @@ public class Main extends Application {
                         if (scriptingError || scriptHalter.isUserWantsToHaltScript()) {
                             //System.out.println("script has been halted");
                             //scriptHalter.setUserWantsToHaltScript(false);
+                            runMacroButton.setDisable(false);
                             break;
                         }
                         String scriptLine[] = lines[j].split(" ");
@@ -405,6 +430,7 @@ public class Main extends Application {
                                 case "move":
                                     //move 500 500
                                     if (scriptHalter.isUserWantsToHaltScript()) {
+                                        runMacroButton.setDisable(false);
                                         break;
                                     }
                                     scriptIsEmpty = false;
@@ -416,6 +442,7 @@ public class Main extends Application {
                                         });
 
                                         scriptingError = true;
+                                        runMacroButton.setDisable(false);
                                         break;
                                     } else {
                                         try {
@@ -432,6 +459,7 @@ public class Main extends Application {
                                             });
 
                                             scriptingError = true;
+                                            runMacroButton.setDisable(false);
                                             break;
                                         } catch (AWTException awtE) {
                                             awtE.printStackTrace();
@@ -440,6 +468,7 @@ public class Main extends Application {
                                     break;
                                 case "wait":
                                     if (scriptHalter.isUserWantsToHaltScript()) {
+                                        runMacroButton.setDisable(false);
                                         break;
                                     }
                                     scriptIsEmpty = false;
@@ -452,6 +481,7 @@ public class Main extends Application {
                                         });
 
                                         scriptingError = true;
+                                        runMacroButton.setDisable(false);
                                         break;
                                     } else {
                                         try {
@@ -460,7 +490,9 @@ public class Main extends Application {
                                                 try {Thread.sleep(100);} catch (InterruptedException ex) { ex.printStackTrace();}
                                                 if (scriptHalter.isUserWantsToHaltScript()) {
                                                     //System.out.println("user wants to halt the script");
+                                                    runMacroButton.setDisable(false);
                                                     Thread.currentThread().interrupt();
+
                                                     return; //end the thread
 
                                                 }
@@ -475,6 +507,7 @@ public class Main extends Application {
                                             });
 
                                             scriptingError = true;
+                                            runMacroButton.setDisable(false);
                                             break;
                                         }
 
@@ -482,6 +515,7 @@ public class Main extends Application {
                                     break;
                                 case "click":
                                     if (scriptHalter.isUserWantsToHaltScript()) {
+                                        runMacroButton.setDisable(false);
                                         break;
                                     }
                                     scriptIsEmpty = false;
@@ -495,6 +529,7 @@ public class Main extends Application {
                                         });
 
                                         scriptingError = true;
+                                        runMacroButton.setDisable(false);
                                         break;
                                     } else {
                                         try {
@@ -512,6 +547,7 @@ public class Main extends Application {
                                             });
 
                                             scriptingError = true;
+                                            runMacroButton.setDisable(false);
                                             break;
                                         } catch (AWTException awtE) {
                                             awtE.printStackTrace();
@@ -521,6 +557,7 @@ public class Main extends Application {
                                     break;
                                 case "rightclick":
                                     if (scriptHalter.isUserWantsToHaltScript()) {
+                                        runMacroButton.setDisable(false);
                                         break;
                                     }
                                     scriptIsEmpty = false;
@@ -534,6 +571,7 @@ public class Main extends Application {
                                         });
 
                                         scriptingError = true;
+                                        runMacroButton.setDisable(false);
                                         break;
                                     } else {
                                         try {
@@ -551,6 +589,7 @@ public class Main extends Application {
                                             });
 
                                             scriptingError = true;
+                                            runMacroButton.setDisable(false);
                                             break;
                                         } catch (AWTException awtE) {
                                             awtE.printStackTrace();
@@ -562,6 +601,7 @@ public class Main extends Application {
                                 //press a key, i.e. press a
                                 case "press":
                                     if (scriptHalter.isUserWantsToHaltScript()) {
+                                        runMacroButton.setDisable(false);
                                         break;
                                     }
                                     scriptIsEmpty = false;
@@ -575,6 +615,7 @@ public class Main extends Application {
                                         });
 
                                         scriptingError = true;
+                                        runMacroButton.setDisable(false);
                                         break;
                                     } else {
                                         String allKeys = "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,";
@@ -599,6 +640,7 @@ public class Main extends Application {
                                             });
 
                                             scriptingError = true;
+                                            runMacroButton.setDisable(false);
                                             break;
                                         }
 
@@ -613,6 +655,7 @@ public class Main extends Application {
                                     //# comment
                                     //hash sign followed by a space and then the comment
                                     if (scriptHalter.isUserWantsToHaltScript()) {
+                                        runMacroButton.setDisable(false);
                                         break;
                                     }
                                     break;
@@ -622,6 +665,7 @@ public class Main extends Application {
                                     break;*/
                                 default:
                                     if (scriptHalter.isUserWantsToHaltScript()) {
+                                        runMacroButton.setDisable(false);
                                         break;
                                     }
                                     Platform.runLater(new Runnable(){
@@ -631,6 +675,7 @@ public class Main extends Application {
                                     });
 
                                     scriptingError = true;
+                                    runMacroButton.setDisable(false);
                                     break;
                             }
                         }
@@ -645,6 +690,7 @@ public class Main extends Application {
                                     loadingLabel.setText("Finished running script");
                                 }
                             });
+                            runMacroButton.setDisable(false);
 
                         }
                     });
@@ -666,6 +712,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        AlwaysOnTopStatus alwaysOnTopStatus = new AlwaysOnTopStatus();
         TotalLoopTime totalLoopTime = new TotalLoopTime();
         ScriptHalter scriptHalter = new ScriptHalter();
         Robot bot = new Robot();
@@ -708,6 +755,63 @@ public class Main extends Application {
         MenuItem fileItem2 = new MenuItem("Save as (not done)");
         MenuItem fileItem3 = new MenuItem("Quit (not done)");
 
+        Alert quitAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        quitAlert.setTitle("Quit");
+        quitAlert.setHeaderText("Quit AutoInput");
+        quitAlert.setContentText("Are you sure you want to quit? Any unsaved changes will be lost.");
+
+        //quit the program
+        fileItem3.setOnAction(e -> {
+            if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                primaryStage.setAlwaysOnTop(false);
+            }
+
+            Optional<ButtonType> websiteAlertResult = quitAlert.showAndWait();
+            if (websiteAlertResult.get() == ButtonType.OK) {
+                //System.out.println("You want to quit AutoInput");
+                System.exit(0);
+                if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                    primaryStage.setAlwaysOnTop(true);
+                }
+
+            } else if (websiteAlertResult.get() == ButtonType.CANCEL || websiteAlertResult.get() == ButtonType.CLOSE) {
+                //System.out.println("You do not want to quit AutoInput");
+                if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                    primaryStage.setAlwaysOnTop(true);
+                }
+
+            }
+        });
+
+        Platform.setImplicitExit(false);
+
+
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                    primaryStage.setAlwaysOnTop(false);
+                }
+
+                Optional<ButtonType> websiteAlertResult = quitAlert.showAndWait();
+                if (websiteAlertResult.get() == ButtonType.OK) {
+                    //System.out.println("You want to quit AutoInput");
+                    System.exit(0);
+                    if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                        primaryStage.setAlwaysOnTop(true);
+                    }
+
+                } else if (websiteAlertResult.get() == ButtonType.CANCEL || websiteAlertResult.get() == ButtonType.CLOSE) {
+                    //System.out.println("You do not want to quit AutoInput");
+                    if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                        primaryStage.setAlwaysOnTop(true);
+                    }
+
+                }
+                event.consume();
+            }
+        });
+
         Menu fileMenu = new Menu("File", null, fileItem1, fileItem2, fileItem3);
 
         MenuItem optionsItem1 = new MenuItem("Enable always on top");
@@ -717,7 +821,7 @@ public class Main extends Application {
         MenuItem optionsItem6 = new MenuItem("Enable word wrap");
         MenuItem optionsItem7 = new MenuItem("Disable word wrap");
 
-        AlwaysOnTopStatus alwaysOnTopStatus = new AlwaysOnTopStatus();
+
 
         //enable always on top
         optionsItem1.setOnAction(e -> {
@@ -815,7 +919,7 @@ public class Main extends Application {
         MenuItem aboutItem1 = new MenuItem("About");
         Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
         aboutAlert.setTitle("About");
-        aboutAlert.setHeaderText("About AutoInput v0.0032");
+        aboutAlert.setHeaderText("About AutoInput v0.0033");
         aboutAlert.setContentText("This is an input automation scripting language and editor made by 0x416c616e. You can use it to write keyboard/mouse macros" +
                 " in order to automate repetitive tasks that require using a GUI rather than something command line-based that can be automated with a shell script.");
 
@@ -973,7 +1077,7 @@ public class Main extends Application {
 
         mybox.getChildren().addAll(testButton, coordsLabel);
         runMacroButton.setOnAction( e -> {
-
+            runMacroButton.setDisable(true);
 
 
             try {
@@ -982,7 +1086,7 @@ public class Main extends Application {
                 //scene.setCursor(Cursor.WAIT);
                 int timesToRepeat = Integer.parseInt(numTimes.getText());
 
-                parseAndRunScript(timesToRepeat, textArea, loadingLabel, totalLoopTime, scriptHalter, bot);
+                parseAndRunScript(timesToRepeat, textArea, loadingLabel, totalLoopTime, scriptHalter, bot, runMacroButton);
 
 
                 scene.setCursor(Cursor.DEFAULT);
