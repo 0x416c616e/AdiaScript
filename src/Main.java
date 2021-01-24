@@ -59,7 +59,7 @@ public class Main extends Application {
 
     }
 
-    public static void highlightErrorLine(int lineNumber, String[] lines, TextArea textArea, String[] scriptLine, int lengthDifference) {
+    public static void highlightErrorLine(int lineNumber, String[] lines, TextArea textArea, String[] scriptLine, int lengthDifference, int lengthDifferenceSingleLine) {
         int totalAfterEnd = 0;
         for (int i = 0; i < lineNumber; i++) {
             totalAfterEnd += lines[i].length();
@@ -81,7 +81,9 @@ public class Main extends Application {
         }
         //System.out.println("end: " + totalAfterBeginning);
         int lineBeginningPosition = totalAfterBeginning - 1; //bad, need to fix
+
         lineBeginningPosition += lengthDifference;
+        lineBeginningPosition -= lengthDifferenceSingleLine;
         textArea.selectRange(lineBeginningPosition, lineEndPosition);
 
         textArea.requestFocus();
@@ -112,6 +114,7 @@ public class Main extends Application {
                 boolean scriptIsEmpty = true;
                 int lengthDifference = 0; //total difference between whitespace-removed and total script
                                         //removing whitespace helps with interpreting, but totals are important for highlighting error lines
+
                 for (int j = 0; j < numberOfLines; j++) {
                     /*Platform.runLater(new Runnable(){
                         @Override public void run() {
@@ -133,7 +136,8 @@ public class Main extends Application {
 
 
 
-                    lengthDifference += oldLength - lines[j].length();
+                    lengthDifference += oldLength - lines[j].length(); //this is for the entire script
+                    int lengthDifferenceSingleLine = oldLength - lines[j].length(); //difference for a single line
 
                     String scriptLine[] = lines[j].split(" ");
 
@@ -170,7 +174,7 @@ public class Main extends Application {
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
                                             loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for move");
-                                            highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference);
+                                            highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference, lengthDifferenceSingleLine);
                                         }
                                     });
                                     scriptingError = true;
@@ -187,7 +191,7 @@ public class Main extends Application {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
                                                 loadingLabel.setText("Macro error on line " + lineNumber + ": move args must be ints");
-                                                highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1);
+                                                highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                             }
                                         });
 
@@ -214,7 +218,7 @@ public class Main extends Application {
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
                                             loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for wait");
-                                            highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2);
+                                            highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
                                         }
                                     });
 
@@ -231,7 +235,7 @@ public class Main extends Application {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
                                                 loadingLabel.setText("Macro error on line " + lineNumber + ": wait arg must be int");
-                                                highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference3);
+                                                highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference3, lengthDifferenceSingleLine);
                                             }
                                         });
 
@@ -260,7 +264,7 @@ public class Main extends Application {
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
                                             loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for click");
-                                            highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference4);
+                                            highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference4, lengthDifferenceSingleLine);
                                         }
                                     });
 
@@ -278,7 +282,7 @@ public class Main extends Application {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
                                                 loadingLabel.setText("Macro error on line " + lineNumber + ": click args must be ints");
-                                                highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5);
+                                                highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                             }
                                         });
 
@@ -307,7 +311,7 @@ public class Main extends Application {
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
                                             loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for rightclick");
-                                            highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference6);
+                                            highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference6, lengthDifferenceSingleLine);
                                         }
                                     });
 
@@ -325,7 +329,7 @@ public class Main extends Application {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
                                                 loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints");
-                                                highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference7);
+                                                highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference7, lengthDifferenceSingleLine);
                                             }
                                         });
 
@@ -355,7 +359,7 @@ public class Main extends Application {
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
                                             loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for press");
-                                            highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference8);
+                                            highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference8, lengthDifferenceSingleLine);
                                         }
                                     });
 
@@ -381,7 +385,7 @@ public class Main extends Application {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
                                                 loadingLabel.setText("Macro error on line " + lineNumber + ": invalid press arg");
-                                                highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference9);
+                                                highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference9, lengthDifferenceSingleLine);
                                             }
                                         });
 
@@ -432,7 +436,7 @@ public class Main extends Application {
                                 Platform.runLater(new Runnable(){
                                     @Override public void run() {
                                         loadingLabel.setText("Macro error on line " + lineNumber + ": invalid syntax");
-                                        highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference10);
+                                        highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference10, lengthDifferenceSingleLine);
                                     }
                                 });
                                 scriptingError = true;
@@ -1019,7 +1023,7 @@ public class Main extends Application {
         MenuItem aboutItem1 = new MenuItem("About");
         Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
         aboutAlert.setTitle("About");
-        aboutAlert.setHeaderText("About AutoInput v0.0036");
+        aboutAlert.setHeaderText("About AutoInput v0.0037");
         aboutAlert.setContentText("This is an input automation scripting language and editor made by 0x416c616e. You can use it to write keyboard/mouse macros" +
                 " in order to automate repetitive tasks that require using a GUI rather than something command line-based that can be automated with a shell script.");
 
