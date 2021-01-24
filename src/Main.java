@@ -484,10 +484,26 @@ public class Main extends Application {
                                         runMacroButton.setDisable(false);
                                         break;
                                     } else {
+                                        //wait and check periodically if the script has been halted
+                                        //wait 1000 will check 10 times per second
+                                        //wait 100 will check 100 times per second
+                                        //wait 1 will check 1000 times per second
+                                        //before this change, I had it set to 100ms for checking for halt command
+                                        //which would mess up fast delays, i.e. "wait 1" would take a minimum of 100 milliseconds
+                                        //the reason for the slower stuff on higher wait durations is to reduce CPU usage
+                                        //but faster stuff needs to check more frequently
                                         try {
                                             int waitDuration = Integer.parseInt(scriptLine[1]);
-                                            for (int x = 0; x < waitDuration; x += 100) {
-                                                try {Thread.sleep(100);} catch (InterruptedException ex) { ex.printStackTrace();}
+                                            int stepDuration;
+                                            if (waitDuration >= 1000) {
+                                                stepDuration = 100;
+                                            } else if (waitDuration < 1000 && waitDuration > 100) {
+                                                stepDuration = 10;
+                                            } else {
+                                                stepDuration = 1;
+                                            }
+                                            for (int x = 0; x < waitDuration; x += stepDuration) {
+                                                try {Thread.sleep(stepDuration);} catch (InterruptedException ex) { ex.printStackTrace();}
                                                 if (scriptHalter.isUserWantsToHaltScript()) {
                                                     //System.out.println("user wants to halt the script");
                                                     runMacroButton.setDisable(false);
@@ -753,7 +769,7 @@ public class Main extends Application {
 
         MenuItem fileItem1 = new MenuItem("Open (not done)");
         MenuItem fileItem2 = new MenuItem("Save as (not done)");
-        MenuItem fileItem3 = new MenuItem("Quit (not done)");
+        MenuItem fileItem3 = new MenuItem("Quit");
 
         Alert quitAlert = new Alert(Alert.AlertType.CONFIRMATION);
         quitAlert.setTitle("Quit");
@@ -919,7 +935,7 @@ public class Main extends Application {
         MenuItem aboutItem1 = new MenuItem("About");
         Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
         aboutAlert.setTitle("About");
-        aboutAlert.setHeaderText("About AutoInput v0.0034");
+        aboutAlert.setHeaderText("About AutoInput v0.0035");
         aboutAlert.setContentText("This is an input automation scripting language and editor made by 0x416c616e. You can use it to write keyboard/mouse macros" +
                 " in order to automate repetitive tasks that require using a GUI rather than something command line-based that can be automated with a shell script.");
 
