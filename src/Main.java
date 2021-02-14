@@ -340,6 +340,58 @@ public class Main extends Application {
 
                                 }
                                 break;
+                            //clickAndDrag(int x_start, int y_start, int x_end, int y_end, Robot bot)
+                            case "clickanddrag":
+                                if (scriptHalter.isUserWantsToHaltScript()) {
+                                    Platform.runLater(new Runnable(){
+                                        @Override public void run() {
+                                            loadingLabel.setText("Script halted");
+                                        }
+                                    });
+                                    runMacroButton.setDisable(false);
+                                    break;
+                                }
+                                scriptIsEmpty = false;
+                                //System.out.println("you want to clickanddrag on line " + j);
+                                //now need to check if it has proper int args i.e. clickanddrag 300 300 400 400
+                                if (scriptLine.length != 5) {
+                                    int finalLengthDifference6 = lengthDifference;
+                                    Platform.runLater(new Runnable(){
+                                        @Override public void run() {
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for clickanddrag");
+                                            highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference6, lengthDifferenceSingleLine);
+                                        }
+                                    });
+
+                                    scriptingError = true;
+                                    runMacroButton.setDisable(false);
+                                    break;
+                                } else {
+                                    try {
+                                        int startx;
+                                        int starty;
+                                        int endx;
+                                        int endy;
+                                        startx = Integer.parseInt(scriptLine[1]);
+                                        starty = Integer.parseInt(scriptLine[2]);
+                                        endx = Integer.parseInt(scriptLine[3]);
+                                        endy = Integer.parseInt(scriptLine[4]);
+                                    } catch (NumberFormatException numException) {
+                                        int finalLengthDifference7 = lengthDifference;
+                                        Platform.runLater(new Runnable(){
+                                            @Override public void run() {
+                                                loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints");
+                                                highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference7, lengthDifferenceSingleLine);
+                                            }
+                                        });
+
+                                        scriptingError = true;
+                                        runMacroButton.setDisable(false);
+                                        break;
+                                    }
+
+                                }
+                                break;
                             //press a key, i.e. press a
                             case "press":
                                 if (scriptHalter.isUserWantsToHaltScript()) {
@@ -675,7 +727,64 @@ public class Main extends Application {
 
                                     }
                                     break;
+                                //clickAndDrag(int x_start, int y_start, int x_end, int y_end, Robot bot)
+                                case "clickanddrag":
+                                    if (scriptHalter.isUserWantsToHaltScript()) {
+                                        Platform.runLater(new Runnable(){
+                                            @Override public void run() {
+                                                loadingLabel.setText("Script halted");
+                                            }
+                                        });
+                                        runMacroButton.setDisable(false);
+                                        break;
+                                    }
+                                    scriptIsEmpty = false;
+                                    //System.out.println("you want to clickanddrag on line " + j);
+                                    //now need to check if it has proper int args i.e. clickanddrag 300 300 400 400
+                                    if (scriptLine.length != 5) {
+                                        int finalLengthDifference6 = lengthDifference;
+                                        Platform.runLater(new Runnable(){
+                                            @Override public void run() {
+                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for clickanddrag");
+                                                //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference6, lengthDifferenceSingleLine);
+                                            }
+                                        });
 
+                                        scriptingError = true;
+                                        runMacroButton.setDisable(false);
+                                        break;
+                                    } else {
+                                        try {
+                                            int startx;
+                                            int starty;
+                                            int endx;
+                                            int endy;
+                                            startx = Integer.parseInt(scriptLine[1]);
+                                            starty = Integer.parseInt(scriptLine[2]);
+                                            endx = Integer.parseInt(scriptLine[3]);
+                                            endy = Integer.parseInt(scriptLine[4]);
+                                            try {
+                                                clickAndDrag(startx, starty, endx, endy, bot);
+                                            } catch (AWTException awte1) {
+                                                awte1.printStackTrace();
+                                            }
+
+                                        } catch (NumberFormatException numException) {
+                                            int finalLengthDifference7 = lengthDifference;
+                                            Platform.runLater(new Runnable(){
+                                                @Override public void run() {
+                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints");
+                                                    //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference7, lengthDifferenceSingleLine);
+                                                }
+                                            });
+
+                                            scriptingError = true;
+                                            runMacroButton.setDisable(false);
+                                            break;
+                                        }
+
+                                    }
+                                    break;
                                 //press a key, i.e. press a
                                 case "press":
                                     if (scriptHalter.isUserWantsToHaltScript()) {
@@ -1023,7 +1132,7 @@ public class Main extends Application {
         MenuItem aboutItem1 = new MenuItem("About");
         Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
         aboutAlert.setTitle("About");
-        aboutAlert.setHeaderText("About AutoInput v0.0037");
+        aboutAlert.setHeaderText("About AutoInput v0.0040");
         aboutAlert.setContentText("This is an input automation scripting language and editor made by 0x416c616e. You can use it to write keyboard/mouse macros" +
                 " in order to automate repetitive tasks that require using a GUI rather than something command line-based that can be automated with a shell script.");
 
