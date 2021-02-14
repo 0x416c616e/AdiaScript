@@ -31,6 +31,10 @@ import java.util.Set;
 
 public class Main extends Application {
 
+    public static int getRandomNumber(int min, int max) {
+        return (int) ((Math.random() * (max - min)) + min);
+    }
+
     public static void click(int x, int y, Robot bot) throws AWTException{
         bot.mouseMove(x, y);
         bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
@@ -736,6 +740,58 @@ public class Main extends Application {
 
                                 }
                                 break;
+                            case "clickanddragrandom":
+                                if (scriptHalter.isUserWantsToHaltScript()) {
+                                    Platform.runLater(new Runnable(){
+                                        @Override public void run() {
+                                            loadingLabel.setText("Script halted");
+                                        }
+                                    });
+                                    runMacroButton.setDisable(false);
+                                    break;
+                                }
+                                scriptIsEmpty = false;
+                                //System.out.println("you want to clickanddragrandom on line " + j);
+                                //now need to check if it has proper int args i.e. clickanddragrandom 300 350 300 350 500 550 500 550
+                                //startxrandlower, startxrandupper, startyrandlower, startyrandupper, endxrandlower, endxrandupper, endyrandlower, endyrandupper
+                                if (scriptLine.length != 9) {
+                                    int finalLengthDifference6 = lengthDifference;
+                                    Platform.runLater(new Runnable(){
+                                        @Override public void run() {
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for clickanddragrandom");
+                                            highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference6, lengthDifferenceSingleLine);
+                                        }
+                                    });
+
+                                    scriptingError = true;
+                                    runMacroButton.setDisable(false);
+                                    break;
+                                } else {
+                                    try {
+                                        int startxrandlower  = Integer.parseInt(scriptLine[1]);;
+                                        int startxrandupper  = Integer.parseInt(scriptLine[2]);;
+                                        int startyrandlower  = Integer.parseInt(scriptLine[3]);;
+                                        int startyrandupper  = Integer.parseInt(scriptLine[4]);;
+                                        int endxrandlower  = Integer.parseInt(scriptLine[5]);;
+                                        int endxrandupper  = Integer.parseInt(scriptLine[6]);;
+                                        int endyrandlower  = Integer.parseInt(scriptLine[7]);;
+                                        int endyrandupper = Integer.parseInt(scriptLine[8]);;
+                                    } catch (NumberFormatException numException) {
+                                        int finalLengthDifference7 = lengthDifference;
+                                        Platform.runLater(new Runnable(){
+                                            @Override public void run() {
+                                                loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints");
+                                                highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference7, lengthDifferenceSingleLine);
+                                            }
+                                        });
+
+                                        scriptingError = true;
+                                        runMacroButton.setDisable(false);
+                                        break;
+                                    }
+
+                                }
+                                break;
                             //press a key, i.e. press a
                             case "press":
                                 if (scriptHalter.isUserWantsToHaltScript()) {
@@ -1129,6 +1185,70 @@ public class Main extends Application {
 
                                     }
                                     break;
+                                case "clickanddragrandom":
+                                    if (scriptHalter.isUserWantsToHaltScript()) {
+                                        Platform.runLater(new Runnable(){
+                                            @Override public void run() {
+                                                loadingLabel.setText("Script halted");
+                                            }
+                                        });
+                                        runMacroButton.setDisable(false);
+                                        break;
+                                    }
+                                    scriptIsEmpty = false;
+                                    //System.out.println("you want to clickanddragrandom on line " + j);
+                                    //now need to check if it has proper int args i.e. clickanddragrandom 300 350 300 350 500 550 500 550
+                                    //startxrandlower, startxrandupper, startyrandlower, startyrandupper, endxrandlower, endxrandupper, endyrandlower, endyrandupper
+                                    if (scriptLine.length != 9) {
+                                        int finalLengthDifference6 = lengthDifference;
+                                        Platform.runLater(new Runnable(){
+                                            @Override public void run() {
+                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for clickanddragrandom");
+                                                //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference6, lengthDifferenceSingleLine);
+                                            }
+                                        });
+
+                                        scriptingError = true;
+                                        runMacroButton.setDisable(false);
+                                        break;
+                                    } else {
+                                        try {
+                                            int startxrandlower  = Integer.parseInt(scriptLine[1]);;
+                                            int startxrandupper  = Integer.parseInt(scriptLine[2]);;
+                                            int startyrandlower  = Integer.parseInt(scriptLine[3]);;
+                                            int startyrandupper  = Integer.parseInt(scriptLine[4]);;
+                                            int endxrandlower  = Integer.parseInt(scriptLine[5]);;
+                                            int endxrandupper  = Integer.parseInt(scriptLine[6]);;
+                                            int endyrandlower  = Integer.parseInt(scriptLine[7]);;
+                                            int endyrandupper = Integer.parseInt(scriptLine[8]);;
+                                            System.out.println("this is where the clickanddragrandom implementation should go");
+                                            //min, max
+                                            int startx = getRandomNumber(startxrandlower, startxrandupper);
+                                            int starty = getRandomNumber(startyrandlower, startyrandupper);
+                                            int endx = getRandomNumber(endxrandlower, endxrandupper);
+                                            int endy = getRandomNumber(endyrandlower, endyrandupper);
+                                            System.out.println("calling clickanddrag " + startx + " " + starty + " " + endx + " " + endy);
+                                            try {
+                                                clickAndDrag(startx, starty, endx, endy, bot);
+                                            } catch (AWTException awte2) {
+                                                awte2.printStackTrace();
+                                            }
+                                        } catch (NumberFormatException numException) {
+                                            int finalLengthDifference7 = lengthDifference;
+                                            Platform.runLater(new Runnable(){
+                                                @Override public void run() {
+                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints");
+                                                    //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference7, lengthDifferenceSingleLine);
+                                                }
+                                            });
+
+                                            scriptingError = true;
+                                            runMacroButton.setDisable(false);
+                                            break;
+                                        }
+
+                                    }
+                                    break;
                                 //press a key, i.e. press a
                                 case "press":
                                     if (scriptHalter.isUserWantsToHaltScript()) {
@@ -1477,7 +1597,7 @@ public class Main extends Application {
         MenuItem aboutItem1 = new MenuItem("About");
         Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
         aboutAlert.setTitle("About");
-        aboutAlert.setHeaderText("About AutoInput v0.0041");
+        aboutAlert.setHeaderText("About AutoInput v0.0042");
         aboutAlert.setContentText("This is an input automation scripting language and editor made by 0x416c616e (Alan). You can use it to write keyboard/mouse macros" +
                 " in order to automate repetitive tasks that require using a GUI rather than something command line-based that can be automated with a shell script.");
 
