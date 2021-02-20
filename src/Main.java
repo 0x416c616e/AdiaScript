@@ -505,6 +505,82 @@ public class Main extends Application {
 
 
                         switch (scriptLine[0]) {
+                            case "loop":
+                                if (scriptHalter.isUserWantsToHaltScript()) {
+                                    Platform.runLater(new Runnable(){
+                                        @Override public void run() {
+                                            loadingLabel.setText("Script halted");
+                                        }
+                                    });
+                                    runMacroButton.setDisable(false);
+                                    break;
+                                }
+                                scriptIsEmpty = false;
+                                //check if it has an int arg i.e. loop 5
+                                if (scriptLine.length != 2) {
+                                    int finalLengthDifference2 = lengthDifference;
+                                    Platform.runLater(new Runnable(){
+                                        @Override public void run() {
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for loop");
+                                            highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
+                                        }
+                                    });
+
+                                    scriptingError = true;
+                                    runMacroButton.setDisable(false);
+                                    break;
+                                } else {
+                                    try {
+                                        Integer.parseInt(scriptLine[1]);
+                                        //parse number after wait, i.e. loop 5
+                                    } catch (NumberFormatException nfe) {
+                                        //nfe.printStackTrace();
+                                        int finalLengthDifference3 = lengthDifference;
+                                        Platform.runLater(new Runnable(){
+                                            @Override public void run() {
+                                                loadingLabel.setText("Macro error on line " + lineNumber + ": loop arg must be int");
+                                                highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference3, lengthDifferenceSingleLine);
+                                            }
+                                        });
+
+                                        scriptingError = true;
+                                        runMacroButton.setDisable(false);
+                                        break;
+                                    }
+
+                                }
+                                break;
+                            //end a loop
+                            //example:
+                            //loop 5
+                            //  press a
+                            //end
+                            case "end":
+                                if (scriptHalter.isUserWantsToHaltScript()) {
+                                    Platform.runLater(new Runnable(){
+                                        @Override public void run() {
+                                            loadingLabel.setText("Script halted");
+                                        }
+                                    });
+                                    runMacroButton.setDisable(false);
+                                    break;
+                                }
+                                scriptIsEmpty = false;
+                                //check if it has an int arg i.e. loop 5
+                                if (scriptLine.length != 1) {
+                                    int finalLengthDifference2 = lengthDifference;
+                                    Platform.runLater(new Runnable(){
+                                        @Override public void run() {
+                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for end");
+                                            //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
+                                        }
+                                    });
+
+                                    scriptingError = true;
+                                    runMacroButton.setDisable(false);
+                                    break;
+                                }
+                                break;
                             case "move":
                                 //move 500 500
                                 if (scriptHalter.isUserWantsToHaltScript()) {
@@ -925,6 +1001,10 @@ public class Main extends Application {
                     //the above stuff just checks it for errors
                     //that way, it will only run the script in its entirety when there are no errors
                     //it will not run a partially-working script
+
+                    int timesToLoop = 1; //by default, everyone will run once, but in a loop command block, this value will be changed
+                    int startOfLoopLineNunber = -1; //-1 means not initialized
+
                     for (int j = 0; j < numberOfLines; j++) {
 
                         //if there is an error or the user presses the button to halt the script, then stop the script
@@ -938,9 +1018,90 @@ public class Main extends Application {
 
 
                         int lineNumber = j + 1;
+
                         if (scriptLine.length != 0) {
 
                             switch (scriptLine[0]) {
+                                case "loop":
+                                    if (scriptHalter.isUserWantsToHaltScript()) {
+                                        Platform.runLater(new Runnable(){
+                                            @Override public void run() {
+                                                loadingLabel.setText("Script halted");
+                                            }
+                                        });
+                                        runMacroButton.setDisable(false);
+                                        break;
+                                    }
+                                    scriptIsEmpty = false;
+                                    //check if it has an int arg i.e. loop 5
+                                    if (scriptLine.length != 2) {
+                                        int finalLengthDifference2 = lengthDifference;
+                                        Platform.runLater(new Runnable(){
+                                            @Override public void run() {
+                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for loop");
+                                                //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
+                                            }
+                                        });
+
+                                        scriptingError = true;
+                                        runMacroButton.setDisable(false);
+                                        break;
+                                    } else {
+                                        try {
+                                            timesToLoop = Integer.parseInt(scriptLine[1]);
+                                            startOfLoopLineNunber = j;
+                                            //put loop stuff here! not finished! where i left off!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+                                        } catch (NumberFormatException nfe) {
+                                            //nfe.printStackTrace();
+                                            int finalLengthDifference3 = lengthDifference;
+                                            Platform.runLater(new Runnable(){
+                                                @Override public void run() {
+                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": loop arg must be int");
+                                                    //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference3, lengthDifferenceSingleLine);
+                                                }
+                                            });
+
+                                            scriptingError = true;
+                                            runMacroButton.setDisable(false);
+                                            break;
+                                        }
+
+                                    }
+                                    break;
+                                //end a loop
+                                case "end":
+                                    if (scriptHalter.isUserWantsToHaltScript()) {
+                                        Platform.runLater(new Runnable(){
+                                            @Override public void run() {
+                                                loadingLabel.setText("Script halted");
+                                            }
+                                        });
+                                        runMacroButton.setDisable(false);
+                                        break;
+                                    }
+                                    scriptIsEmpty = false;
+                                    //check if it has an int arg i.e. loop 5
+                                    if (scriptLine.length != 1) {
+                                        int finalLengthDifference2 = lengthDifference;
+                                        Platform.runLater(new Runnable(){
+                                            @Override public void run() {
+                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for end");
+                                                //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
+                                            }
+                                        });
+
+                                        scriptingError = true;
+                                        runMacroButton.setDisable(false);
+                                        break;
+                                    } else {
+                                        //if there are any more times to loop, it will go back to the top and run the loop block code again
+                                        if (timesToLoop > 1) {
+                                            j = startOfLoopLineNunber; //go back to top of the loop
+                                            timesToLoop -= 1; //one more loop has been done
+                                        }
+                                    }
+                                    break;
                                 case "move":
                                     //move 500 500
                                     if (scriptHalter.isUserWantsToHaltScript()) {
@@ -962,7 +1123,18 @@ public class Main extends Application {
                                         try {
                                             int x = Integer.parseInt(scriptLine[1]);
                                             int y = Integer.parseInt(scriptLine[2]);
-                                            move(x, y, bot);
+                                            //for (int k = 0; k < timesToLoop; k++) {
+                                                move(x, y, bot);
+                                                if (scriptHalter.isUserWantsToHaltScript()) {
+                                                    Platform.runLater(new Runnable(){
+                                                        @Override public void run() {
+                                                            loadingLabel.setText("Script halted");
+                                                        }
+                                                    });
+                                                    runMacroButton.setDisable(false);
+                                                    break;
+                                                }
+                                            //}
                                             //parse number after wait, i.e. move 400 400
                                         } catch (NumberFormatException nfe) {
                                             nfe.printStackTrace();
@@ -1007,26 +1179,38 @@ public class Main extends Application {
                                         //the reason for the slower stuff on higher wait durations is to reduce CPU usage
                                         //but faster stuff needs to check more frequently
                                         try {
-                                            int waitDuration = Integer.parseInt(scriptLine[1]);
-                                            int stepDuration;
-                                            if (waitDuration >= 1000) {
-                                                stepDuration = 100;
-                                            } else if (waitDuration < 1000 && waitDuration > 100) {
-                                                stepDuration = 10;
-                                            } else {
-                                                stepDuration = 1;
-                                            }
-                                            for (int x = 0; x < waitDuration; x += stepDuration) {
-                                                try {Thread.sleep(stepDuration);} catch (InterruptedException ex) { ex.printStackTrace();}
-                                                if (scriptHalter.isUserWantsToHaltScript()) {
-                                                    //System.out.println("user wants to halt the script");
-                                                    runMacroButton.setDisable(false);
-                                                    Thread.currentThread().interrupt();
-
-                                                    return; //end the thread
-
+                                            //for (int k = 0; k < timesToLoop; k++) {
+                                                int waitDuration = Integer.parseInt(scriptLine[1]);
+                                                int stepDuration;
+                                                if (waitDuration >= 1000) {
+                                                    stepDuration = 100;
+                                                } else if (waitDuration < 1000 && waitDuration > 100) {
+                                                    stepDuration = 10;
+                                                } else {
+                                                    stepDuration = 1;
                                                 }
-                                            }
+                                                for (int x = 0; x < waitDuration; x += stepDuration) {
+                                                    try {Thread.sleep(stepDuration);} catch (InterruptedException ex) { ex.printStackTrace();}
+                                                    if (scriptHalter.isUserWantsToHaltScript()) {
+                                                        //System.out.println("user wants to halt the script");
+                                                        runMacroButton.setDisable(false);
+                                                        Thread.currentThread().interrupt();
+
+                                                        return; //end the thread
+
+                                                    }
+                                                }
+                                                if (scriptHalter.isUserWantsToHaltScript()) {
+                                                    Platform.runLater(new Runnable(){
+                                                        @Override public void run() {
+                                                            loadingLabel.setText("Script halted");
+                                                        }
+                                                    });
+                                                    runMacroButton.setDisable(false);
+                                                    break;
+                                                }
+                                            //}
+
                                             //Thread.sleep(Integer.parseInt(scriptLine[1]));
                                         } catch (NumberFormatException nfe) {
                                             nfe.printStackTrace();
@@ -1063,12 +1247,24 @@ public class Main extends Application {
                                         break;
                                     } else {
                                         try {
-                                            int x;
-                                            int y;
-                                            x = Integer.parseInt(scriptLine[1]);
-                                            y = Integer.parseInt(scriptLine[2]);
-                                            //scheduleEvent(x, y, waitDuration, bot, scriptHalter, "click"); //i is the loop #
-                                            click(x, y, bot);
+                                            //for (int k = 0; k < timesToLoop; k++) {
+                                                int x;
+                                                int y;
+                                                x = Integer.parseInt(scriptLine[1]);
+                                                y = Integer.parseInt(scriptLine[2]);
+                                                //scheduleEvent(x, y, waitDuration, bot, scriptHalter, "click"); //i is the loop #
+                                                click(x, y, bot);
+                                                if (scriptHalter.isUserWantsToHaltScript()) {
+                                                    Platform.runLater(new Runnable(){
+                                                        @Override public void run() {
+                                                            loadingLabel.setText("Script halted");
+                                                        }
+                                                    });
+                                                    runMacroButton.setDisable(false);
+                                                    break;
+                                                }
+                                            //}
+
                                         } catch (NumberFormatException numException) {
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
@@ -1105,12 +1301,24 @@ public class Main extends Application {
                                         break;
                                     } else {
                                         try {
-                                            int x;
-                                            int y;
-                                            x = Integer.parseInt(scriptLine[1]);
-                                            y = Integer.parseInt(scriptLine[2]);
-                                            //scheduleEvent(x, y, waitDuration, bot, scriptHalter, "rightclick"); //i is the loop #
-                                            rightClick(x, y, bot);
+                                            //for (int k = 0; k < timesToLoop; k++) {
+                                                int x;
+                                                int y;
+                                                x = Integer.parseInt(scriptLine[1]);
+                                                y = Integer.parseInt(scriptLine[2]);
+                                                //scheduleEvent(x, y, waitDuration, bot, scriptHalter, "rightclick"); //i is the loop #
+                                                rightClick(x, y, bot);
+                                                if (scriptHalter.isUserWantsToHaltScript()) {
+                                                    Platform.runLater(new Runnable(){
+                                                        @Override public void run() {
+                                                            loadingLabel.setText("Script halted");
+                                                        }
+                                                    });
+                                                    runMacroButton.setDisable(false);
+                                                    break;
+                                                }
+                                            //}
+
                                         } catch (NumberFormatException numException) {
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
@@ -1155,19 +1363,31 @@ public class Main extends Application {
                                         break;
                                     } else {
                                         try {
-                                            int startx;
-                                            int starty;
-                                            int endx;
-                                            int endy;
-                                            startx = Integer.parseInt(scriptLine[1]);
-                                            starty = Integer.parseInt(scriptLine[2]);
-                                            endx = Integer.parseInt(scriptLine[3]);
-                                            endy = Integer.parseInt(scriptLine[4]);
-                                            try {
-                                                clickAndDrag(startx, starty, endx, endy, bot);
-                                            } catch (AWTException awte1) {
-                                                awte1.printStackTrace();
-                                            }
+                                            //for (int k = 0; k < timesToLoop; k++) {
+                                                int startx;
+                                                int starty;
+                                                int endx;
+                                                int endy;
+                                                startx = Integer.parseInt(scriptLine[1]);
+                                                starty = Integer.parseInt(scriptLine[2]);
+                                                endx = Integer.parseInt(scriptLine[3]);
+                                                endy = Integer.parseInt(scriptLine[4]);
+                                                try {
+                                                    clickAndDrag(startx, starty, endx, endy, bot);
+                                                } catch (AWTException awte1) {
+                                                    awte1.printStackTrace();
+                                                }
+                                                if (scriptHalter.isUserWantsToHaltScript()) {
+                                                    Platform.runLater(new Runnable(){
+                                                        @Override public void run() {
+                                                            loadingLabel.setText("Script halted");
+                                                        }
+                                                    });
+                                                    runMacroButton.setDisable(false);
+                                                    break;
+                                                }
+                                            //}
+
 
                                         } catch (NumberFormatException numException) {
                                             int finalLengthDifference7 = lengthDifference;
@@ -1213,26 +1433,38 @@ public class Main extends Application {
                                         break;
                                     } else {
                                         try {
-                                            int startxrandlower  = Integer.parseInt(scriptLine[1]);;
-                                            int startxrandupper  = Integer.parseInt(scriptLine[2]);;
-                                            int startyrandlower  = Integer.parseInt(scriptLine[3]);;
-                                            int startyrandupper  = Integer.parseInt(scriptLine[4]);;
-                                            int endxrandlower  = Integer.parseInt(scriptLine[5]);;
-                                            int endxrandupper  = Integer.parseInt(scriptLine[6]);;
-                                            int endyrandlower  = Integer.parseInt(scriptLine[7]);;
-                                            int endyrandupper = Integer.parseInt(scriptLine[8]);;
-                                            System.out.println("this is where the clickanddragrandom implementation should go");
-                                            //min, max
-                                            int startx = getRandomNumber(startxrandlower, startxrandupper);
-                                            int starty = getRandomNumber(startyrandlower, startyrandupper);
-                                            int endx = getRandomNumber(endxrandlower, endxrandupper);
-                                            int endy = getRandomNumber(endyrandlower, endyrandupper);
-                                            System.out.println("calling clickanddrag " + startx + " " + starty + " " + endx + " " + endy);
-                                            try {
-                                                clickAndDrag(startx, starty, endx, endy, bot);
-                                            } catch (AWTException awte2) {
-                                                awte2.printStackTrace();
-                                            }
+                                            //for (int k = 0; k < timesToLoop; k++) {
+                                                int startxrandlower  = Integer.parseInt(scriptLine[1]);;
+                                                int startxrandupper  = Integer.parseInt(scriptLine[2]);;
+                                                int startyrandlower  = Integer.parseInt(scriptLine[3]);;
+                                                int startyrandupper  = Integer.parseInt(scriptLine[4]);;
+                                                int endxrandlower  = Integer.parseInt(scriptLine[5]);;
+                                                int endxrandupper  = Integer.parseInt(scriptLine[6]);;
+                                                int endyrandlower  = Integer.parseInt(scriptLine[7]);;
+                                                int endyrandupper = Integer.parseInt(scriptLine[8]);;
+                                                System.out.println("this is where the clickanddragrandom implementation should go");
+                                                //min, max
+                                                int startx = getRandomNumber(startxrandlower, startxrandupper);
+                                                int starty = getRandomNumber(startyrandlower, startyrandupper);
+                                                int endx = getRandomNumber(endxrandlower, endxrandupper);
+                                                int endy = getRandomNumber(endyrandlower, endyrandupper);
+                                                System.out.println("calling clickanddrag " + startx + " " + starty + " " + endx + " " + endy);
+                                                try {
+                                                    clickAndDrag(startx, starty, endx, endy, bot);
+                                                } catch (AWTException awte2) {
+                                                    awte2.printStackTrace();
+                                                }
+                                                if (scriptHalter.isUserWantsToHaltScript()) {
+                                                    Platform.runLater(new Runnable(){
+                                                        @Override public void run() {
+                                                            loadingLabel.setText("Script halted");
+                                                        }
+                                                    });
+                                                    runMacroButton.setDisable(false);
+                                                    break;
+                                                }
+                                            //}
+
                                         } catch (NumberFormatException numException) {
                                             int finalLengthDifference7 = lengthDifference;
                                             Platform.runLater(new Runnable(){
@@ -1281,7 +1513,19 @@ public class Main extends Application {
                                         if (keySet.contains(scriptLine[1])) {
                                             //System.out.println("this is a valid key");
                                             //System.out.println("press feature is not yet implemented! implement it here!!!!!");
-                                            press(scriptLine[1], bot);
+                                            //for (int k = 0; k < timesToLoop; k++) {
+                                                press(scriptLine[1], bot);
+                                                if (scriptHalter.isUserWantsToHaltScript()) {
+                                                    Platform.runLater(new Runnable(){
+                                                        @Override public void run() {
+                                                            loadingLabel.setText("Script halted");
+                                                        }
+                                                    });
+                                                    runMacroButton.setDisable(false);
+                                                    break;
+                                                }
+                                            //}
+
                                         } else {
 
                                             System.out.print("invalid key for press command. arg: " + scriptLine[1]);
@@ -1597,7 +1841,7 @@ public class Main extends Application {
         MenuItem aboutItem1 = new MenuItem("About");
         Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
         aboutAlert.setTitle("About");
-        aboutAlert.setHeaderText("About AutoInput v0.0042");
+        aboutAlert.setHeaderText("About AutoInput v0.0043");
         aboutAlert.setContentText("This is an input automation scripting language and editor made by 0x416c616e (Alan). You can use it to write keyboard/mouse macros" +
                 " in order to automate repetitive tasks that require using a GUI rather than something command line-based that can be automated with a shell script.");
 
@@ -1700,6 +1944,12 @@ public class Main extends Application {
                 "wait 1000\n" +
                 "# this is a comment\n" +
                 "press x\n" +
+                "press enter\n" +
+                "loop 5\n" +
+                "   press a\n" +
+                "end\n" +
+                "clickanddrag 300 300 600 500\n" +
+                "clickanddragrandom 100 150 400 450 200 250 500 550\n" +
                 "\n" +
                 "It's recommended that you use a wait command between other commands.\n" +
                 "wait 1000 means wait for 1,000 milliseconds, or one second.\n" +
