@@ -7,7 +7,7 @@ A simple tool for creating keyboard/mouse macro scripts.
 
 This is made for 64-bit Windows. I might add support for other operating systems in the future though.
 
-You must have Java 15 installed in order to run the program.
+You must have Java 15 (or higher) installed in order to run the program.
 
 # Instructions
 
