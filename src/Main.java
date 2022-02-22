@@ -4333,7 +4333,11 @@ public class Main extends Application {
                                     break;
                                 case "minimize":
                                     System.out.println("minimize");
-                                    primaryStage.setIconified(true);
+                                    Platform.runLater(new Runnable(){
+                                        @Override public void run() {
+                                            primaryStage.setIconified(true);
+                                        }
+                                    });
                                     if (scriptHalter.isUserWantsToHaltScript()) {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
@@ -5827,7 +5831,7 @@ public class Main extends Application {
         MenuItem aboutItem1 = new MenuItem("About");
         Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
         aboutAlert.setTitle("About");
-        aboutAlert.setHeaderText("About AutoInput v0.0043");
+        aboutAlert.setHeaderText("About AutoInput v0.0126");
         aboutAlert.setContentText("This is a programming language and IDE made by Alan");
 
 
