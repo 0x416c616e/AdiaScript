@@ -1,8 +1,8 @@
-# AidaScript
+# AdiaScript
 
-AidaScript is a simple procedural (for now) programming language that can be used for simple programming and input macros. The program for writing and running AidaScript programs is called the AidaScript Standard IDE. It's very much a work in progress.
+AdiaScript is a simple procedural (for now) programming language that can be used for simple programming and input macros. The program for writing and running AidaScript programs is called the AidaScript Standard IDE. It's very much a work in progress.
 
-![AidaScript screenshot](https://raw.githubusercontent.com/0x416c616e/AidaScript/master/aidascript.png)
+![AdiaScript screenshot](https://raw.githubusercontent.com/0x416c616e/AdiaScript/master/adiascript.png)
 
 # Dependencies/Requirements
 
@@ -19,7 +19,7 @@ You must have Java 15 (or higher) installed in order to run the program.
 
 # Syntax
 
-Here's an example of how to write AidaScript:
+Here's an example of how to write AdiaScript:
 
     # this is a comment
     click 400 500
