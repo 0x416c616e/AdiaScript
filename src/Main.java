@@ -510,7 +510,7 @@ public class Main extends Application {
                 //System.out.println("Number of lines in the text area: " + String.valueOf(textArea.getText().split("\n").length));
 
                 //reset the console every run
-                consoleTextArea.setText("\n\n\nAutoInput Script Console\n");
+                consoleTextArea.setText("\n\n\nAutoInput Console\n");
 
                 int numberOfLines = textArea.getText().split("\n").length;
                 String lines[] = textArea.getText().split("\n");
@@ -4310,7 +4310,7 @@ public class Main extends Application {
                                         textArea.setEditable(true);
                                         break;
                                     } else {
-                                        consoleTextArea.setText("\n\n\nAutoInput Script Console\n");
+                                        consoleTextArea.setText("\n\n\nAutoInput Console\n");
                                     }
                                     break;
                                 case "unminimize":
@@ -5551,7 +5551,7 @@ public class Main extends Application {
         ScriptHalter scriptHalter = new ScriptHalter();
         Robot bot = new Robot();
         //Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-        primaryStage.setTitle("AutoInput");
+        primaryStage.setTitle("AdiaScript Standard IDE");
         primaryStage.setWidth(450);
         primaryStage.setMinWidth(450);
         primaryStage.setHeight(450);
@@ -5600,7 +5600,7 @@ public class Main extends Application {
         TextArea textArea = new TextArea();
         TextArea consoleTextArea = new TextArea();
         consoleTextArea.setStyle(("-fx-focus-color: transparent;"));
-        consoleTextArea.setText("\n\n\nAutoInput Script Console\n");
+        consoleTextArea.setText("\n\n\nAdiaScript Console\n");
         consoleTextArea.setEditable(false);
         consoleTextArea.setMinHeight(100);
         consoleTextArea.setMaxHeight(100);
@@ -5637,7 +5637,7 @@ public class Main extends Application {
 
         Alert quitAlert = new Alert(Alert.AlertType.CONFIRMATION);
         quitAlert.setTitle("Quit");
-        quitAlert.setHeaderText("Quit AutoInput");
+        quitAlert.setHeaderText("Quit AdiaScript Standard IDE");
         quitAlert.setContentText("Are you sure you want to quit?\nAny unsaved changes will be lost.");
 
         //quit the program
@@ -5831,7 +5831,7 @@ public class Main extends Application {
         MenuItem aboutItem1 = new MenuItem("About");
         Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
         aboutAlert.setTitle("About");
-        aboutAlert.setHeaderText("About AutoInput v0.0126");
+        aboutAlert.setHeaderText("About AdiaScript Standard IDE v0.0126");
         aboutAlert.setContentText("This is a programming language and IDE made by Alan");
 
 
@@ -5925,7 +5925,7 @@ public class Main extends Application {
 
         Alert basicUsageAlert = new Alert(Alert.AlertType.INFORMATION);
         basicUsageAlert.setTitle("Basic Usage");
-        basicUsageAlert.setHeaderText("How to use AutoInput");
+        basicUsageAlert.setHeaderText("How to use AdiaScript");
         basicUsageAlert.setContentText("Type your commands in the editor, then hit run.\n" +
                 "Here are some commands you can use:\n" +
                 "move 300 700\n" +
@@ -6035,7 +6035,7 @@ public class Main extends Application {
                     });
                 }
 
-                consoleTextArea.setText("\n\n\nAutoInput Script Console\n");
+                consoleTextArea.setText("\n\n\nAdiaScript Console\n");
                 if (!error) {
                     parseAndRunScript(isInfinite, timesToRepeat, textArea, consoleTextArea, loadingLabel, totalLoopTime, scriptHalter, bot, runMacroButton, primaryStage);
                 }
