@@ -1,6 +1,6 @@
 # AdiaScript
 
-AdiaScript is a simple procedural (for now) programming language that can be used for simple programming and input macros. The program for writing and running AidaScript programs is called the AidaScript Standard IDE. It's very much a work in progress.
+AdiaScript is a simple procedural (for now) programming language that can be used for simple programming and input macros. The program for writing and running AdiaScript programs is called the AdiaScript Standard IDE. It's very much a work in progress.
 
 ![AdiaScript screenshot](https://raw.githubusercontent.com/0x416c616e/AdiaScript/master/adiascript.png)
 
