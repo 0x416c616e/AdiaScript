@@ -612,11 +612,30 @@ public class Main extends Application {
                                                     //not implemented yet
                                                     break;
                                                 default:
-                                                    //todo: throw error
+                                                    int finalLengthDifference2 = lengthDifference;
+                                                    Platform.runLater(new Runnable(){
+                                                        @Override public void run() {
+                                                            loadingLabel.setText("Macro error on line " + lineNumber + ": type error for if");
+                                                            highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
+                                                        }
+                                                    });
+                                                    scriptingError = true;
+                                                    runMacroButton.setDisable(false);
+                                                    textArea.setEditable(true);
                                                     break;
                                             }
                                         } else {
-                                            //todo: throw error, invalid variable reference
+                                            int finalLengthDifference2 = lengthDifference;
+                                            Platform.runLater(new Runnable(){
+                                                @Override public void run() {
+                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid variable reference");
+                                                    highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
+                                                }
+                                            });
+                                            scriptingError = true;
+                                            runMacroButton.setDisable(false);
+                                            textArea.setEditable(true);
+                                            break;
                                         }
                                     } else {
                                         try {
@@ -652,11 +671,30 @@ public class Main extends Application {
                                                     //not implemented yet
                                                     break;
                                                 default:
-                                                    //todo: throw error
+                                                    int finalLengthDifference2 = lengthDifference;
+                                                    Platform.runLater(new Runnable(){
+                                                        @Override public void run() {
+                                                            loadingLabel.setText("Macro error on line " + lineNumber + ": type error for if");
+                                                            highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
+                                                        }
+                                                    });
+                                                    scriptingError = true;
+                                                    runMacroButton.setDisable(false);
+                                                    textArea.setEditable(true);
                                                     break;
                                             }
                                         } else {
-                                            //todo: throw error, invalid variable reference
+                                            int finalLengthDifference2 = lengthDifference;
+                                            Platform.runLater(new Runnable(){
+                                                @Override public void run() {
+                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid variable reference");
+                                                    highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
+                                                }
+                                            });
+                                            scriptingError = true;
+                                            runMacroButton.setDisable(false);
+                                            textArea.setEditable(true);
+                                            break;
                                         }
                                     } else {
                                         try {
@@ -674,7 +712,6 @@ public class Main extends Application {
                                     if (((var1.getType() == var2.getType())) && !scriptingError) {
                                         if (var1.getType() == Variable.Type.INT) {
                                             switch (scriptLine[2]) {
-                                                //todo: implement
                                                 case "==":
                                                     expressionEval = (var1.getIntValue() == var2.getIntValue());
                                                     System.out.println("equals");
@@ -733,7 +770,6 @@ public class Main extends Application {
 
                                 } else if (scriptLine.length == 3) {
                                     //if $x exists
-                                    //todo: implement
                                     if (scriptLine[2].equalsIgnoreCase("exists")) {
                                         if (scriptLine[1].startsWith("$")) {
                                             if (variables.get(scriptLine[1]) != null) {
@@ -742,12 +778,50 @@ public class Main extends Application {
                                                 expressionEval = false;
                                             }
                                         } else {
-                                            //todo: throw error, invalid args
+                                            int finalLengthDifference2 = lengthDifference;
+                                            Platform.runLater(new Runnable(){
+                                                @Override public void run() {
+                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for if");
+                                                    highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
+                                                }
+                                            });
+                                            scriptingError = true;
+                                            runMacroButton.setDisable(false);
+                                            textArea.setEditable(true);
+                                            break;
                                         }
                                     } else if (scriptLine[2].equalsIgnoreCase("doesnotexist")) {
-                                        //todo: implement
+                                        if (scriptLine[1].startsWith("$")) {
+                                            if (variables.get(scriptLine[1]) != null) {
+                                                expressionEval = false;
+                                            } else {
+                                                expressionEval = true;
+                                            }
+                                        } else {
+                                            int finalLengthDifference2 = lengthDifference;
+                                            Platform.runLater(new Runnable(){
+                                                @Override public void run() {
+                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for if");
+                                                    highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
+                                                }
+                                            });
+                                            scriptingError = true;
+                                            runMacroButton.setDisable(false);
+                                            textArea.setEditable(true);
+                                            break;
+                                        }
                                     } else {
-                                        //todo: throw error, invalid args
+                                        int finalLengthDifference2 = lengthDifference;
+                                        Platform.runLater(new Runnable(){
+                                            @Override public void run() {
+                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for if");
+                                                highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
+                                            }
+                                        });
+                                        scriptingError = true;
+                                        runMacroButton.setDisable(false);
+                                        textArea.setEditable(true);
+                                        break;
                                     }
                                 } else {
                                     int finalLengthDifference2 = lengthDifference;
@@ -769,6 +843,7 @@ public class Main extends Application {
                                     //todo: iflevel stuff etc.
                                     // if expressionEval == true, then you proceed to the stuff before any
                                     // elseif or else blocks
+
 
 
                                     //todo: but if it's false, then immediately go to the next endif
@@ -3018,6 +3093,7 @@ public class Main extends Application {
                         startOfLoopLineNunber[idx] = -1;
                     }
                     int currentLoopLevel = 0;
+                    int currentIfLevel = 0;
 
                     for (int j = 0; j < numberOfLines; j++) {
 
@@ -3039,7 +3115,276 @@ public class Main extends Application {
                             switch (scriptLine[0]) {
                                 //if/elseif/else/endif
                                 case "if":
-                                    //todo
+                                    if (scriptHalter.isUserWantsToHaltScript()) {
+                                        Platform.runLater(new Runnable(){
+                                            @Override public void run() {
+                                                loadingLabel.setText("Script halted");
+                                            }
+                                        });
+                                        runMacroButton.setDisable(false);
+                                        textArea.setEditable(true);
+                                        break;
+                                    }
+                                    scriptIsEmpty = false;
+                                    //if $x == 4
+                                    //can use ints or vars for either arg
+                                    //and can be any comparison operator
+                                    boolean expressionEval = false;
+                                    if (scriptLine.length == 4) {
+                                        Variable var1 = new Variable();
+                                        Variable var2 = new Variable();
+                                        if (scriptLine[1].startsWith("$")) {
+                                            //try to get and parse variable
+                                            // then figure out its data type
+                                            // then set dataType to it
+                                            if (variables.get(scriptLine[1]) != null) {
+                                                switch (variables.get(scriptLine[1]).getType()) {
+                                                    case INT:
+                                                        var1.setType(Variable.Type.INT);
+                                                        var1.setIntValue(variables.get(scriptLine[1]).getIntValue());
+                                                        break;
+                                                    case STR:
+                                                        //not implemented yet
+                                                        break;
+                                                    default:
+                                                        int finalLengthDifference2 = lengthDifference;
+                                                        Platform.runLater(new Runnable(){
+                                                            @Override public void run() {
+                                                                loadingLabel.setText("Macro error on line " + lineNumber + ": type error for if");
+                                                            }
+                                                        });
+                                                        scriptingError = true;
+                                                        runMacroButton.setDisable(false);
+                                                        textArea.setEditable(true);
+                                                        break;
+                                                }
+                                            } else {
+                                                int finalLengthDifference2 = lengthDifference;
+                                                Platform.runLater(new Runnable(){
+                                                    @Override public void run() {
+                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid variable reference");
+                                                    }
+                                                });
+                                                scriptingError = true;
+                                                runMacroButton.setDisable(false);
+                                                textArea.setEditable(true);
+                                                break;
+                                            }
+                                        } else {
+                                            try {
+                                                var1.setIntValue(Integer.parseInt(scriptLine[1]));
+                                                var1.setType(Variable.Type.INT);
+                                            } catch (NumberFormatException e) {
+
+                                                var1.setStrValue(String.valueOf(scriptLine[1]));
+                                                var1.setType(Variable.Type.STR);
+                                            }
+                                            //else: in the future, will I want stuff aside from int and str?
+                                        }
+
+                                        //at this point, you know that this part is fine: "if $x" or "if 5"
+                                        //but now you need to parse the second operand, and see if it matches the
+                                        //data type of the first one
+                                        //and then need to switch on the operator
+
+                                        //parsing the second operand
+                                        //i.e. if it's "if $x == 5"
+                                        //then this part is parsing 5
+                                        if (scriptLine[3].startsWith("$")) {
+                                            //try to get and parse variable
+                                            // then figure out its data type
+                                            // then set dataType to it
+                                            if (variables.get(scriptLine[3]) != null) {
+                                                switch (variables.get(scriptLine[3]).getType()) {
+                                                    case INT:
+                                                        var2.setType(Variable.Type.INT);
+                                                        var2.setIntValue(variables.get(scriptLine[3]).getIntValue());
+                                                        break;
+                                                    case STR:
+                                                        //not implemented yet
+                                                        break;
+                                                    default:
+                                                        int finalLengthDifference2 = lengthDifference;
+                                                        Platform.runLater(new Runnable(){
+                                                            @Override public void run() {
+                                                                loadingLabel.setText("Macro error on line " + lineNumber + ": type error for if");
+                                                            }
+                                                        });
+                                                        scriptingError = true;
+                                                        runMacroButton.setDisable(false);
+                                                        textArea.setEditable(true);
+                                                        break;
+                                                }
+                                            } else {
+                                                int finalLengthDifference2 = lengthDifference;
+                                                Platform.runLater(new Runnable(){
+                                                    @Override public void run() {
+                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid variable reference");
+                                                    }
+                                                });
+                                                scriptingError = true;
+                                                runMacroButton.setDisable(false);
+                                                textArea.setEditable(true);
+                                                break;
+                                            }
+                                        } else {
+                                            try {
+                                                var2.setIntValue(Integer.parseInt(scriptLine[3]));
+                                                var2.setType(Variable.Type.INT);
+                                            } catch (NumberFormatException e) {
+                                                var2.setStrValue(String.valueOf(scriptLine[3]));
+                                                var2.setType(Variable.Type.STR);
+                                            }
+
+
+                                        }
+
+                                        //now you know the operands are fine, now switch on the operator
+                                        if (((var1.getType() == var2.getType())) && !scriptingError) {
+                                            if (var1.getType() == Variable.Type.INT) {
+                                                switch (scriptLine[2]) {
+                                                    case "==":
+                                                        expressionEval = (var1.getIntValue() == var2.getIntValue());
+                                                        System.out.println("equals");
+                                                        break;
+                                                    case "!=":
+                                                        expressionEval = (var1.getIntValue() != var2.getIntValue());
+                                                        System.out.println("not");
+                                                        break;
+                                                    case ">=":
+                                                        expressionEval = (var1.getIntValue() >= var2.getIntValue());
+                                                        System.out.println("greater than or equal to");
+                                                        break;
+                                                    case "<=":
+                                                        expressionEval = (var1.getIntValue() <= var2.getIntValue());
+                                                        System.out.println("less than or equal to");
+                                                        break;
+                                                    case ">":
+                                                        expressionEval = (var1.getIntValue() > var2.getIntValue());
+                                                        System.out.println("greater than");
+                                                        break;
+                                                    case "<":
+                                                        expressionEval = (var1.getIntValue() < var2.getIntValue());
+                                                        System.out.println("less than");
+                                                        break;
+                                                    default:
+                                                        int finalLengthDifference2 = lengthDifference;
+                                                        Platform.runLater(new Runnable(){
+                                                            @Override public void run() {
+                                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid operator for if");
+                                                            }
+                                                        });
+                                                        scriptingError = true;
+                                                        runMacroButton.setDisable(false);
+                                                        textArea.setEditable(true);
+                                                        break;
+                                                }
+                                            } else if (var1.getType() == Variable.Type.STR) {
+                                                //not yet implemented
+                                            }
+                                        } else {
+                                            //throw error: the operands are not the same type
+                                            int finalLengthDifference2 = lengthDifference;
+                                            Platform.runLater(new Runnable(){
+                                                @Override public void run() {
+                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": operand type mismatch for if");
+                                                }
+                                            });
+                                            scriptingError = true;
+                                            runMacroButton.setDisable(false);
+                                            textArea.setEditable(true);
+                                            break;
+                                        }
+
+
+                                    } else if (scriptLine.length == 3) {
+                                        //if $x exists
+                                        if (scriptLine[2].equalsIgnoreCase("exists")) {
+                                            if (scriptLine[1].startsWith("$")) {
+                                                if (variables.get(scriptLine[1]) != null) {
+                                                    expressionEval = true;
+                                                } else {
+                                                    expressionEval = false;
+                                                }
+                                            } else {
+                                                int finalLengthDifference2 = lengthDifference;
+                                                Platform.runLater(new Runnable(){
+                                                    @Override public void run() {
+                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for if");
+                                                    }
+                                                });
+                                                scriptingError = true;
+                                                runMacroButton.setDisable(false);
+                                                textArea.setEditable(true);
+                                                break;
+                                            }
+                                        } else if (scriptLine[2].equalsIgnoreCase("doesnotexist")) {
+                                            if (scriptLine[1].startsWith("$")) {
+                                                if (variables.get(scriptLine[1]) != null) {
+                                                    expressionEval = false;
+                                                } else {
+                                                    expressionEval = true;
+                                                }
+                                            } else {
+                                                int finalLengthDifference2 = lengthDifference;
+                                                Platform.runLater(new Runnable(){
+                                                    @Override public void run() {
+                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for if");
+                                                    }
+                                                });
+                                                scriptingError = true;
+                                                runMacroButton.setDisable(false);
+                                                textArea.setEditable(true);
+                                                break;
+                                            }
+                                        } else {
+                                            int finalLengthDifference2 = lengthDifference;
+                                            Platform.runLater(new Runnable(){
+                                                @Override public void run() {
+                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for if");
+                                                }
+                                            });
+                                            scriptingError = true;
+                                            runMacroButton.setDisable(false);
+                                            textArea.setEditable(true);
+                                            break;
+                                        }
+                                    } else {
+                                        int finalLengthDifference2 = lengthDifference;
+                                        Platform.runLater(new Runnable(){
+                                            @Override public void run() {
+                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for if");
+                                            }
+                                        });
+                                        scriptingError = true;
+                                        runMacroButton.setDisable(false);
+                                        textArea.setEditable(true);
+                                        break;
+                                    }
+
+                                    //finally
+                                    if (!scriptingError) {
+                                        System.out.println("expressionEval: " + expressionEval);
+                                        //todo: iflevel stuff etc.
+                                        // if expressionEval == true, then you proceed to the stuff before any
+                                        // elseif or else blocks
+
+
+
+                                        //todo: but if it's false, then immediately go to the next endif
+                                        // **on the same ifLevel**
+                                    }
+
+                                    if (scriptHalter.isUserWantsToHaltScript()) {
+                                        Platform.runLater(new Runnable(){
+                                            @Override public void run() {
+                                                loadingLabel.setText("Script halted");
+                                            }
+                                        });
+                                        runMacroButton.setDisable(false);
+                                        textArea.setEditable(true);
+                                        break;
+                                    }
                                     break;
                                 case "elseif":
                                     //todo
