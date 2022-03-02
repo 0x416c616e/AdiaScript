@@ -34,6 +34,45 @@ import java.util.Set;
 
 public class Main extends Application {
 
+    public static int findNextEndifOnSameIfLevel(int currentIfLevel, int lineNumber, String[] lines) {
+        System.out.println("TODO: IMPLEMENT findNextEndifOnSameIfLevel");
+
+        return -1;
+    }
+
+    //todo: this is currently in progress
+    public static int findNextTrueElseifOrElseOnSameIfLevel(int currentIfLevel, int lineNumber, String[] lines, HashMap<String, Variable> variables) {
+        System.out.println("TODO: IMPLEMENT findNextTrueElseifOrElseOnSameIfLevel");
+
+        boolean foundATrueElseifExpression = false;
+        int currentLine = lineNumber;
+        int tempIfLevelForElseif = currentIfLevel;
+        //loop:
+        //    if the elseif's expression is false, find the next elseif on the same if level
+        //endloop
+
+        //loop to find the next elseif
+        while (foundATrueElseifExpression == false && currentLine < lines.length) {
+            System.out.println("trying to find the next elseif (if any)");
+            System.out.println("lines[" + currentLine + "]:" + lines[currentLine]);
+            //String scriptLine[] = lines[currentLine].split(" ");
+            currentLine++;
+        }
+
+
+        //if there is no elseif, or none of the elseifs are true, then look for an else block
+        //if there is an else block, go into it
+        //if there is no else block, or you're done with the else block, go to the next endif on the same if level
+
+        //pieces of an if statement:
+        //1. 1 if
+        //2. 0, 1, or many elseifs
+        //3. 0 or 1 else
+        //4. 1 endif
+
+        return -1;
+    }
+
     public static int getRandomNumber(int min, int max) {
         return (int) ((Math.random() * (max - min)) + min);
     }
@@ -862,13 +901,10 @@ public class Main extends Application {
                                 }
                                 break;
                             case "elseif":
-                                //todo
                                 break;
                             case "else":
-                                //todo
                                 break;
                             case "endif":
-                                //todo
                                 break;
                             case "loop":
                                 if (scriptHalter.isUserWantsToHaltScript()) {
@@ -3364,10 +3400,30 @@ public class Main extends Application {
 
                                     //finally
                                     if (!scriptingError) {
-                                        System.out.println("expressionEval: " + expressionEval);
-                                        //todo: iflevel stuff etc.
-                                        // if expressionEval == true, then you proceed to the stuff before any
-                                        // elseif or else blocks
+                                        System.out.println("123 expressionEval: " + expressionEval);
+                                        if (expressionEval == true) {
+                                            currentIfLevel += 1;
+                                            System.out.println("it will go to the first if block part because the expression is true");
+                                        } else {
+                                            //todo: THIS IS WHERE I LEFT OFF FOR THE IF/ELSEIF/ELSE/ENDIF LOGIC!!!!!!
+                                            //todo: if none is found, it will be -1
+                                            // linenumber means the part to start at, and go all the way to the end
+                                            int nextTrueElseifOrElseOnSameIfLevel = findNextTrueElseifOrElseOnSameIfLevel(currentIfLevel, lineNumber, lines, variables);
+                                            if (nextTrueElseifOrElseOnSameIfLevel > 0) {
+                                                currentIfLevel += 1;
+                                                //todo: have the interpreter go to the line of the number in nextTrueElseifOrElseOnSameIfLevel
+
+                                            } else {
+                                                //todo: have the interpreter go to the line of the next endif
+                                                // ifLevel -= 1
+                                                int nextEndifOnSameIfLevel = findNextEndifOnSameIfLevel(currentIfLevel, lineNumber, lines);
+                                            }
+                                            //also note: the interpreter should skip to the first line within the proper if/elseif/else block
+                                            //not the line itself
+                                            //if you get to an actual elseif/else/endif on the interpreter (for the second part -- running, not checking),
+                                            //then decrease the ifLevel by 1
+                                            //and if it's an elseif or else, then find the next endif
+                                        }
 
 
 
@@ -3387,12 +3443,17 @@ public class Main extends Application {
                                     }
                                     break;
                                 case "elseif":
-                                    //todo
+                                    //todo: skip to next endif (technically the line after it) and ifLevel--;
+                                    // if you get here via this part, then it means you got to the end of
+                                    // an if block's main block or an earlier elseif block
                                     break;
                                 case "else":
+                                    //todo: skip to next endif (technically the line after it) and ifLevel--;
+                                    // if you get here via this part, then it means you got to the end of
+                                    // an if block's else block
                                     break;
                                 case "endif":
-                                    //todo
+                                    //maybe do nothing? other stuff should take care of it
                                     break;
                                 case "loop":
                                     if (scriptHalter.isUserWantsToHaltScript()) {
