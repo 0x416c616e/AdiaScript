@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 
 public class Main extends Application {
@@ -550,6 +551,7 @@ public class Main extends Application {
 
                 //reset the console every run
                 consoleTextArea.setText("\n\n\nAutoInput Console\n");
+                String consoleTextString = "\n\n\nAutoInput Console\n";
 
                 int numberOfLines = textArea.getText().split("\n").length;
                 String lines[] = textArea.getText().split("\n");
@@ -1710,7 +1712,11 @@ public class Main extends Application {
 
                                 }
                                 break;
-                            case "print":
+                            //print has been removed for now because it's possible to have a huge loop that makes a
+                            //really long line -- one single line with way too much text, which can cause issues,
+                            //and the way I tried to solve it caused issues with many printlns
+                            //so for now, you can only use println, and the console only shows the last 5000 lines of output
+                            //case "print":
                             case "println":
                                 if (scriptHalter.isUserWantsToHaltScript()) {
                                     Platform.runLater(new Runnable(){
@@ -1742,7 +1748,6 @@ public class Main extends Application {
                                 } else {
                                     scriptIsEmpty = false;
                                     int numOfThingsToPrint = scriptLine.length - 1;
-                                    String newTextAreaString = consoleTextArea.getText();
                                     for (int k = 0; k < numOfThingsToPrint; k++) {
                                         //System.out.println(scriptLine[k + 1]);
                                         String thingToPrint = scriptLine[k + 1];
@@ -4382,7 +4387,7 @@ public class Main extends Application {
 
                                     }
                                     break;
-                                case "print":
+                                //case "print":
                                 case "println":
                                     //System.out.println("print 2");
                                     if (scriptHalter.isUserWantsToHaltScript()) {
@@ -4413,7 +4418,6 @@ public class Main extends Application {
                                     } else {
                                         scriptIsEmpty = false;
                                         int numOfThingsToPrint = scriptLine.length - 1;
-                                        String newTextAreaString = consoleTextArea.getText();
                                         for (int k = 0; k < numOfThingsToPrint; k++) {
                                             //System.out.println(scriptLine[k + 1]);
                                             String thingToPrint = scriptLine[k + 1];
@@ -4422,13 +4426,11 @@ public class Main extends Application {
                                                     thingToPrint = variables.get(thingToPrint).getValue();
                                                 }
                                             }
-                                            newTextAreaString += thingToPrint + " ";
-
+                                            consoleTextString += thingToPrint + " ";
 
                                         }
                                         if (scriptLine[0].equalsIgnoreCase("println")) {
-                                            newTextAreaString += "\n";
-
+                                            consoleTextString += "\n";
                                         }
 
                                         //count the number of new lines
@@ -4437,14 +4439,14 @@ public class Main extends Application {
                                         int lastIndex = 0;
                                         int lineCount = 0;
                                         while (lastIndex != -1) {
-                                            lastIndex = newTextAreaString.indexOf(findStr, lastIndex);
+                                            lastIndex = consoleTextString.indexOf(findStr, lastIndex);
                                             if (lastIndex != -1) {
                                                 lineCount++;
                                                 lastIndex += findStr.length();
                                             }
                                         }
                                         System.out.println("number of lines in the console: " + lineCount);
-                                        System.out.println("newTextAreaString.length(): " + newTextAreaString.length());
+                                        System.out.println("consoleTextString.length(): " + consoleTextString.length());
 
                                         //todo: change back to 5000
                                         if (lineCount > 5000) {
@@ -4452,25 +4454,32 @@ public class Main extends Application {
                                             System.out.println("linesToRemove: " + linesToRemove);
                                             for (int k = 0; k < linesToRemove; k++) {
                                                 //+2 because \n is two characters, and you want to remove that too
-                                                int placeOfFirstLineToRemove = newTextAreaString.indexOf("\n");
-                                                newTextAreaString = newTextAreaString.substring(placeOfFirstLineToRemove + 1);
+                                                int placeOfFirstLineToRemove = consoleTextString.indexOf("\n");
+                                                consoleTextString = consoleTextString.substring(placeOfFirstLineToRemove + 1);
                                             }
-                                            consoleTextArea.appendText("");
+                                            //consoleTextArea.appendText("");
+                                            consoleTextString += "";
                                         }
+                                        /*
                                         //todo: change back to 120000
-                                        if (newTextAreaString.length() > 120000) {
+                                        if (consoleTextString.length() > 120000) {
                                             System.out.println("too long, need to trim");                           //todo: change back to 120000
-                                            newTextAreaString = newTextAreaString.substring(newTextAreaString.length() - 120000, newTextAreaString.length() - 1);
+                                            consoleTextString = consoleTextString.substring(consoleTextString.length() - 120000, consoleTextString.length() - 1);
                                             if (scriptLine[1].equalsIgnoreCase("println")) {
-                                                newTextAreaString += "\n";
+                                                consoleTextString += "\n";
                                             }
-                                            consoleTextArea.appendText("");
-                                        }
+                                            //consoleTextArea.appendText("");
+                                            consoleTextString += "";
+                                        } //todo: if a single line is too long, then add a linebreak
+                                        */
 
 
+                                        /*
+                                        //old and working (but slow)
                                         try {
-                                            consoleTextArea.setText(newTextAreaString);
+                                            consoleTextArea.setText(consoleTextString);
                                             consoleTextArea.appendText("");
+                                            consoleTextString += "";
                                             consoleTextArea.setScrollTop(Double.MAX_VALUE);
                                             consoleTextArea.setScrollLeft(Double.MAX_VALUE);
                                             Thread.sleep(50); //could go as low as 25ms but want to make sure it works even on slower processors
@@ -4478,7 +4487,30 @@ public class Main extends Application {
 
                                         } catch (InterruptedException e) {
                                             e.printStackTrace();
+                                        }*/
+
+
+                                        String finalConsoleTextString = consoleTextString;
+                                        try {
+                                            Thread.sleep(1);
+                                            //TimeUnit.MICROSECONDS.sleep(1);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
                                         }
+                                        Platform.runLater(new Runnable(){
+                                            @Override public void run() {
+                                                try {
+                                                    consoleTextArea.setText(finalConsoleTextString);
+                                                    //consoleTextArea.appendText("");
+                                                    consoleTextArea.setScrollTop(Double.MAX_VALUE);
+                                                    consoleTextArea.setScrollLeft(Double.MAX_VALUE);
+                                                    consoleTextArea.appendText("");
+
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        });
 
                                     }
                                     break;
@@ -4717,6 +4749,7 @@ public class Main extends Application {
                                         break;
                                     } else {
                                         consoleTextArea.setText("\n\n\nAutoInput Console\n");
+                                        consoleTextString = "\n\n\nAutoInput Console\n";
                                     }
                                     break;
                                 case "unminimize":
