@@ -46,6 +46,7 @@ public class Main extends Application {
         System.out.println("TODO: IMPLEMENT findNextTrueElseifOrElseOnSameIfLevel");
 
         boolean foundATrueElseifExpression = false;
+        boolean foundEndifForCurrentIf = false;
         int currentLine = lineNumber;
         int tempIfLevelForElseif = currentIfLevel;
         //loop:
@@ -53,17 +54,30 @@ public class Main extends Application {
         //endloop
 
         //loop to find the next elseif
-        while (foundATrueElseifExpression == false && currentLine < lines.length) {
+        while (foundEndifForCurrentIf == false && foundATrueElseifExpression == false && currentLine < lines.length) {
             System.out.println("trying to find the next elseif (if any)");
             System.out.println("lines[" + currentLine + "]:" + lines[currentLine]);
-            //String scriptLine[] = lines[currentLine].split(" ");
+            String scriptLine[] = lines[currentLine].split(" ");
+            if (scriptLine[0].equalsIgnoreCase("if")) {
+                tempIfLevelForElseif += 1;
+            }
+            if (scriptLine[0].equalsIgnoreCase("endif") && tempIfLevelForElseif == currentIfLevel) {
+                foundEndifForCurrentIf = true;
+                tempIfLevelForElseif -= 1;
+            } else if (scriptLine[0].equalsIgnoreCase("endif") && !(tempIfLevelForElseif == currentIfLevel)) {
+                //found a different endif
+                tempIfLevelForElseif -= 1;
+            }
+            if ((foundEndifForCurrentIf == false) && scriptLine[0].equalsIgnoreCase("elseif") && tempIfLevelForElseif == currentIfLevel) {
+                System.out.println("12312312312 found a match at: " + currentLine + ": " + lines[currentLine]);
+                //TODO: WHERE I LEFT OFF: EVALUATE THE EXPRESSION!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            }
             currentLine++;
         }
 
-
-        //if there is no elseif, or none of the elseifs are true, then look for an else block
-        //if there is an else block, go into it
-        //if there is no else block, or you're done with the else block, go to the next endif on the same if level
+        //todo: if there is no elseif, or none of the elseifs are true, then look for an else block
+        // if there is an else block, go into it
+        // if there is no else block, or you're done with the else block, go to the next endif on the same if level
 
         //pieces of an if statement:
         //1. 1 if
@@ -3413,11 +3427,13 @@ public class Main extends Application {
                                             //todo: THIS IS WHERE I LEFT OFF FOR THE IF/ELSEIF/ELSE/ENDIF LOGIC!!!!!!
                                             //todo: if none is found, it will be -1
                                             // linenumber means the part to start at, and go all the way to the end
+                                            //vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
                                             int nextTrueElseifOrElseOnSameIfLevel = findNextTrueElseifOrElseOnSameIfLevel(currentIfLevel, lineNumber, lines, variables);
+                                            //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                                             if (nextTrueElseifOrElseOnSameIfLevel > 0) {
                                                 currentIfLevel += 1;
                                                 //todo: have the interpreter go to the line of the number in nextTrueElseifOrElseOnSameIfLevel
-
+                                                // I think it can just proceed normally without any changes?
                                             } else {
                                                 //todo: have the interpreter go to the line of the next endif
                                                 // ifLevel -= 1
@@ -6270,7 +6286,7 @@ public class Main extends Application {
         MenuItem aboutItem1 = new MenuItem("About");
         Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
         aboutAlert.setTitle("About");
-        aboutAlert.setHeaderText("About AdiaScript Standard IDE v0.0126");
+        aboutAlert.setHeaderText("About AdiaScript Standard IDE v0.0154");
         aboutAlert.setContentText("This is a programming language and IDE made by Alan");
 
 
