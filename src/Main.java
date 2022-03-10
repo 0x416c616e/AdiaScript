@@ -6086,6 +6086,7 @@ public class Main extends Application {
 
         MenuItem fileItemNew = new MenuItem("New (not done)");
         MenuItem fileItem1 = new MenuItem("Open (not done)");
+        MenuItem fileItemOpenRecent = new MenuItem("Open Recent (not done)");
         MenuItem fileItemSave = new MenuItem("Save (not done)");
         MenuItem fileItem2 = new MenuItem("Save as (not done)");
         MenuItem fileItem3 = new MenuItem("Quit");
@@ -6173,7 +6174,7 @@ public class Main extends Application {
             }
         });
 
-        Menu fileMenu = new Menu("File", null, fileItemNew, fileItem1, fileItemSave, fileItem2, fileItem3);
+        Menu fileMenu = new Menu("File", null, fileItemNew, fileItem1, fileItemOpenRecent, fileItemSave, fileItem2, fileItem3);
 
         MenuItem optionsItem1 = new MenuItem("Enable always on top");
         MenuItem optionsItem3 = new MenuItem("Enable dark mode");
