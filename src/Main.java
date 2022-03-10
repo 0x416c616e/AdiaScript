@@ -49,6 +49,8 @@ public class Main extends Application {
         boolean foundEndifForCurrentIf = false;
         int currentLine = lineNumber;
         int tempIfLevelForElseif = currentIfLevel;
+
+        int lineToSkipTo = -1; //this is the
         //loop:
         //    if the elseif's expression is false, find the next elseif on the same if level
         //endloop
@@ -71,6 +73,9 @@ public class Main extends Application {
             if ((foundEndifForCurrentIf == false) && scriptLine[0].equalsIgnoreCase("elseif") && tempIfLevelForElseif == currentIfLevel) {
                 System.out.println("12312312312 found a match at: " + currentLine + ": " + lines[currentLine]);
                 //TODO: WHERE I LEFT OFF: EVALUATE THE EXPRESSION!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                // parse args etc
+                // then evaluate
+                // if it's true, then foundATrueElseifExpression = true
             }
             currentLine++;
         }
@@ -78,6 +83,7 @@ public class Main extends Application {
         //todo: if there is no elseif, or none of the elseifs are true, then look for an else block
         // if there is an else block, go into it
         // if there is no else block, or you're done with the else block, go to the next endif on the same if level
+        // UPDATE: actually, I think there is separate logic and a separate method for dealing with the endif
 
         //pieces of an if statement:
         //1. 1 if
@@ -85,6 +91,9 @@ public class Main extends Application {
         //3. 0 or 1 else
         //4. 1 endif
 
+        //todo: if there is a true elseif, or an else, return that number
+        // otherwise, return -1 to indicate that there was no true elseif, and no else
+        // then the caller will have separate logic for handling going to the endif on the same ifLevel
         return -1;
     }
 
@@ -3475,6 +3484,7 @@ public class Main extends Application {
                                     break;
                                 case "endif":
                                     //maybe do nothing? other stuff should take care of it
+                                    //todo: reevaluate the above elseif/else/endif cases???????
                                     break;
                                 case "loop":
                                     if (scriptHalter.isUserWantsToHaltScript()) {
