@@ -6169,6 +6169,8 @@ public class Main extends Application {
         Button increaseIndentButton = new Button("+>>>");
         Button decreaseIndentButton = new Button("<<<-");
 
+        Label lineLabel = new Label("1:0");
+
         increaseIndentButton.setOnAction(e -> {
             String currentSelection = textArea.getSelectedText();
             int start = textArea.getSelection().getStart();
@@ -6220,6 +6222,25 @@ public class Main extends Application {
             int updatedEnd = end + (numTabs);
             textArea.selectRange(start, updatedEnd);
             textArea.requestFocus();
+
+
+            start = textArea.getSelection().getStart();
+            end = textArea.getSelection().getEnd();
+            upToSelection = textArea.getText(0, start);
+            upToEnd = textArea.getText(0, end);
+            startLine = upToSelection.split("\n", -1).length;
+            endLine = upToEnd.split("\n", -1).length;
+            //need to find the nth linebreak
+            startPosOfStartLine = getNthOccurrenceOfSubstr(upToSelection, "\n", startLine - 1);
+            startPosOfEndLine = getNthOccurrenceOfSubstr(upToEnd, "\n", endLine - 1);
+            int posOnStartLine = (start - startPosOfStartLine) - 1;
+            int posOnEndLine = (end - startPosOfEndLine) - 1;
+            String newLabelText = ":" + posOnStartLine;
+            newLabelText = startLine + newLabelText;
+            if (start != end) {
+                newLabelText = newLabelText + "->" + endLine + ":" + posOnEndLine;
+            }
+            lineLabel.setText(newLabelText);
         });
 
         decreaseIndentButton.setOnAction(e -> {
@@ -6295,6 +6316,25 @@ public class Main extends Application {
             int updatedEnd = end - numTabsRemoved;
             textArea.selectRange(start, updatedEnd);
             textArea.requestFocus();
+
+            start = textArea.getSelection().getStart();
+            end = textArea.getSelection().getEnd();
+            upToSelection = textArea.getText(0, start);
+            upToEnd = textArea.getText(0, end);
+            startLine = upToSelection.split("\n", -1).length;
+            endLine = upToEnd.split("\n", -1).length;
+            //need to find the nth linebreak
+            startPosOfStartLine = getNthOccurrenceOfSubstr(upToSelection, "\n", startLine - 1);
+            startPosOfEndLine = getNthOccurrenceOfSubstr(upToEnd, "\n", endLine - 1);
+            int posOnStartLine = (start - startPosOfStartLine) - 1;
+            int posOnEndLine = (end - startPosOfEndLine) - 1;
+            String newLabelText = ":" + posOnStartLine;
+            newLabelText = startLine + newLabelText;
+            if (start != end) {
+                newLabelText = newLabelText + "->" + endLine + ":" + posOnEndLine;
+            }
+            lineLabel.setText(newLabelText);
+
         });
 
         Label repeatLabel = new Label("Times to run script:");
@@ -7011,7 +7051,7 @@ public class Main extends Application {
 
         Label inputRequiredLabel = new Label("Input: not required"); //when the user needs to enter something, it will say "Input: required"
         HBox bottomMiddleHBox = new HBox(bottomMiddleLeftSeparator, inputRequiredLabel);
-        Label lineLabel = new Label("ln1:0");
+
         lineLabel.setPadding(new Insets(7, 5, 0, 0));
         lineLabel.setAlignment(Pos.BOTTOM_RIGHT);
         Button copyButton = new Button("Copy");
