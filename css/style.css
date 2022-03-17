@@ -1,3 +1,8 @@
+@font-face {
+    font-family: 'Adiaeso1';
+    src: url('../assets/Adiaeso1-Regular.ttf');
+}
+
 .root {
     -fx-font-family: "Calibri";
     -fx-font-size: 14;

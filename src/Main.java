@@ -2,6 +2,8 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -14,9 +16,10 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
+import javafx.scene.text.Font;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -30,7 +33,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 
 public class Main extends Application {
@@ -72,10 +74,21 @@ public class Main extends Application {
             }
             if ((foundEndifForCurrentIf == false) && scriptLine[0].equalsIgnoreCase("elseif") && tempIfLevelForElseif == currentIfLevel) {
                 System.out.println("12312312312 found a match at: " + currentLine + ": " + lines[currentLine]);
+                System.out.println("lines[" + currentLine +"]: " + lines[currentLine]);
                 //TODO: WHERE I LEFT OFF: EVALUATE THE EXPRESSION!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 // parse args etc
                 // then evaluate
                 // if it's true, then foundATrueElseifExpression = true
+                //length: 4 or length: 2
+                //it can be elseif $x == 4 or $x exists
+                if (scriptLine.length == 4) {
+                    //todo: implement 'elseif $x == 5' logic!!!!!!!!!!!!!!!!!
+                    System.out.println("got here length 4");
+                } else if (scriptLine.length == 3) {
+                    //todo: implement 'elseif $x exists' logic
+                } else {
+                    //todo: throw error, invalid args
+                }
             }
             currentLine++;
         }
@@ -95,6 +108,55 @@ public class Main extends Application {
         // otherwise, return -1 to indicate that there was no true elseif, and no else
         // then the caller will have separate logic for handling going to the endif on the same ifLevel
         return -1;
+    }
+
+    //don't use this -- it was an interesting idea, but it just isn't stable enough
+    public static void makeTextFlash(TextArea textArea) {
+        new Thread(()->{
+            String font = "monospace"; //could also be Adiaeso1widespaces2
+            int MILLIS = 1000;
+            int i = 0;
+            while (true) {
+                if (i % 10 == 0) {
+                    textArea.setStyle("-fx-text-fill: #043d1d; -fx-font-family: " + font);
+                } else if (i % 10 == 1) {
+                    textArea.setStyle("-fx-text-fill: #065e2d; -fx-font-family: " + font);
+                } else if (i % 10 == 2) {
+                    textArea.setStyle("-fx-text-fill: #09823f; -fx-font-family: " + font);
+                } else if (i % 10 == 3) {
+                    textArea.setStyle("-fx-text-fill: #0aa851; -fx-font-family: " + font);
+                } else if (i % 10 == 4) {
+                    textArea.setStyle("-fx-text-fill: #0dd165; -fx-font-family: " + font);
+                } else if (i % 10 == 5) {
+                    textArea.setStyle("-fx-text-fill: #0dd165; -fx-font-family: " + font);
+                } else if (i % 10 == 6) {
+                    textArea.setStyle("-fx-text-fill: #0aa851; -fx-font-family: " + font);
+                } else if (i % 10 == 7) {
+                    textArea.setStyle("-fx-text-fill: #09823f; -fx-font-family: " + font);
+                } else if (i % 10 == 8) {
+                    textArea.setStyle("-fx-text-fill: #065e2d; -fx-font-family: " + font);
+                } else if (i % 10 == 9) {
+                    textArea.setStyle("-fx-text-fill: #043d1d; -fx-font-family: " + font);
+                }
+                try {
+                    Thread.sleep(MILLIS);
+                } catch (InterruptedException ex) {
+                    System.out.println("text flash interruptedexception!!!!!");
+                    ex.printStackTrace();
+                }
+                i = i + 1;
+                if (i >= 1000) {
+                    i = 0;
+                }
+            }
+        }).start();
+    }
+
+    public static int getNthOccurrenceOfSubstr(String str, String substr, int n) {
+        int pos = str.indexOf(substr);
+        while (--n > 0 && pos != -1)
+            pos = str.indexOf(substr, pos + 1);
+        return pos;
     }
 
     public static int getRandomNumber(int min, int max) {
@@ -573,8 +635,8 @@ public class Main extends Application {
                 //System.out.println("Number of lines in the text area: " + String.valueOf(textArea.getText().split("\n").length));
 
                 //reset the console every run
-                consoleTextArea.setText("\n\n\nAutoInput Console\n");
-                String consoleTextString = "\n\n\nAutoInput Console\n";
+                consoleTextArea.setText("\n\n\nAdiaScript Console\n");
+                String consoleTextString = "\n\n\nAdiaScript Console\n";
 
                 int numberOfLines = textArea.getText().split("\n").length;
                 String lines[] = textArea.getText().split("\n");
@@ -679,7 +741,7 @@ public class Main extends Application {
                                                     int finalLengthDifference2 = lengthDifference;
                                                     Platform.runLater(new Runnable(){
                                                         @Override public void run() {
-                                                            loadingLabel.setText("Macro error on line " + lineNumber + ": type error for if");
+                                                            loadingLabel.setText("Error on line " + lineNumber + ": type error for if");
                                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
                                                         }
                                                     });
@@ -692,7 +754,7 @@ public class Main extends Application {
                                             int finalLengthDifference2 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid variable reference");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": invalid var ref");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -738,7 +800,7 @@ public class Main extends Application {
                                                     int finalLengthDifference2 = lengthDifference;
                                                     Platform.runLater(new Runnable(){
                                                         @Override public void run() {
-                                                            loadingLabel.setText("Macro error on line " + lineNumber + ": type error for if");
+                                                            loadingLabel.setText("Error on line " + lineNumber + ": type error for if");
                                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
                                                         }
                                                     });
@@ -751,7 +813,7 @@ public class Main extends Application {
                                             int finalLengthDifference2 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid variable reference");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": invalid var ref");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -804,7 +866,7 @@ public class Main extends Application {
                                                     int finalLengthDifference2 = lengthDifference;
                                                     Platform.runLater(new Runnable(){
                                                         @Override public void run() {
-                                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid operator for if");
+                                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid operator for if");
                                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
                                                         }
                                                     });
@@ -821,7 +883,7 @@ public class Main extends Application {
                                         int finalLengthDifference2 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": operand type mismatch for if");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": operand type mismatch for if");
                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -845,7 +907,7 @@ public class Main extends Application {
                                             int finalLengthDifference2 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for if");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": invalid args for if");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -865,7 +927,7 @@ public class Main extends Application {
                                             int finalLengthDifference2 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for if");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": invalid args for if");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -878,7 +940,7 @@ public class Main extends Application {
                                         int finalLengthDifference2 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for if");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for if");
                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -891,7 +953,7 @@ public class Main extends Application {
                                     int finalLengthDifference2 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for if");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for if");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -948,7 +1010,7 @@ public class Main extends Application {
                                     int finalLengthDifference2 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for loop");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid arg for loop");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -975,7 +1037,7 @@ public class Main extends Application {
                                             int finalLengthDifference1 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": move args must be ints or int vars");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": move args must be ints or int vars");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -991,7 +1053,7 @@ public class Main extends Application {
                                         int finalLengthDifference3 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": loop arg must be int");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": loop arg must be int");
                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference3, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -1026,7 +1088,7 @@ public class Main extends Application {
                                     int finalLengthDifference2 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for end");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid arg for end");
                                             //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -1054,7 +1116,7 @@ public class Main extends Application {
                                     int finalLengthDifference = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for move");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid arg for move");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -1087,7 +1149,7 @@ public class Main extends Application {
                                             int finalLengthDifference1 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": move args must be ints or int vars");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": move args must be ints or int vars");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -1103,7 +1165,7 @@ public class Main extends Application {
                                         int finalLengthDifference1 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": move args must be ints or int vars");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": move args must be ints or int vars");
                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -1132,7 +1194,7 @@ public class Main extends Application {
                                     int finalLengthDifference = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for moverandom");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid arg for moverandom");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -1183,7 +1245,7 @@ public class Main extends Application {
                                             int finalLengthDifference1 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": moverandom args must be ints or int vars");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": moverandom args must be ints or int vars");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -1199,7 +1261,7 @@ public class Main extends Application {
                                         int finalLengthDifference1 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": moverandom args must be ints or int vars");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": moverandom args must be ints or int vars");
                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -1228,7 +1290,7 @@ public class Main extends Application {
                                     int finalLengthDifference2 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for wait");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid arg for wait");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -1255,7 +1317,7 @@ public class Main extends Application {
                                             int finalLengthDifference1 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": wait args must be ints or int vars");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": wait args must be ints or int vars");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -1271,7 +1333,7 @@ public class Main extends Application {
                                         int finalLengthDifference3 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": wait arg must be int");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": wait arg must be int");
                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference3, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -1302,7 +1364,7 @@ public class Main extends Application {
                                     int finalLengthDifference4 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for clickrandom");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for clickrandom");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference4, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -1354,7 +1416,7 @@ public class Main extends Application {
                                             int finalLengthDifference1 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": clickrandom args must be ints or int vars");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": clickrandom args must be ints or int vars");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -1367,7 +1429,7 @@ public class Main extends Application {
                                         int finalLengthDifference5 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": clickrandom args must be ints");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": clickrandom args must be ints");
                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -1399,7 +1461,7 @@ public class Main extends Application {
                                     int finalLengthDifference4 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for releasemiddleclick");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for releasemiddleclick");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference4, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -1439,7 +1501,7 @@ public class Main extends Application {
                                     int finalLengthDifference4 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for releaserightclick");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for releaserightclick");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference4, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -1479,7 +1541,7 @@ public class Main extends Application {
                                     int finalLengthDifference4 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for releaseclick");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for releaseclick");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference4, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -1519,7 +1581,7 @@ public class Main extends Application {
                                     int finalLengthDifference4 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for middleclickandhold");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for middleclickandhold");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference4, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -1553,7 +1615,7 @@ public class Main extends Application {
                                             int finalLengthDifference1 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": middleclickandhold args must be ints or int vars");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": middleclickandhold args must be ints or int vars");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -1566,7 +1628,7 @@ public class Main extends Application {
                                         int finalLengthDifference5 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": middleclickandhold args must be ints");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": middleclickandhold args must be ints");
                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -1597,7 +1659,7 @@ public class Main extends Application {
                                     int finalLengthDifference4 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for rightclickandhold");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for rightclickandhold");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference4, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -1631,7 +1693,7 @@ public class Main extends Application {
                                             int finalLengthDifference1 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": rightclickandhold args must be ints or int vars");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": rightclickandhold args must be ints or int vars");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -1644,7 +1706,7 @@ public class Main extends Application {
                                         int finalLengthDifference5 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": rightclickandhold args must be ints");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": rightclickandhold args must be ints");
                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -1675,7 +1737,7 @@ public class Main extends Application {
                                     int finalLengthDifference4 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for clickandhold");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for clickandhold");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference4, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -1709,7 +1771,7 @@ public class Main extends Application {
                                             int finalLengthDifference1 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": clickandhold args must be ints or int vars");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": clickandhold args must be ints or int vars");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -1722,7 +1784,7 @@ public class Main extends Application {
                                         int finalLengthDifference5 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": clickandhold args must be ints");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": clickandhold args must be ints");
                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -1759,7 +1821,7 @@ public class Main extends Application {
                                     int finalLengthDifference5 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for print");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for print");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -1782,7 +1844,7 @@ public class Main extends Application {
                                                 int finalLengthDifference5 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": referenced non-existent variable");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": referenced non-existent variable");
                                                         highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                     }
                                                 });
@@ -1816,7 +1878,7 @@ public class Main extends Application {
                                     int finalLengthDifference5 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for update");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for update");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -1865,7 +1927,7 @@ public class Main extends Application {
                                                             int finalLengthDifference5 = lengthDifference;
                                                             Platform.runLater(new Runnable(){
                                                                 @Override public void run() {
-                                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for update");
+                                                                    loadingLabel.setText("Error on line " + lineNumber + ": invalid args for update");
                                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                                 }
                                                             });
@@ -1882,7 +1944,7 @@ public class Main extends Application {
                                                             int finalLengthDifference5 = lengthDifference;
                                                             Platform.runLater(new Runnable(){
                                                                 @Override public void run() {
-                                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for update");
+                                                                    loadingLabel.setText("Error on line " + lineNumber + ": invalid args for update");
                                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                                 }
                                                             });
@@ -1911,7 +1973,7 @@ public class Main extends Application {
                                                                 int finalLengthDifference5 = lengthDifference;
                                                                 Platform.runLater(new Runnable(){
                                                                     @Override public void run() {
-                                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": can't divide by zero");
+                                                                        loadingLabel.setText("Error on line " + lineNumber + ": can't divide by zero");
                                                                         highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                                     }
                                                                 });
@@ -1935,7 +1997,7 @@ public class Main extends Application {
                                                             int finalLengthDifference5 = lengthDifference;
                                                             Platform.runLater(new Runnable(){
                                                                 @Override public void run() {
-                                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arithmetic operator");
+                                                                    loadingLabel.setText("Error on line " + lineNumber + ": invalid arithmetic operator");
                                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                                 }
                                                             });
@@ -1952,7 +2014,7 @@ public class Main extends Application {
                                                     int finalLengthDifference5 = lengthDifference;
                                                     Platform.runLater(new Runnable(){
                                                         @Override public void run() {
-                                                            loadingLabel.setText("Macro error on line " + lineNumber + ": referenced non-existent variable");
+                                                            loadingLabel.setText("Error on line " + lineNumber + ": referenced non-existent variable");
                                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                         }
                                                     });
@@ -1980,7 +2042,7 @@ public class Main extends Application {
                                         int finalLengthDifference5 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for update");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for update");
                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -2011,7 +2073,7 @@ public class Main extends Application {
                                     int finalLengthDifference7 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for clear");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for clear");
                                         }
                                     });
 
@@ -2073,7 +2135,7 @@ public class Main extends Application {
                                             int finalLengthDifference5 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": can't destroy a non-existent variable");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": can't destroy a non-existent variable");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -2086,7 +2148,7 @@ public class Main extends Application {
                                         int finalLengthDifference5 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for destroy");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for destroy");
                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -2099,7 +2161,7 @@ public class Main extends Application {
                                     int finalLengthDifference5 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for destroy");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for destroy");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -2139,7 +2201,7 @@ public class Main extends Application {
                                     int finalLengthDifference5 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for random");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for random");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -2176,7 +2238,7 @@ public class Main extends Application {
                                                                 int finalLengthDifference5 = lengthDifference;
                                                                 Platform.runLater(new Runnable(){
                                                                     @Override public void run() {
-                                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for random");
+                                                                        loadingLabel.setText("Error on line " + lineNumber + ": invalid args for random");
                                                                         highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                                     }
                                                                 });
@@ -2194,7 +2256,7 @@ public class Main extends Application {
                                                                 int finalLengthDifference5 = lengthDifference;
                                                                 Platform.runLater(new Runnable(){
                                                                     @Override public void run() {
-                                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for random");
+                                                                        loadingLabel.setText("Error on line " + lineNumber + ": invalid args for random");
                                                                         highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                                     }
                                                                 });
@@ -2219,7 +2281,7 @@ public class Main extends Application {
                                                                 int finalLengthDifference5 = lengthDifference;
                                                                 Platform.runLater(new Runnable(){
                                                                     @Override public void run() {
-                                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for random");
+                                                                        loadingLabel.setText("Error on line " + lineNumber + ": invalid args for random");
                                                                         highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                                     }
                                                                 });
@@ -2282,7 +2344,7 @@ public class Main extends Application {
                                                                             int finalLengthDifference5 = lengthDifference;
                                                                             Platform.runLater(new Runnable(){
                                                                                 @Override public void run() {
-                                                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": can't divide by zero");
+                                                                                    loadingLabel.setText("Error on line " + lineNumber + ": can't divide by zero");
                                                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                                                 }
                                                                             });
@@ -2325,7 +2387,7 @@ public class Main extends Application {
                                                         int finalLengthDifference5 = lengthDifference;
                                                         Platform.runLater(new Runnable(){
                                                             @Override public void run() {
-                                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for random");
+                                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for random");
                                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                             }
                                                         });
@@ -2339,7 +2401,7 @@ public class Main extends Application {
                                                     int finalLengthDifference5 = lengthDifference;
                                                     Platform.runLater(new Runnable(){
                                                         @Override public void run() {
-                                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for random");
+                                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for random");
                                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                         }
                                                     });
@@ -2353,7 +2415,7 @@ public class Main extends Application {
                                                 int finalLengthDifference5 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for random");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": invalid args for random");
                                                         highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                     }
                                                 });
@@ -2391,7 +2453,7 @@ public class Main extends Application {
                                     int finalLengthDifference5 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for int declaration");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for int declaration");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -2418,7 +2480,7 @@ public class Main extends Application {
                                         int finalLengthDifference5 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid new int args1");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid new int args1");
                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -2453,7 +2515,7 @@ public class Main extends Application {
                                             int finalLengthDifference1 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": int args must be ints or int vars");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": int args must be ints or int vars");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -2472,7 +2534,7 @@ public class Main extends Application {
                                             Platform.runLater(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid new int args");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": invalid new int args");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -2503,7 +2565,7 @@ public class Main extends Application {
                                     int finalLengthDifference6 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for click");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for click");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference6, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -2537,7 +2599,7 @@ public class Main extends Application {
                                             int finalLengthDifference1 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": click args must be ints or int vars");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": click args must be ints or int vars");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -2550,7 +2612,7 @@ public class Main extends Application {
                                         int finalLengthDifference5 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": click args must be ints");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": click args must be ints");
                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -2581,7 +2643,7 @@ public class Main extends Application {
                                     int finalLengthDifference6 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for middleclick");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for middleclick");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference6, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -2615,7 +2677,7 @@ public class Main extends Application {
                                             int finalLengthDifference1 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": middleclick args must be ints or int vars");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": middleclick args must be ints or int vars");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -2628,7 +2690,7 @@ public class Main extends Application {
                                         int finalLengthDifference7 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": middleclick args must be ints");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": middleclick args must be ints");
                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference7, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -2659,7 +2721,7 @@ public class Main extends Application {
                                     int finalLengthDifference6 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for rightclick");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for rightclick");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference6, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -2693,7 +2755,7 @@ public class Main extends Application {
                                             int finalLengthDifference1 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints or int vars");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": rightclick args must be ints or int vars");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -2706,7 +2768,7 @@ public class Main extends Application {
                                         int finalLengthDifference7 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": rightclick args must be ints");
                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference7, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -2738,7 +2800,7 @@ public class Main extends Application {
                                     int finalLengthDifference6 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for clickanddrag");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for clickanddrag");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference6, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -2801,7 +2863,7 @@ public class Main extends Application {
                                             int finalLengthDifference1 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": clickanddrag args must be ints or int vars");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": clickanddrag args must be ints or int vars");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -2815,7 +2877,7 @@ public class Main extends Application {
                                         int finalLengthDifference7 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": rightclick args must be ints");
                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference7, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -2845,7 +2907,7 @@ public class Main extends Application {
                                     int finalLengthDifference2 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for alert");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid arg for alert");
                                             //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -2875,7 +2937,7 @@ public class Main extends Application {
                                     int finalLengthDifference6 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for clickanddragrandom");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for clickanddragrandom");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference6, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -2979,7 +3041,7 @@ public class Main extends Application {
                                             int finalLengthDifference1 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": clickanddragrandom args must be ints or int vars");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": clickanddragrandom args must be ints or int vars");
                                                     highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -2992,7 +3054,7 @@ public class Main extends Application {
                                         int finalLengthDifference7 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": clickanddragrandom args must be ints or int vars");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": clickanddragrandom args must be ints or int vars");
                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference7, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -3024,7 +3086,7 @@ public class Main extends Application {
                                     int finalLengthDifference8 = lengthDifference;
                                     Platform.runLater(new Runnable(){
                                         @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for press");
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid arg for press");
                                             highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference8, lengthDifferenceSingleLine);
                                         }
                                     });
@@ -3051,7 +3113,7 @@ public class Main extends Application {
                                         int finalLengthDifference9 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid press arg");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid press arg");
                                                 highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference9, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -3086,7 +3148,7 @@ public class Main extends Application {
                             /*case "totallooptime":
                                 //it was already handled earlier in the code
                                 if (lineNumber != 1) {
-                                    loadingLabel.setText("Macro error on " + lineNumber + ": invalid use of totallooptime");
+                                    loadingLabel.setText("Error on " + lineNumber + ": invalid use of totallooptime");
                                     scriptingError = true;
                                     break;
                                 }
@@ -3102,16 +3164,27 @@ public class Main extends Application {
                                     textArea.setEditable(true);
                                     break;
                                 }
-                                int finalLengthDifference10 = lengthDifference;
-                                Platform.runLater(new Runnable(){
-                                    @Override public void run() {
-                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid syntax");
-                                        highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference10, lengthDifferenceSingleLine);
-                                    }
-                                });
-                                scriptingError = true;
-                                runMacroButton.setDisable(false);
-                                textArea.setEditable(true);
+
+                                if (scriptHalter.isUserWantsToHaltScript()) {
+                                    runMacroButton.setDisable(false);
+                                    textArea.setEditable(true);
+                                    break;
+                                }
+                                if (scriptLine[0].startsWith("#")) {
+                                    //do nothing because it's a comment, just with no space i.e. "#comment"
+                                } else {
+                                    int finalLengthDifference10 = lengthDifference;
+                                    Platform.runLater(new Runnable(){
+                                        @Override public void run() {
+                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid syntax");
+                                            highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference10, lengthDifferenceSingleLine);
+                                        }
+                                    });
+                                    scriptingError = true;
+                                    runMacroButton.setDisable(false);
+                                    textArea.setEditable(true);
+                                }
+
                                 break;
                         }
                     }
@@ -3122,7 +3195,7 @@ public class Main extends Application {
                 if (!scriptingError && scriptIsEmpty) {
                     Platform.runLater(new Runnable(){
                         @Override public void run() {
-                            loadingLabel.setText("Macro error: cannot run blank script");
+                            loadingLabel.setText("Error: cannot run blank script");
 
                         }
 
@@ -3214,7 +3287,7 @@ public class Main extends Application {
                                                         int finalLengthDifference2 = lengthDifference;
                                                         Platform.runLater(new Runnable(){
                                                             @Override public void run() {
-                                                                loadingLabel.setText("Macro error on line " + lineNumber + ": type error for if");
+                                                                loadingLabel.setText("Error on line " + lineNumber + ": type error for if");
                                                             }
                                                         });
                                                         scriptingError = true;
@@ -3226,7 +3299,7 @@ public class Main extends Application {
                                                 int finalLengthDifference2 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid variable reference");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": invalid variable reference");
                                                     }
                                                 });
                                                 scriptingError = true;
@@ -3271,7 +3344,7 @@ public class Main extends Application {
                                                         int finalLengthDifference2 = lengthDifference;
                                                         Platform.runLater(new Runnable(){
                                                             @Override public void run() {
-                                                                loadingLabel.setText("Macro error on line " + lineNumber + ": type error for if");
+                                                                loadingLabel.setText("Error on line " + lineNumber + ": type error for if");
                                                             }
                                                         });
                                                         scriptingError = true;
@@ -3283,7 +3356,7 @@ public class Main extends Application {
                                                 int finalLengthDifference2 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid variable reference");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": invalid variable reference");
                                                     }
                                                 });
                                                 scriptingError = true;
@@ -3335,7 +3408,7 @@ public class Main extends Application {
                                                         int finalLengthDifference2 = lengthDifference;
                                                         Platform.runLater(new Runnable(){
                                                             @Override public void run() {
-                                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid operator for if");
+                                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid operator for if");
                                                             }
                                                         });
                                                         scriptingError = true;
@@ -3351,7 +3424,7 @@ public class Main extends Application {
                                             int finalLengthDifference2 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": operand type mismatch for if");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": operand type mismatch for if");
                                                 }
                                             });
                                             scriptingError = true;
@@ -3374,7 +3447,7 @@ public class Main extends Application {
                                                 int finalLengthDifference2 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for if");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": invalid args for if");
                                                     }
                                                 });
                                                 scriptingError = true;
@@ -3393,7 +3466,7 @@ public class Main extends Application {
                                                 int finalLengthDifference2 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for if");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": invalid args for if");
                                                     }
                                                 });
                                                 scriptingError = true;
@@ -3405,7 +3478,7 @@ public class Main extends Application {
                                             int finalLengthDifference2 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for if");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": invalid args for if");
                                                 }
                                             });
                                             scriptingError = true;
@@ -3417,7 +3490,7 @@ public class Main extends Application {
                                         int finalLengthDifference2 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for if");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for if");
                                             }
                                         });
                                         scriptingError = true;
@@ -3503,7 +3576,7 @@ public class Main extends Application {
                                         int finalLengthDifference2 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for loop");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid arg for loop");
                                                 //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -3540,7 +3613,7 @@ public class Main extends Application {
                                                 int finalLengthDifference1 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": loop args must be ints or int vars");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": loop args must be ints or int vars");
                                                         //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                     }
                                                 });
@@ -3564,7 +3637,7 @@ public class Main extends Application {
                                             int finalLengthDifference3 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": loop arg must be int");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": loop arg must be int");
                                                     //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference3, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -3595,7 +3668,7 @@ public class Main extends Application {
                                         int finalLengthDifference2 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for end");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid arg for end");
                                                 //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -3626,7 +3699,7 @@ public class Main extends Application {
                                     if (scriptLine.length != 3) {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for move");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid arg for move");
                                             }
                                         });
 
@@ -3663,7 +3736,7 @@ public class Main extends Application {
                                                 int finalLengthDifference1 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": move args must be ints or int vars");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": move args must be ints or int vars");
                                                         //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                     }
                                                 });
@@ -3695,7 +3768,7 @@ public class Main extends Application {
                                             nfe.printStackTrace();
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": move args must be ints or int vars");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": move args must be ints or int vars");
                                                 }
                                             });
 
@@ -3719,7 +3792,7 @@ public class Main extends Application {
                                     if (scriptLine.length != 5) {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for moverandom");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid arg for moverandom");
                                             }
                                         });
 
@@ -3779,7 +3852,7 @@ public class Main extends Application {
                                                 int finalLengthDifference1 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": moverandom args must be ints or int vars");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": moverandom args must be ints or int vars");
                                                         //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                     }
                                                 });
@@ -3800,7 +3873,7 @@ public class Main extends Application {
                                             nfe.printStackTrace();
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": moverandom args must be ints");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": moverandom args must be ints");
                                                 }
                                             });
 
@@ -3824,7 +3897,7 @@ public class Main extends Application {
                                     if (scriptLine.length != 2) {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for wait");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid arg for wait");
                                             }
                                         });
 
@@ -3862,7 +3935,7 @@ public class Main extends Application {
                                                 int finalLengthDifference1 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": move args must be ints or int vars");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": move args must be ints or int vars");
                                                         //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                     }
                                                 });
@@ -3926,7 +3999,7 @@ public class Main extends Application {
                                             nfe.printStackTrace();
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": wait arg must be int");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": wait arg must be int");
                                                 }
                                             });
 
@@ -3950,7 +4023,7 @@ public class Main extends Application {
                                     if (scriptLine.length != 5) {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for clickrandom");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for clickrandom");
                                             }
                                         });
 
@@ -4010,7 +4083,7 @@ public class Main extends Application {
                                                 int finalLengthDifference1 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": clickrandom args must be ints or int vars");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": clickrandom args must be ints or int vars");
                                                         //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                     }
                                                 });
@@ -4030,7 +4103,7 @@ public class Main extends Application {
                                         } catch (NumberFormatException numException) {
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": clickrandom args must be ints");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": clickrandom args must be ints");
                                                 }
                                             });
 
@@ -4056,7 +4129,7 @@ public class Main extends Application {
                                     if (scriptLine.length != 1) {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for releasemiddleclick");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for releasemiddleclick");
                                             }
                                         });
 
@@ -4097,7 +4170,7 @@ public class Main extends Application {
                                     if (scriptLine.length != 1) {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for releaserightclick");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for releaserightclick");
                                             }
                                         });
 
@@ -4138,7 +4211,7 @@ public class Main extends Application {
                                     if (scriptLine.length != 1) {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for releaseclick");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for releaseclick");
                                             }
                                         });
 
@@ -4179,7 +4252,7 @@ public class Main extends Application {
                                     if (scriptLine.length != 3) {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for middleclickandhold");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for middleclickandhold");
                                             }
                                         });
 
@@ -4216,7 +4289,7 @@ public class Main extends Application {
                                                 int finalLengthDifference1 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": middleclickandhold args must be ints or int vars");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": middleclickandhold args must be ints or int vars");
                                                         //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                     }
                                                 });
@@ -4235,7 +4308,7 @@ public class Main extends Application {
                                         } catch (NumberFormatException numException) {
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": middleclickandhold args must be ints");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": middleclickandhold args must be ints");
                                                 }
                                             });
 
@@ -4261,7 +4334,7 @@ public class Main extends Application {
                                     if (scriptLine.length != 3) {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for rightclickandhold");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for rightclickandhold");
                                             }
                                         });
 
@@ -4298,7 +4371,7 @@ public class Main extends Application {
                                                 int finalLengthDifference1 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": rightclickandhold args must be ints or int vars");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": rightclickandhold args must be ints or int vars");
                                                         //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                     }
                                                 });
@@ -4317,7 +4390,7 @@ public class Main extends Application {
                                         } catch (NumberFormatException numException) {
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": rightclickandhold args must be ints");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": rightclickandhold args must be ints");
                                                 }
                                             });
 
@@ -4343,7 +4416,7 @@ public class Main extends Application {
                                     if (scriptLine.length != 3) {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for clickandhold");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for clickandhold");
                                             }
                                         });
 
@@ -4380,7 +4453,7 @@ public class Main extends Application {
                                                 int finalLengthDifference1 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": clickandhold args must be ints or int vars");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": clickandhold args must be ints or int vars");
                                                         //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                     }
                                                 });
@@ -4399,7 +4472,7 @@ public class Main extends Application {
                                         } catch (NumberFormatException numException) {
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": clickandhold args must be ints");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": clickandhold args must be ints");
                                                 }
                                             });
 
@@ -4433,7 +4506,7 @@ public class Main extends Application {
                                         finalLengthDifference4 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for print");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for print");
                                             }
                                         });
 
@@ -4557,7 +4630,7 @@ public class Main extends Application {
                                         int finalLengthDifference5 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for update");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for update");
                                                 //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -4606,7 +4679,7 @@ public class Main extends Application {
                                                                 int finalLengthDifference5 = lengthDifference;
                                                                 Platform.runLater(new Runnable(){
                                                                     @Override public void run() {
-                                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for update");
+                                                                        loadingLabel.setText("Error on line " + lineNumber + ": invalid args for update");
                                                                         //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                                     }
                                                                 });
@@ -4623,7 +4696,7 @@ public class Main extends Application {
                                                                 int finalLengthDifference5 = lengthDifference;
                                                                 Platform.runLater(new Runnable(){
                                                                     @Override public void run() {
-                                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for update");
+                                                                        loadingLabel.setText("Error on line " + lineNumber + ": invalid args for update");
                                                                         //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                                     }
                                                                 });
@@ -4656,7 +4729,7 @@ public class Main extends Application {
                                                                     int finalLengthDifference5 = lengthDifference;
                                                                     Platform.runLater(new Runnable(){
                                                                         @Override public void run() {
-                                                                            loadingLabel.setText("Macro error on line " + lineNumber + ": can't divide by zero");
+                                                                            loadingLabel.setText("Error on line " + lineNumber + ": can't divide by zero");
                                                                             //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                                         }
                                                                     });
@@ -4683,7 +4756,7 @@ public class Main extends Application {
                                                                 int finalLengthDifference5 = lengthDifference;
                                                                 Platform.runLater(new Runnable(){
                                                                     @Override public void run() {
-                                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arithmetic operator");
+                                                                        loadingLabel.setText("Error on line " + lineNumber + ": invalid arithmetic operator");
                                                                         //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                                     }
                                                                 });
@@ -4706,7 +4779,7 @@ public class Main extends Application {
                                                         int finalLengthDifference5 = lengthDifference;
                                                         Platform.runLater(new Runnable(){
                                                             @Override public void run() {
-                                                                loadingLabel.setText("Macro error on line " + lineNumber + ": referenced non-existent variable");
+                                                                loadingLabel.setText("Error on line " + lineNumber + ": referenced non-existent variable");
                                                                 //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                             }
                                                         });
@@ -4734,7 +4807,7 @@ public class Main extends Application {
                                             int finalLengthDifference5 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for update");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": invalid args for update");
                                                     //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -4765,7 +4838,7 @@ public class Main extends Application {
                                         int finalLengthDifference7 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for clear");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for clear");
                                             }
                                         });
 
@@ -4774,8 +4847,8 @@ public class Main extends Application {
                                         textArea.setEditable(true);
                                         break;
                                     } else {
-                                        consoleTextArea.setText("\n\n\nAutoInput Console\n");
-                                        consoleTextString = "\n\n\nAutoInput Console\n";
+                                        consoleTextArea.setText("\n\n\nAdiaScript Console\n");
+                                        consoleTextString = "\n\n\nAdiaScript Console\n";
                                     }
                                     break;
                                 case "unminimize":
@@ -4836,7 +4909,7 @@ public class Main extends Application {
                                                 int finalLengthDifference5 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": can't destroy a non-existent variable");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": can't destroy a non-existent variable");
                                                     }
                                                 });
 
@@ -4848,7 +4921,7 @@ public class Main extends Application {
                                             int finalLengthDifference5 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for destroy");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": invalid args for destroy");
                                                 }
                                             });
 
@@ -4860,7 +4933,7 @@ public class Main extends Application {
                                         int finalLengthDifference5 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for destroy");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for destroy");
                                             }
                                         });
 
@@ -4899,7 +4972,7 @@ public class Main extends Application {
                                         int finalLengthDifference5 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for random");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for random");
                                             }
                                         });
                                         scriptingError = true;
@@ -4935,7 +5008,7 @@ public class Main extends Application {
                                                                     int finalLengthDifference5 = lengthDifference;
                                                                     Platform.runLater(new Runnable(){
                                                                         @Override public void run() {
-                                                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for random");
+                                                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for random");
                                                                         }
                                                                     });
                                                                     scriptingError = true;
@@ -4952,7 +5025,7 @@ public class Main extends Application {
                                                                     int finalLengthDifference5 = lengthDifference;
                                                                     Platform.runLater(new Runnable(){
                                                                         @Override public void run() {
-                                                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for random");
+                                                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for random");
                                                                         }
                                                                     });
                                                                     scriptingError = true;
@@ -4976,7 +5049,7 @@ public class Main extends Application {
                                                                     int finalLengthDifference5 = lengthDifference;
                                                                     Platform.runLater(new Runnable(){
                                                                         @Override public void run() {
-                                                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for random");
+                                                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for random");
                                                                         }
                                                                     });
                                                                     scriptingError = true;
@@ -5038,7 +5111,7 @@ public class Main extends Application {
                                                                                 int finalLengthDifference5 = lengthDifference;
                                                                                 Platform.runLater(new Runnable(){
                                                                                     @Override public void run() {
-                                                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": can't divide by zero");
+                                                                                        loadingLabel.setText("Error on line " + lineNumber + ": can't divide by zero");
                                                                                         //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference5, lengthDifferenceSingleLine);
                                                                                     }
                                                                                 });
@@ -5081,7 +5154,7 @@ public class Main extends Application {
                                                             int finalLengthDifference5 = lengthDifference;
                                                             Platform.runLater(new Runnable(){
                                                                 @Override public void run() {
-                                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for random");
+                                                                    loadingLabel.setText("Error on line " + lineNumber + ": invalid args for random");
                                                                 }
                                                             });
                                                             scriptingError = true;
@@ -5094,7 +5167,7 @@ public class Main extends Application {
                                                         int finalLengthDifference5 = lengthDifference;
                                                         Platform.runLater(new Runnable(){
                                                             @Override public void run() {
-                                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for random");
+                                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for random");
                                                             }
                                                         });
                                                         scriptingError = true;
@@ -5107,7 +5180,7 @@ public class Main extends Application {
                                                     int finalLengthDifference5 = lengthDifference;
                                                     Platform.runLater(new Runnable(){
                                                         @Override public void run() {
-                                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for random");
+                                                            loadingLabel.setText("Error on line " + lineNumber + ": invalid args for random");
                                                         }
                                                     });
                                                     scriptingError = true;
@@ -5144,7 +5217,7 @@ public class Main extends Application {
                                         int finalLengthDifference7 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for int declaration");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for int declaration");
                                             }
                                         });
 
@@ -5160,7 +5233,7 @@ public class Main extends Application {
                                             int finalLengthDifference5 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid new int args3");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": invalid new int args3");
                                                 }
                                             });
                                             scriptingError = true;
@@ -5197,7 +5270,7 @@ public class Main extends Application {
                                                 int finalLengthDifference1 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": int args must be ints or int vars");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": int args must be ints or int vars");
                                                         //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                     }
                                                 });
@@ -5226,7 +5299,7 @@ public class Main extends Application {
                                                 Platform.runLater(new Runnable() {
                                                     @Override
                                                     public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": invalid new int args4");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": invalid new int args4");
                                                     }
                                                 });
 
@@ -5250,7 +5323,7 @@ public class Main extends Application {
                                     if (scriptLine.length != 3) {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for click");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for click");
                                             }
                                         });
 
@@ -5288,7 +5361,7 @@ public class Main extends Application {
                                                 int finalLengthDifference1 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": click args must be ints or int vars");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": click args must be ints or int vars");
                                                         //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                     }
                                                 });
@@ -5307,7 +5380,7 @@ public class Main extends Application {
                                         } catch (NumberFormatException numException) {
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": click args must be ints or int vars");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": click args must be ints or int vars");
                                                 }
                                             });
 
@@ -5333,7 +5406,7 @@ public class Main extends Application {
                                     if (scriptLine.length != 3) {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for middleclick");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for middleclick");
                                             }
                                         });
 
@@ -5371,7 +5444,7 @@ public class Main extends Application {
                                                 int finalLengthDifference1 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": middleclick args must be ints or int vars");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": middleclick args must be ints or int vars");
                                                         //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                     }
                                                 });
@@ -5391,7 +5464,7 @@ public class Main extends Application {
                                         } catch (NumberFormatException numException) {
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": middleclick args must be ints");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": middleclick args must be ints");
                                                 }
                                             });
 
@@ -5417,7 +5490,7 @@ public class Main extends Application {
                                     if (scriptLine.length != 3) {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for rightclick");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for rightclick");
                                             }
                                         });
 
@@ -5455,7 +5528,7 @@ public class Main extends Application {
                                                 int finalLengthDifference1 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints or int vars");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": rightclick args must be ints or int vars");
                                                         //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                     }
                                                 });
@@ -5475,7 +5548,7 @@ public class Main extends Application {
                                         } catch (NumberFormatException numException) {
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": rightclick args must be ints");
                                                 }
                                             });
 
@@ -5508,7 +5581,7 @@ public class Main extends Application {
                                         int finalLengthDifference6 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for clickanddrag");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for clickanddrag");
                                                 //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference6, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -5601,7 +5674,7 @@ public class Main extends Application {
                                                 int finalLengthDifference1 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": clickanddrag args must be ints or int vars");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": clickanddrag args must be ints or int vars");
                                                         //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                     }
                                                 });
@@ -5621,7 +5694,7 @@ public class Main extends Application {
                                             int finalLengthDifference7 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": rightclick args must be ints");
                                                     //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference7, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -5652,7 +5725,7 @@ public class Main extends Application {
                                         int finalLengthDifference2 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for alert");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid arg for alert");
                                                 //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference2, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -5684,7 +5757,7 @@ public class Main extends Application {
                                         int finalLengthDifference6 = lengthDifference;
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid args for clickanddragrandom");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid args for clickanddragrandom");
                                                 //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference6, lengthDifferenceSingleLine);
                                             }
                                         });
@@ -5831,7 +5904,7 @@ public class Main extends Application {
                                                 int finalLengthDifference1 = lengthDifference;
                                                 Platform.runLater(new Runnable(){
                                                     @Override public void run() {
-                                                        loadingLabel.setText("Macro error on line " + lineNumber + ": clickanddrag args must be ints or int vars");
+                                                        loadingLabel.setText("Error on line " + lineNumber + ": clickanddrag args must be ints or int vars");
                                                         //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference1, lengthDifferenceSingleLine);
                                                     }
                                                 });
@@ -5859,7 +5932,7 @@ public class Main extends Application {
                                             int finalLengthDifference7 = lengthDifference;
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": rightclick args must be ints");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": rightclick args must be ints");
                                                     //highlightErrorLine(lineNumber, lines, textArea, scriptLine, finalLengthDifference7, lengthDifferenceSingleLine);
                                                 }
                                             });
@@ -5887,7 +5960,7 @@ public class Main extends Application {
                                     if (scriptLine.length != 2) {
                                         Platform.runLater(new Runnable(){
                                             @Override public void run() {
-                                                loadingLabel.setText("Macro error on line " + lineNumber + ": invalid arg for press");
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid arg for press");
                                             }
                                         });
 
@@ -5927,7 +6000,7 @@ public class Main extends Application {
                                             System.out.print("invalid key for press command. arg: " + scriptLine[1]);
                                             Platform.runLater(new Runnable(){
                                                 @Override public void run() {
-                                                    loadingLabel.setText("Macro error on line " + lineNumber + ": invalid press arg");
+                                                    loadingLabel.setText("Error on line " + lineNumber + ": invalid press arg");
                                                 }
                                             });
 
@@ -5963,15 +6036,20 @@ public class Main extends Application {
                                         textArea.setEditable(true);
                                         break;
                                     }
-                                    Platform.runLater(new Runnable(){
-                                        @Override public void run() {
-                                            loadingLabel.setText("Macro error on line " + lineNumber + ": invalid syntax");
-                                        }
-                                    });
+                                    if (scriptLine[0].startsWith("#")) {
+                                        //do nothing because it's a comment, just with no space i.e. "#comment"
+                                    } else {
+                                        Platform.runLater(new Runnable(){
+                                            @Override public void run() {
+                                                loadingLabel.setText("Error on line " + lineNumber + ": invalid syntax");
+                                            }
+                                        });
 
-                                    scriptingError = true;
-                                    runMacroButton.setDisable(false);
-                                    textArea.setEditable(true);
+                                        scriptingError = true;
+                                        runMacroButton.setDisable(false);
+                                        textArea.setEditable(true);
+                                    }
+
                                     break;
                             }
                         }
@@ -6011,16 +6089,22 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        Configuration config = new Configuration();
+
+        int fontSize = 14;
+        Font esotericFont = Font.loadFont("file:assets/Adiaeso1widespaces2-Regular.ttf", fontSize);
+        Font regularFont = new Font("Calibri", fontSize);
+        FontLambdaHelper fontType = new FontLambdaHelper();
         AlwaysOnTopStatus alwaysOnTopStatus = new AlwaysOnTopStatus();
         TotalLoopTime totalLoopTime = new TotalLoopTime();
         ScriptHalter scriptHalter = new ScriptHalter();
         Robot bot = new Robot();
         //Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         primaryStage.setTitle("AdiaScript Standard IDE");
-        primaryStage.setWidth(450);
-        primaryStage.setMinWidth(450);
-        primaryStage.setHeight(450);
-        primaryStage.setMinHeight(450);
+        primaryStage.setWidth(490);
+        primaryStage.setMinWidth(490);
+        primaryStage.setHeight(475);
+        primaryStage.setMinHeight(475);
         BorderPane mainPane = new BorderPane();
         VBox topMostContainerVBox = new VBox();
         HBox topButtonsHBox = new HBox();
@@ -6032,6 +6116,8 @@ public class Main extends Application {
         Scene scene = new Scene(mainPane);
         Button testButton = new Button("Get Coords");
         Label coordsLabel = new Label("(x, y)");
+        Label colorLabel = new Label("#000000");
+        colorLabel.setPadding(new Insets(0, 0, 0, 70));
         TabPane tabPane = new TabPane();
         Tab defaultTab = new Tab("Untitled Script");
         Tab newTab = new Tab("+");
@@ -6039,6 +6125,7 @@ public class Main extends Application {
         newTab.setClosable(false);
         tabPane.getTabs().addAll(defaultTab, newTab);
         CheckBox wait5SecondsButton = new CheckBox("Wait 5s for x,y");
+        CheckBox wait5SecondsForColorButton = new CheckBox("Wait 5s for color");
         testButton.setOnAction( e-> {
             //MouseInfo.getPointerInfo().getLocation().getX()
             //coordsLabel.setText(MouseInfo.getPointerInfo().getLocation().toString());
@@ -6077,14 +6164,138 @@ public class Main extends Application {
 
         Button debugButton = new Button("Debug");
 
-        Button mouseRecordButton = new Button("Record Mouse");
-        Button generateButton = new Button("Generate");
         Button getColorButton = new Button("Get Color");
-        Button clearButton = new Button("Clear");
         //increase/decrease indent level of selected text in textarea
-        Button increaseIndentButton = new Button("Increase Indent");
-        Button decreaseIndentButton = new Button("Decrease Indent");
+        Button increaseIndentButton = new Button("+>>>");
+        Button decreaseIndentButton = new Button("<<<-");
 
+        increaseIndentButton.setOnAction(e -> {
+            String currentSelection = textArea.getSelectedText();
+            int start = textArea.getSelection().getStart();
+            start = getNthOccurrenceOfSubstr(textArea.getText(0, start), "\n", textArea.getText(0, start).split("\n", -1).length - 1);
+            start = start + 1;
+            int end = textArea.getSelection().getEnd();
+            currentSelection = textArea.getText().substring(start, end);
+            String upToSelection = textArea.getText(0, start);
+            String upToEnd = textArea.getText(0, end);
+            int startLine = upToSelection.split("\n", -1).length;
+            int endLine = upToEnd.split("\n", -1).length;
+
+            int startPosOfStartLine = getNthOccurrenceOfSubstr(upToSelection, "\n", startLine - 1);
+
+            int startPosOfEndLine = getNthOccurrenceOfSubstr(upToEnd, "\n", endLine - 1);
+            int numLines = endLine - startLine;
+
+            //add tab to front of line
+            String[] lines = new String[numLines];
+            int startOfLinei = -1;
+            int numTabs = 0;
+            if (numLines == 0) {
+                System.out.println("0 lines!!!");
+                currentSelection = textArea.getText().substring(startPosOfStartLine + 1, end);
+                start = startPosOfStartLine + 1;
+                currentSelection = "\t" + currentSelection;
+                numTabs++;
+            }
+            for (int i = 0; i <= numLines; i++) {
+                startOfLinei = getNthOccurrenceOfSubstr(currentSelection, "\n", i);
+                if (startOfLinei == -1) {
+                    System.out.println("got here -1");
+                } else if (i == 0) {
+                    currentSelection = "\t" + currentSelection;
+                    numTabs++;
+                } else {
+                    System.out.println("startOfLinei for " + i + ": " + startOfLinei);
+                    currentSelection = new StringBuilder(currentSelection).insert(startOfLinei+1, "\t").toString();
+                    numTabs++;
+                }
+            }
+            //currentSelection = "\t" + currentSelection;
+            //currentSelection = currentSelection.replaceAll("\n", "\n\t");
+
+            //now you have added the indentation, but it's not selected anymore
+            textArea.replaceText(start, end, currentSelection);
+
+            //now need to select the newly-indented text
+            int updatedEnd = end + (numTabs);
+            textArea.selectRange(start, updatedEnd);
+            textArea.requestFocus();
+        });
+
+        decreaseIndentButton.setOnAction(e -> {
+            String currentSelection = textArea.getSelectedText();
+            int start = textArea.getSelection().getStart();
+            int end = textArea.getSelection().getEnd();
+            start = getNthOccurrenceOfSubstr(textArea.getText(0, start), "\n", textArea.getText(0, start).split("\n", -1).length - 1);
+            start = start + 1;
+            currentSelection = textArea.getText().substring(start, end);
+
+            /*if (currentSelection.startsWith("\t")) {
+                currentSelection = currentSelection.substring(1, currentSelection.length());
+            }*/
+            //currentSelection = currentSelection.replaceAll("\n\t", "\n");
+            //textArea.replaceText(start, end, currentSelection);
+
+            //--------------------------
+
+            String upToSelection = textArea.getText(0, start);
+            String upToEnd = textArea.getText(0, end - 1);
+            int startLine = upToSelection.split("\n", -1).length;
+            int endLine = upToEnd.split("\n", -1).length;
+            int startPosOfStartLine = getNthOccurrenceOfSubstr(upToSelection, "\n", startLine - 1);
+            int startPosOfEndLine = getNthOccurrenceOfSubstr(upToEnd, "\n", endLine - 1);
+            int numLines = endLine - startLine;
+
+            int arrSize = 0;
+            if (numLines <= 0) {
+                arrSize = 1;
+            } else {
+                arrSize = numLines;
+            }
+            String[] lines = new String[arrSize];
+            int startOfLinei = -1;
+            int numTabsRemoved = 0;
+            if (numLines == 0) {
+                System.out.println("0 lines!!!");
+                currentSelection = textArea.getText().substring(startPosOfStartLine + 1, end);
+                start = startPosOfStartLine + 1;
+                //currentSelection = "\t" + currentSelection;
+                if (currentSelection.startsWith("\t")) {
+                    currentSelection = currentSelection.substring(1, currentSelection.length()); //get rid of first 2 chars
+                    numTabsRemoved++;
+                }
+            }
+            for (int i = 0; i <= numLines; i++) {
+                startOfLinei = getNthOccurrenceOfSubstr(currentSelection, "\n", i);
+                if (startOfLinei == -1) {
+                    System.out.println("got here -1");
+                } else if (i == 0) {
+                    if (currentSelection.startsWith("\t")) {
+                        currentSelection = currentSelection.substring(1, currentSelection.length()); //get rid of first 2 chars
+                        numTabsRemoved++;
+                    }
+                } else {
+                    System.out.println("startOfLinei for " + i + ": " + startOfLinei);
+                    //start of tab to remove: startOfLinei+1
+                    String possibleTabToRemove = currentSelection.substring(startOfLinei + 1, startOfLinei + 2);
+                    System.out.println("possibleTabToRemove: " + possibleTabToRemove);
+                    if (possibleTabToRemove.equalsIgnoreCase("\t")) {
+                        System.out.println("------------------------------");
+                        System.out.println("currentSelection before: " + currentSelection);
+                        currentSelection = currentSelection.substring(0, startOfLinei+1) + currentSelection.substring(startOfLinei+2, currentSelection.length());
+                        System.out.println("currentSelection after: " + currentSelection);
+                        numTabsRemoved++;
+                    }
+                }
+            }
+
+            textArea.replaceText(start, end, currentSelection);
+
+            //numTabs = tabs removed
+            int updatedEnd = end - numTabsRemoved;
+            textArea.selectRange(start, updatedEnd);
+            textArea.requestFocus();
+        });
 
         Label repeatLabel = new Label("Times to run script:");
         TextField numTimes = new TextField();
@@ -6097,8 +6308,10 @@ public class Main extends Application {
         MenuItem fileItemNew = new MenuItem("New (not done)");
         MenuItem fileItem1 = new MenuItem("Open (not done)");
         MenuItem fileItemOpenRecent = new MenuItem("Open Recent (not done)");
+        MenuItem fileItemClearRecent = new MenuItem("Clear Recent Items (not done)");
         MenuItem fileItemSave = new MenuItem("Save (not done)");
         MenuItem fileItem2 = new MenuItem("Save as (not done)");
+        MenuItem fileItemReload = new MenuItem("Reload from disk (not done)");
         MenuItem fileItem3 = new MenuItem("Quit");
 
         Alert quitAlert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -6184,7 +6397,7 @@ public class Main extends Application {
             }
         });
 
-        Menu fileMenu = new Menu("File", null, fileItemNew, fileItem1, fileItemOpenRecent, fileItemSave, fileItem2, fileItem3);
+        Menu fileMenu = new Menu("File", null, fileItemNew, fileItem1, fileItemOpenRecent, fileItemClearRecent, fileItemSave, fileItem2, fileItemReload, fileItem3);
 
         MenuItem optionsItem1 = new MenuItem("Enable always on top");
         MenuItem optionsItem3 = new MenuItem("Enable dark mode");
@@ -6193,6 +6406,143 @@ public class Main extends Application {
         MenuItem optionsItem6 = new MenuItem("Enable word wrap");
         MenuItem optionsItem7 = new MenuItem("Disable word wrap");
         MenuItem optionsItem8 = new MenuItem("Advanced options (not done)");
+
+
+        //==========================
+
+        Alert advancedAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        advancedAlert.setTitle("Advanced options");
+        advancedAlert.setHeaderText("Advanced options menu");
+        advancedAlert.setContentText("Are you sure you want to change advanced options?\nThey are not recommended for beginners.");
+
+        final ToggleGroup esotericAdvancedOptionsGroup = new ToggleGroup();
+
+        RadioButton enableEsotericModeRB = new RadioButton("Enable Esoteric Mode");
+        enableEsotericModeRB.setToggleGroup(esotericAdvancedOptionsGroup);
+        RadioButton disableEsotericModeRB = new RadioButton("Disable Esoteric Mode");
+        disableEsotericModeRB.setToggleGroup(esotericAdvancedOptionsGroup);
+        if (config.isDarkMode()) {
+            enableEsotericModeRB.setSelected(true);
+        } else {
+            disableEsotericModeRB.setSelected(true);
+        }
+
+        //quit the program
+        optionsItem8.setOnAction(e -> {
+            if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                primaryStage.setAlwaysOnTop(false);
+            }
+
+            Optional<ButtonType> advancedAlertResult = advancedAlert.showAndWait();
+            if (advancedAlertResult.get() == ButtonType.OK) {
+                System.out.println("You want to open the advanced options menu");
+
+                Stage advancedOptionsStage = new Stage();
+                advancedOptionsStage.initModality(Modality.APPLICATION_MODAL);
+                advancedOptionsStage.setTitle("Advanced Options");
+                BorderPane advancedOptionsPane = new BorderPane();
+                TabPane advancedOptionsTabPane = new TabPane();
+                Tab generalTab = new Tab("General");
+                Tab fontTab = new Tab("Font/Text");
+                Tab consoleTab = new Tab("Console");
+                Tab loggingTab = new Tab("Logging");
+                Tab gitTab = new Tab("Git");
+                Tab importExportTab = new Tab("Import/Export");
+                Tab audioTab = new Tab("Audio");
+                Tab esotericTab = new Tab("Esoteric");
+                Tab miscTab = new Tab("Misc");
+                Tab defaultsTab = new Tab("Defaults");
+
+
+                BorderPane generalBorderPane = new BorderPane();
+                BorderPane fontBorderPane = new BorderPane();
+                BorderPane consoleBorderPane = new BorderPane();
+                BorderPane loggingBorderPane = new BorderPane();
+                BorderPane gitBorderPane = new BorderPane();
+                BorderPane importExportBorderPane = new BorderPane();
+                BorderPane audioBorderPane = new BorderPane();
+                BorderPane esotericBorderPane = new BorderPane();
+                BorderPane miscBorderPane = new BorderPane();
+                BorderPane defaultsBorderPane = new BorderPane();
+                GridPane esotericBodyGridPane = new GridPane();
+                esotericBodyGridPane.add(enableEsotericModeRB, 0, 0);
+                esotericBodyGridPane.add(disableEsotericModeRB, 0, 1);
+
+                Label generalTabLabel = new Label("General Options (not done)");
+                Label fontTabLabel = new Label("Font/Text Options (not done)");
+                Label consoleTabLabel = new Label("Console Options (not done)");
+                Label loggingTabLabel = new Label("Logging Options (not done)");
+                Label gitTabLabel = new Label("Git Options (not done)");
+                Label importExportLabel = new Label("Import/Export IDE Settings (not done)");
+                Label audioTabLabel = new Label("Audio Options (not done");
+                Label esotericTabLabel = new Label("Esoteric Programming Options (not done)");
+                Label miscTabLabel = new Label("Miscellaneous Options (not done)");
+                Label defaultsTabLabel = new Label("Revert IDE to Default Settings (not done)");
+
+                generalBorderPane.setTop(generalTabLabel);
+                fontBorderPane.setTop(fontTabLabel);
+                consoleBorderPane.setTop(consoleTabLabel);
+                loggingBorderPane.setTop(loggingTabLabel);
+                gitBorderPane.setTop(gitTabLabel);
+                importExportBorderPane.setTop(importExportLabel);
+                audioBorderPane.setTop(audioTabLabel);
+                esotericBorderPane.setTop(esotericTabLabel);
+                esotericBorderPane.setCenter(esotericBodyGridPane);
+                miscBorderPane.setTop(miscTabLabel);
+                defaultsBorderPane.setTop(defaultsTabLabel);
+
+                generalTab.setContent(generalBorderPane);
+                fontTab.setContent(fontBorderPane);
+                consoleTab.setContent(consoleBorderPane);
+                audioTab.setContent(audioBorderPane);
+                esotericTab.setContent(esotericBorderPane);
+                loggingTab.setContent(loggingBorderPane);
+                gitTab.setContent(gitBorderPane);
+                importExportTab.setContent(importExportBorderPane);
+                esotericBorderPane.setTop(esotericTabLabel);
+                miscTab.setContent(miscBorderPane);
+                defaultsTab.setContent(defaultsBorderPane);
+
+                generalTab.setClosable(false);
+                fontTab.setClosable(false);
+                consoleTab.setClosable(false);
+                loggingTab.setClosable(false);
+                gitTab.setClosable(false);
+                importExportTab.setClosable(false);
+                audioTab.setClosable(false);
+                esotericTab.setClosable(false);
+                miscTab.setClosable(false);
+                defaultsTab.setClosable(false);
+                advancedOptionsTabPane.getTabs().addAll(generalTab, fontTab, consoleTab, loggingTab, gitTab, importExportTab, audioTab, esotericTab, miscTab, defaultsTab);
+                advancedOptionsPane.setTop(advancedOptionsTabPane);
+
+                Scene advancedOptionsScene = new Scene(advancedOptionsPane, 550, 450);
+                advancedOptionsStage.setMinHeight(300);
+
+                advancedOptionsStage.setMinWidth(300);
+                advancedOptionsStage.setScene(advancedOptionsScene);
+                advancedOptionsStage.show();
+                //things I'm currently working on: the esoteric option, advanced options menu, and if/elseif/else/endif
+
+
+
+                //todo: open a new advanced window
+                if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                    primaryStage.setAlwaysOnTop(true);
+                    advancedOptionsStage.setAlwaysOnTop(true);
+                }
+
+            } else if (advancedAlertResult.get() == ButtonType.CANCEL || advancedAlertResult.get() == ButtonType.CLOSE) {
+                //System.out.println("You do not want to quit AutoInput");
+                if (alwaysOnTopStatus.isAlwaysOnTop()) {
+                    primaryStage.setAlwaysOnTop(true);
+                }
+
+            }
+        });
+
+        //==========================
+
 
 
         //enable always on top
@@ -6292,13 +6642,18 @@ public class Main extends Application {
             textArea.selectRange(textPosition,textPosition);
         });
 
+        MenuItem viewItem1 = new MenuItem("Enable compact mode (not done)");
+        MenuItem viewItem2 = new MenuItem("Disable compact mode (not done)");
+        Menu viewMenu = new Menu("View", null, viewItem1, viewItem2);
+
 
         Menu optionsMenu = new Menu("Options", null, optionsItem1, optionsItem5, optionsItem3, optionsItem4, optionsItem6, optionsItem7, optionsItem8);
         MenuItem aboutItem1 = new MenuItem("About");
         Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
         aboutAlert.setTitle("About");
-        aboutAlert.setHeaderText("About AdiaScript Standard IDE v0.0154");
+        aboutAlert.setHeaderText("About AdiaScript Standard IDE v0.01.54");
         aboutAlert.setContentText("This is a programming language and IDE made by Alan");
+
 
 
         aboutItem1.setOnAction(e -> {
@@ -6356,8 +6711,23 @@ public class Main extends Application {
             }
         });
 
+        MenuItem toolsItem1 = new MenuItem("Generate (not done)");
+        MenuItem toolsItem2 = new MenuItem("Record Mouse (not done)");
+        MenuItem toolsItem3 = new MenuItem("Compile (not done)");
+        Menu toolsMenu = new Menu("Tools", null, toolsItem1, toolsItem2, toolsItem3); //todo
+
+        MenuItem gitItem1 = new MenuItem("Open Git Bash (requires Git Bash) (not done)");
+        MenuItem gitItem2 = new MenuItem("Run git command (requires git) (not done)");
+        MenuItem gitItem3 = new MenuItem("Open command prompt (not done)");
+        MenuItem gitItem4 = new MenuItem("Open PowerShell (not done)");
+        Menu gitMenu = new Menu("Git", null, gitItem1, gitItem2, gitItem3, gitItem4);
+
+
+
         MenuItem aboutItem3 = new MenuItem("Git repo");
-        Menu aboutMenu = new Menu("About", null, aboutItem1, aboutItem2, aboutItem3);
+        MenuItem aboutItem4 = new MenuItem("Check for updates (not done)");
+        MenuItem aboutItem5 = new MenuItem("License (not done)");
+        Menu aboutMenu = new Menu("About", null, aboutItem1, aboutItem5, aboutItem2, aboutItem3, aboutItem4);
 
         Alert gitRepoAlert = new Alert(Alert.AlertType.CONFIRMATION);
         gitRepoAlert.setTitle("Git Repo");
@@ -6385,9 +6755,12 @@ public class Main extends Application {
             }
         });
 
-        MenuItem helpItem[] = new MenuItem[2];
+        MenuItem helpItem[] = new MenuItem[4];
         helpItem[0] = new MenuItem("Basic usage");
         helpItem[1] = new MenuItem("Advanced usage (not done)");
+        helpItem[2] = new MenuItem("Report a bug (not done)");
+        helpItem[3] = new MenuItem("Online help (wiki) (not done)");
+
 
         Alert basicUsageAlert = new Alert(Alert.AlertType.INFORMATION);
         basicUsageAlert.setTitle("Basic Usage");
@@ -6444,11 +6817,11 @@ public class Main extends Application {
 
 
 
-        Menu helpMenu = new Menu("Help", null, helpItem[0], helpItem[1]);
+        Menu helpMenu = new Menu("Help", null, helpItem[0], helpItem[1], helpItem[2], helpItem[3]);
 
 
 
-        MenuBar menuBar = new MenuBar(fileMenu, editMenu, optionsMenu, aboutMenu, helpMenu);
+        MenuBar menuBar = new MenuBar(fileMenu, editMenu, viewMenu, optionsMenu, toolsMenu, gitMenu, aboutMenu, helpMenu);
         Label info = new Label("To change the functionality of this program, change the lambda expressions for 'runMacroButton' and 'button'");
         info.setWrapText(true);
         Label info2 = new Label("And use the 'get coords' button to get the current mouse x,y");
@@ -6463,6 +6836,7 @@ public class Main extends Application {
 
 
         mybox.getChildren().addAll(/*testButton, */coordsLabel, wait5SecondsButton);
+        mybox.setPadding(new Insets(0, 10, 2, 2));
         runMacroButton.setOnAction( e -> {
             runMacroButton.setDisable(true);
 
@@ -6527,8 +6901,19 @@ public class Main extends Application {
         //mybox.getChildren().addAll(runMacroButton, repeatLabel);
         //need to add numTimes, minusButton, and plusButton to an HBox
         HBox nestedBox = new HBox();
+        Button oneButton = new Button("1");
         Button minusButton = new Button("-");
         Button plusButton = new Button("+");
+        Button infiniteButton = new Button("∞");
+
+        oneButton.setOnAction(e -> {
+            numTimes.setText("1");
+        });
+
+        infiniteButton.setOnAction( e -> {
+            numTimes.setText("infinite");
+        });
+
         minusButton.setOnAction( e -> {
             if (numTimes.getText() != null && !numTimes.getText().equalsIgnoreCase("infinite")) {
                 try {
@@ -6565,16 +6950,23 @@ public class Main extends Application {
         FlowPane buttonsPane = new FlowPane();
         Button haltScriptButton = new Button("Halt Script");
         //testButton, runMacroButton, haltScriptButton
-        buttonsPane.getChildren().addAll(testButton, runMacroButton, haltScriptButton, debugButton, mouseRecordButton,
-                generateButton, getColorButton, clearButton, increaseIndentButton, decreaseIndentButton);
+        buttonsPane.getChildren().addAll(testButton, runMacroButton, haltScriptButton, debugButton,
+                increaseIndentButton, decreaseIndentButton, getColorButton);
         buttonsPane.setHgap(1);
         buttonsPane.setVgap(2);
         topMostContainerVBox.getChildren().addAll(buttonsPane, nestedBorderPane, tabPane);
         VBox rightTopVBox = new VBox();
         rightTopVBox.getChildren().addAll(/*runMacroButton, */repeatLabel);
-        nestedBox.getChildren().addAll(minusButton, numTimes, plusButton);
+        nestedBox.getChildren().addAll(oneButton, minusButton, numTimes, plusButton, infiniteButton);
+        nestedBox.setSpacing(1);
         rightTopVBox.getChildren().addAll(nestedBox);
-        nestedBorderPane.setCenter(rightTopVBox);
+        VBox colorVBox = new VBox();
+        colorVBox.getChildren().addAll(colorLabel, wait5SecondsForColorButton);
+        HBox middleAndRightContainer = new HBox();
+        middleAndRightContainer.setSpacing(10);
+        middleAndRightContainer.getChildren().addAll(rightTopVBox, colorVBox);
+        nestedBorderPane.setCenter(middleAndRightContainer);
+        nestedBorderPane.setPadding(new Insets(2, 0, 2, 0));
 
         Insets nestedBorderInsets = new Insets(0, 0, 0, 50);
         nestedBorderPane.setMargin(rightTopVBox, nestedBorderInsets);
@@ -6584,17 +6976,125 @@ public class Main extends Application {
 
         //nestedBorderPane.setRight(haltScriptButton);
 
-        optionsItem3.setOnAction(e -> {
 
+
+        enableEsotericModeRB.setOnAction(e -> {
+            textArea.setFont(esotericFont);
+            config.setEsotericMode(true);
+            if (config.isDarkMode()) {
+                optionsItem3.fire();
+            } else {
+                optionsItem4.fire();
+            }
+        });
+
+        disableEsotericModeRB.setOnAction(e -> {
+            textArea.setFont(regularFont);
+            config.setEsotericMode(false);
+            if (config.isDarkMode()) {
+                optionsItem3.fire();
+            } else {
+                optionsItem4.fire();
+            }
+        });
+
+        Separator bottomMiddleLeftSeparator = new Separator();
+        bottomMiddleLeftSeparator.setOrientation(Orientation.VERTICAL);
+        Separator bottomMiddleRightSeparator = new Separator();
+        bottomMiddleRightSeparator.setOrientation(Orientation.VERTICAL);
+        bottomMiddleLeftSeparator.setMaxWidth(0);
+        bottomMiddleRightSeparator.setMaxWidth(0);
+        bottomMiddleLeftSeparator.setPadding(new Insets(0));
+
+
+
+
+        Label inputRequiredLabel = new Label("Input: not required"); //when the user needs to enter something, it will say "Input: required"
+        HBox bottomMiddleHBox = new HBox(bottomMiddleLeftSeparator, inputRequiredLabel);
+        Label lineLabel = new Label("ln1:0");
+        lineLabel.setPadding(new Insets(7, 5, 0, 0));
+        lineLabel.setAlignment(Pos.BOTTOM_RIGHT);
+        Button copyButton = new Button("Copy");
+        Button clearButton = new Button("Clear");
+
+        textArea.setOnKeyPressed(e -> {
+            int start = textArea.getSelection().getStart();
+            int end = textArea.getSelection().getEnd();
+            String upToSelection = textArea.getText(0, start);
+            String upToEnd = textArea.getText(0, end);
+            int startLine = upToSelection.split("\n", -1).length;
+            int endLine = upToEnd.split("\n", -1).length;
+            //need to find the nth linebreak
+            int startPosOfStartLine = getNthOccurrenceOfSubstr(upToSelection, "\n", startLine - 1);
+            int startPosOfEndLine = getNthOccurrenceOfSubstr(upToEnd, "\n", endLine - 1);
+            int posOnStartLine = (start - startPosOfStartLine) - 1;
+            int posOnEndLine = (end - startPosOfEndLine) - 1;
+            String newLabelText = ":" + posOnStartLine;
+            newLabelText = startLine + newLabelText;
+            if (start != end) {
+                newLabelText = newLabelText + "->" + endLine + ":" + posOnEndLine;
+            }
+            lineLabel.setText(newLabelText);
+        });
+
+        textArea.setOnMouseClicked(e -> {
+            int start = textArea.getSelection().getStart();
+            int end = textArea.getSelection().getEnd();
+            String upToSelection = textArea.getText(0, start);
+            String upToEnd = textArea.getText(0, end);
+            int startLine = upToSelection.split("\n", -1).length;
+            int endLine = upToEnd.split("\n", -1).length;
+            //need to find the nth linebreak
+            int startPosOfStartLine = getNthOccurrenceOfSubstr(upToSelection, "\n", startLine - 1);
+            int startPosOfEndLine = getNthOccurrenceOfSubstr(upToEnd, "\n", endLine - 1);
+            int posOnStartLine = (start - startPosOfStartLine) - 1;
+            int posOnEndLine = (end - startPosOfEndLine) - 1;
+            String newLabelText = ":" + posOnStartLine;
+            newLabelText = startLine + newLabelText;
+            if (start != end) {
+                newLabelText = newLabelText + "->" + endLine + ":" + posOnEndLine;
+            }
+            lineLabel.setText(newLabelText);
+        });
+
+        textArea.setOnMouseReleased(e -> {
+            int start = textArea.getSelection().getStart();
+            int end = textArea.getSelection().getEnd();
+            String upToSelection = textArea.getText(0, start);
+            String upToEnd = textArea.getText(0, end);
+            int startLine = upToSelection.split("\n", -1).length;
+            int endLine = upToEnd.split("\n", -1).length;
+            //need to find the nth linebreak
+            int startPosOfStartLine = getNthOccurrenceOfSubstr(upToSelection, "\n", startLine - 1);
+            int startPosOfEndLine = getNthOccurrenceOfSubstr(upToEnd, "\n", endLine - 1);
+            int posOnStartLine = (start - startPosOfStartLine) - 1;
+            int posOnEndLine = (end - startPosOfEndLine) - 1;
+            String newLabelText = ":" + posOnStartLine;
+            newLabelText = startLine + newLabelText;
+            if (start != end) {
+                newLabelText = newLabelText + "->" + endLine + ":" + posOnEndLine;
+            }
+            lineLabel.setText(newLabelText);
+        });
+
+
+        //enable dark mode
+        optionsItem3.setOnAction(e -> {
+            config.setDarkMode(true);
             debugButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
-            mouseRecordButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
-            generateButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
             getColorButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
+            copyButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
+            lineLabel.setStyle("-fx-text-fill: #d2d2d2;");
+            inputRequiredLabel.setStyle("-fx-text-fill: #d2d2d2;");
             clearButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
             increaseIndentButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
             decreaseIndentButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
             buttonsPane.lookup(".button:hover").setStyle("-fx-background-color: blue;");
             wait5SecondsButton.setStyle("-fx-text-fill: #d2d2d2;");
+            wait5SecondsForColorButton.setStyle("-fx-text-fill: #d2d2d2;");
+            oneButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
+            infiniteButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
+
             tabPane.lookup(".tab:selected:top").lookup(".tab-container").lookup(".tab-close-button").setStyle("-fx-background-color: #d2d2d2;");
             tabPane.lookup(".tab-pane").lookup(".tab-header-area").lookup(".tab-header-background").setStyle("-fx-background-color: #474749;");
             defaultTab.setStyle("-fx-background-color: #676767; -fx-text-base-color: #d2d2d2; ");
@@ -6606,13 +7106,18 @@ public class Main extends Application {
             //consoleTextArea.setStyle(("height: 100%; -fx-focus-color: transparent; -fx-text-fill: #384c38; -fx-background-color: #2a2a2e;"));
 
             textArea.lookup(".content").setStyle("-fx-background-color: #2a2a2e;");
-            textArea.setStyle("-fx-text-fill: #d2d2d2; -fx-font-family: monospace");
+            if (!config.isEsotericMode()) {
+                textArea.setStyle("-fx-text-fill: #d2d2d2; -fx-font-family: monospace");
+            } else if (config.isEsotericMode()) {
+                textArea.setStyle("-fx-text-fill: #d2d2d2; -fx-font-family: Adiaeso1widespaces2");
+            }
             mainPane.setStyle("-fx-background-color: #474749;");
             numTimes.setStyle("-fx-background-color: #2a2a2e; -fx-text-fill: #d2d2d2;");
             loadingLabel.setStyle("-fx-text-fill: #d2d2d2;");
             //closeToEndScriptLabel.setStyle("-fx-text-fill: #d2d2d2;");
             coordsLabel.setStyle("-fx-text-fill: #d2d2d2;");
             repeatLabel.setStyle("-fx-text-fill: #d2d2d2;");
+            colorLabel.setStyle("-fx-text-fill: #d2d2d2;");
             testButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
             //runMacroButton.setStyle("-fx-background-color: #676767; -fx-text-fill: #d2d2d2;");
             runMacroButton.setStyle("-fx-background-color: #676767; -fx-text-fill: lightgreen;");
@@ -6625,16 +7130,20 @@ public class Main extends Application {
 
         //disable dark mode
         optionsItem4.setOnAction(e -> {
-
+            config.setDarkMode(false);
             debugButton.setStyle(null);
-            mouseRecordButton.setStyle(null);
-            generateButton.setStyle(null);
             getColorButton.setStyle(null);
             clearButton.setStyle(null);
+            copyButton.setStyle(null);
+            lineLabel.setStyle(null);
+            inputRequiredLabel.setStyle(null);
             increaseIndentButton.setStyle(null);
             decreaseIndentButton.setStyle(null);
             buttonsPane.lookup(".button:hover").setStyle(null);
             wait5SecondsButton.setStyle(null);
+            wait5SecondsForColorButton.setStyle(null);
+            oneButton.setStyle(null);
+            infiniteButton.setStyle(null);
             tabPane.setStyle(null);
             tabPane.lookup(".tab:selected:top").lookup(".tab-container").lookup(".tab-close-button").setStyle(null);
             tabPane.lookup(".tab-pane").lookup(".tab-header-area").lookup(".tab-header-background").setStyle(null);
@@ -6652,12 +7161,20 @@ public class Main extends Application {
             //closeToEndScriptLabel.setStyle(null);
             coordsLabel.setStyle(null);
             repeatLabel.setStyle(null);
+            colorLabel.setStyle(null);
             testButton.setStyle(null);
             runMacroButton.setStyle("-fx-text-fill: darkgreen;");
             plusButton.setStyle(null);
             minusButton.setStyle(null);
             menuBar.setStyle(null);
             haltScriptButton.setStyle("-fx-text-fill: darkred;");
+
+            if (!config.isEsotericMode()) {
+                textArea.setStyle("-fx-font-family: Calibri; -fx-font-size: 14;");
+            } else if (config.isEsotericMode()) {
+                textArea.setStyle("-fx-font-family: Adiaeso1widespaces2; -fx-font-size: 14;");
+            }
+
         });
 
 
@@ -6698,9 +7215,6 @@ public class Main extends Application {
             scriptHalter.setUserWantsToHaltScript(false);
         });
         BorderPane bottomBorderPane = new BorderPane();
-        //bottomBorderPane.setLeft(haltScriptButton);
-
-        //bottomBorderPane.setCenter(resetHaltScriptButton);
 
         Button haltInfoButton = new Button("Important info about halting");
 
@@ -6733,7 +7247,16 @@ public class Main extends Application {
 
         Label blankLabelSpacer1 = new Label(" ");
         Label blankLabelSpacer2 = new Label(" ");
-        bottomBox.getChildren().addAll(consoleTextArea, loadingLabel, bottomBorderPane);
+        bottomBorderPane.setLeft(loadingLabel);
+        BorderPane bottomRightBorderPane = new BorderPane();
+        //inputRequiredLabel
+        bottomMiddleHBox.setAlignment(Pos.CENTER);
+        bottomBorderPane.setCenter(bottomMiddleHBox);
+        HBox nestedHBoxBottomRight = new HBox();
+        nestedHBoxBottomRight.getChildren().addAll(lineLabel, copyButton, clearButton);
+        bottomRightBorderPane.setRight(nestedHBoxBottomRight);
+        bottomBorderPane.setRight(bottomRightBorderPane);
+        bottomBox.getChildren().addAll(consoleTextArea, bottomBorderPane);
         mainPane.setBottom(bottomBox);
         //mybox.getChildren().addAll(nestedBox);
         //clicking in center
@@ -6744,7 +7267,9 @@ public class Main extends Application {
         mybox.requestFocus();
         scene.getStylesheets().add("file:css/style.css");
         primaryStage.show();
-        optionsItem3.fire();
+        if (config.isDarkMode()) {
+            optionsItem3.fire();
+        }
 
     }
 
