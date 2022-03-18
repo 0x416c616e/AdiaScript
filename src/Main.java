@@ -6260,7 +6260,13 @@ public class Main extends Application {
             //--------------------------
 
             String upToSelection = textArea.getText(0, start);
-            String upToEnd = textArea.getText(0, end - 1);
+            String upToEnd = "";
+            if (end == 0) {
+                upToEnd = textArea.getText(0, end);
+            } else {
+                upToEnd = textArea.getText(0, end - 1);
+            }
+
             int startLine = upToSelection.split("\n", -1).length;
             int endLine = upToEnd.split("\n", -1).length;
             int startPosOfStartLine = getNthOccurrenceOfSubstr(upToSelection, "\n", startLine - 1);
@@ -6461,7 +6467,7 @@ public class Main extends Application {
         enableEsotericModeRB.setToggleGroup(esotericAdvancedOptionsGroup);
         RadioButton disableEsotericModeRB = new RadioButton("Disable Esoteric Mode");
         disableEsotericModeRB.setToggleGroup(esotericAdvancedOptionsGroup);
-        if (config.isDarkMode()) {
+        if (config.isEsotericMode()) {
             enableEsotericModeRB.setSelected(true);
         } else {
             disableEsotericModeRB.setSelected(true);
