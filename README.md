@@ -19,7 +19,7 @@ You must have Java 15 (or higher) installed in order to run the program.
 
 # Syntax
 
-Here's an example of how to write AdiaScript:
+Here's an example of how to write AdiaScript (this needs to be updated and more stuff will be added to the wiki in the future):
 
     # this is a comment
     click 400 500
